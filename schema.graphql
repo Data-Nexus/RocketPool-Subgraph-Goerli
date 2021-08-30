@@ -1,6 +1,34 @@
-type ExampleEntity @entity {
+type Staker @entity {
   id: ID!
-  count: BigInt!
-  owner: Bytes! # address
-  spender: Bytes! # address
+  address: address!
+  block: BigInt!
+  blockTime: BigInt!
+}
+
+type Transactions @entity {
+  id: ID!
+  fromAddress: staker.address
+  amount: BigInt!
+  toAddress: staker.address 
+  block: block!
+  blockTime: blockTime!
+}
+
+type RocketNetworkBalances @entity {
+  id: ID!
+  ethStaked: BigInt!
+  rethCirculating: BigInt!
+  conversion: float!
+  block: block!
+  blockTime: blockTime!
+}
+
+type Rewards @entity {
+  id: ID!
+  address: staker.address
+  previousBalance: BigInt!
+  newBalance: BigInt!
+  rewards: BigInt
+  block: block!
+  blockTime: blockTime!
 }
