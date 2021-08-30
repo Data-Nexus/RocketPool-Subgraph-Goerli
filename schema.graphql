@@ -26,6 +26,7 @@ type RocketNetworkBalances @entity {
 type Rewards @entity {
   id: ID!
   address: staker.address
+  RocketNetworkBalancesId: RocketNetworkBalances.id
   previousBalance: BigInt!
   newBalance: BigInt!
   rewards: BigInt
