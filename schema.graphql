@@ -1,6 +1,6 @@
 type Staker @entity {
   id: ID!
-  address: address!
+  address: Bytes!
   block: BigInt!
   blockTime: BigInt!
 }
@@ -10,8 +10,8 @@ type Transactions @entity {
   fromAddress: staker.address
   amount: BigInt!
   toAddress: staker.address 
-  block: block!
-  blockTime: blockTime!
+  block: BigInt!
+  blockTime: BigInt!
 }
 
 type RocketNetworkBalances @entity {
@@ -19,8 +19,8 @@ type RocketNetworkBalances @entity {
   ethStaked: BigInt!
   rethCirculating: BigInt!
   conversion: float!
-  block: block!
-  blockTime: blockTime!
+  block: BigInt!
+  blockTime: BigInt!
 }
 
 type Rewards @entity {
@@ -29,6 +29,6 @@ type Rewards @entity {
   previousBalance: BigInt!
   newBalance: BigInt!
   rewards: BigInt
-  block: block!
-  blockTime: blockTime!
+  block: BigInt!
+  blockTime: BigInt!
 }
