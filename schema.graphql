@@ -1,3 +1,4 @@
+"Address information for a staker"
 type Staker @entity {
   id: ID!
   address: Bytes!
@@ -5,15 +6,18 @@ type Staker @entity {
   blockTime: BigInt!
 }
 
+"Entity tracking the mint, burn and transfers of rETH. Mints and burn will occur to the rETH contract address"
 type Transactions @entity {
   id: ID!
-  fromAddress: staker.address
+  fromAddress: Bytes!
   amount: BigInt!
-  toAddress: staker.address 
+  toAddress: Bytes!
   block: BigInt!
   blockTime: BigInt!
+  transactionHash: Bytes!
 }
 
+"entitiy tracking the ratio of rETH:ETH"
 type RocketNetworkBalances @entity {
   id: ID!
   epochId: BigInt!
@@ -24,13 +28,14 @@ type RocketNetworkBalances @entity {
   blockTime: BigInt!
 }
 
+"Large push of hourly entities indicating the rewards from an active wallet"
 type Rewards @entity {
   id: ID!
-  address: staker.address
-  RocketNetworkBalancesId: RocketNetworkBalances.id
+  address: Bytes!
+  RocketNetworkBalancesId: BigInt!
   previousBalance: BigInt!
   newBalance: BigInt!
-  rewards: BigInt
+  rewards: BigInt!
   block: BigInt!
   blockTime: BigInt!
 }
