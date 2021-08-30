@@ -23,7 +23,7 @@ type RocketNetworkBalances @entity {
   epochId: BigInt!
   ethStaked: BigInt!
   rethCirculating: BigInt!
-  conversion: float!
+  conversion: BigDecimal!
   block: BigInt!
   blockTime: BigInt!
 }
