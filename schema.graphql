@@ -16,6 +16,7 @@ type Transactions @entity {
 
 type RocketNetworkBalances @entity {
   id: ID!
+  epochId: BigInt!
   ethStaked: BigInt!
   rethCirculating: BigInt!
   conversion: float!
