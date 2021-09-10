@@ -13,19 +13,12 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - EtherDeposited
-        - TokensBurned
-        - TokensMinted
-        - Transfer
+        - Staker
+        - RocketETHTransaction
       abis:
         - name: rocketTokenRETH
           file: ./abis/rocketTokenRETH.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: EtherDeposited(indexed address,uint256,uint256)
-          handler: handleEtherDeposited
         - event: TokensBurned(indexed address,uint256,uint256,uint256)
           handler: handleTokensBurned
         - event: TokensMinted(indexed address,uint256,uint256,uint256)

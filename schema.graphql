@@ -1,24 +1,41 @@
-"Address information for a staker"
+# Address information for a staker.
 type Staker @entity {
-  id: ID!
-  address: Bytes!
+  # Address that received rETH.
+  id: ID! 
+
+  # Block number at which this staker first received rETH.
   block: BigInt!
+
+  # Block timestamp at which this staker first received rETH.
   blockTime: BigInt!
 }
 
-"Entity tracking the mint, burn and transfers of rETH. Minting and burning will occur to/from the rETH contract address"
-type Transactions @entity {
+# Entity tracking the mint, burn and transfers of rETH. Minting and burning will occur to/from the rETH contract address
+type RocketETHTransaction @entity {
+  # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
-  fromAddress: Bytes!
+
+  # The address that was the original owner of the rETH.
+  from: Staker
+
+  # The rETH amount being transferred.
   amount: BigInt!
-  toAddress: Bytes!
+
+  # The address that was the recipient of the rETH.
+  to: Staker
+
+  # The block number of this transaction.
   block: BigInt!
+
+  # The block timestamp of this transaction.
   blockTime: BigInt!
+
+  # The transaction hash.
   transactionHash: Bytes!
 }
 
-"entity tracking the ratio of rETH:ETH"
-type RocketNetworkBalances @entity {
+# Entity tracking the ratio of rETH:ETH
+type RocketNetworkBalance @entity {
   id: ID!
   ethStaked: BigInt!
   totalEth: BigInt!
@@ -29,8 +46,8 @@ type RocketNetworkBalances @entity {
   blockTime: BigInt!
 }
 
-"Push of hourly entities indicating the rewards from an active wallet"
-type Rewards @entity {
+# Push of hourly entities indicating the rewards from an active wallet
+type Reward @entity {
   id: ID!
   address: Bytes!
   RocketNetworkBalancesId: BigInt!
