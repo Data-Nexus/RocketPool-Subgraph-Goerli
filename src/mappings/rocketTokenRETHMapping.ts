@@ -1,22 +1,21 @@
-import { ADDRESS_ZERO } from './constants'
+import { ADDRESS_ZERO } from '../constants'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
   TokensBurned,
   TokensMinted,
   Transfer,
-} from '../generated/rocketTokenRETH/rocketTokenRETH'
-import { Staker } from '../generated/schema'
-import { rocketEntityUtilities } from './entityutilities'
-import { rocketPoolEntityFactory } from './entityfactory'
+} from '../../generated/rocketTokenRETH/rocketTokenRETH'
+import { Staker } from '../../generated/schema'
+import { rocketEntityUtilities } from '../entityutilities'
+import { rocketPoolEntityFactory } from '../entityfactory'
 import { ethereum } from '@graphprotocol/graph-ts'
 
 /**
  * Occurs when a stakers burns rETH for ETH.
  * The ETH he will receive will be based on the current exchange rate of ETH:rETH.
- * This ratio is maintained by the ODAO and is reported back to the RocketPool smart contracts.
+ * This ratio is reported by the ODAO.
  */
 export function handleTokensBurned(event: TokensBurned): void {
-  // From: owner, To: Zero Address, For: Specific rETH Amount
   handleRocketETHTransaction(
     event,
     event.params.from,
@@ -28,10 +27,9 @@ export function handleTokensBurned(event: TokensBurned): void {
 /**
  * Occurs when a staker asks the rETH contract (via the deposit pool) to mint an rETH amount.
  * The rETH amount will be based on the current exchange rate of ETH:rETH.
- * This ratio is maintained by the ODAO and is reported back to the RocketPool smart contracts.
+ * This ratio is reported by the ODAO.
  */
 export function handleTokensMinted(event: TokensMinted): void {
-  // From: Zero Address, To: Recipient, For: Mint Amount
   handleRocketETHTransaction(
     event,
     ADDRESS_ZERO,
@@ -44,7 +42,6 @@ export function handleTokensMinted(event: TokensMinted): void {
  * Occurs when a staker transfer an rETH amount to another staker.
  */
 export function handleTransfer(event: Transfer): void {
-  // From: owner, To: Recipient, For: Specific rETH Amount
   handleRocketETHTransaction(
     event,
     event.params.from,
@@ -66,7 +63,7 @@ function handleRocketETHTransaction(
   if (rocketEntityUtilities.hasTransactionHasBeenIndexed(event)) return
 
   // Who are the stakers for this transaction?
-  var stakers = rocketEntityUtilities.getTransactionStakers(
+  let stakers = rocketEntityUtilities.getTransactionStakers(
     from,
     to,
     event.block.number,
@@ -88,32 +85,54 @@ function handleRocketETHTransaction(
  */
 function saveTransaction(
   event: ethereum.Event,
-  from: Staker,
-  to: Staker,
-  amount: BigInt,
+  fromStaker: Staker,
+  toStaker: Staker,
+  rEthAmount: BigInt,
 ): void {
   // This state has to be valid before we can actually do anything.
   if (
     event === null ||
-    from === null ||
-    from.id === null ||
-    to === null ||
-    to.id === null
+    fromStaker === null ||
+    fromStaker.id === null ||
+    toStaker === null ||
+    toStaker.id === null
   )
     return
 
   // Create a new transaction for the given values.
-  const transaction = rocketPoolEntityFactory.createRocketETHTransaction(
-    rocketEntityUtilities.extractRocketETHTransactionID(event),
-    from,
-    to,
-    amount,
+  let rEthTransaction = rocketPoolEntityFactory.createRocketETHTransaction(
+    rocketEntityUtilities.extractIdForEntity(event),
+    fromStaker,
+    toStaker,
+    rEthAmount,
     event,
   )
-  if (transaction === null) return
+  if (rEthTransaction === null || rEthTransaction.id === null) return
 
-  // First, save the from and to stakers & then save the transaction.
-  from.save()
-  to.save()
-  transaction.save()
+  // Protocol entity should exist, if not, then we attempt to create it.
+  let protocol = rocketEntityUtilities.getRocketPoolProtocolEntity()
+  if (protocol === null || protocol.id === null) {
+    protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
+    protocol.save()
+  }
+
+  // Update active balances for stakesr.
+  rocketEntityUtilities.changeStakerBalance(fromStaker, rEthAmount, false);
+  rocketEntityUtilities.changeStakerBalance(toStaker, rEthAmount, true);
+
+  // Save all affected entities.
+  fromStaker.save()
+  toStaker.save()
+  rEthTransaction.save()
+
+  // Add the stakers to the protocol. (if necessary)
+  let protocolStakers = protocol.stakers
+  if (protocolStakers.indexOf(fromStaker.id) === -1)
+    protocolStakers.push(fromStaker.id)
+  if (protocolStakers.indexOf(toStaker.id) === -1)
+    protocolStakers.push(toStaker.id)
+  protocol.stakers = protocolStakers
+
+  // Save changes to the protocol.
+  protocol.save()
 }

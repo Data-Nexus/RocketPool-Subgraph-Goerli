@@ -12,6 +12,66 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
+export class RocketPoolProtocol extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save RocketPoolProtocol entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RocketPoolProtocol entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RocketPoolProtocol", id.toString(), this);
+  }
+
+  static load(id: string): RocketPoolProtocol | null {
+    return store.get("RocketPoolProtocol", id) as RocketPoolProtocol | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get stakers(): Array<string | null> {
+    let value = this.get("stakers");
+    return value.toStringArray();
+  }
+
+  set stakers(value: Array<string | null>) {
+    this.set("stakers", Value.fromStringArray(value));
+  }
+
+  get lastNetworkBalanceCheckPoint(): string | null {
+    let value = this.get("lastNetworkBalanceCheckPoint");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lastNetworkBalanceCheckPoint(value: string | null) {
+    if (value === null) {
+      this.unset("lastNetworkBalanceCheckPoint");
+    } else {
+      this.set(
+        "lastNetworkBalanceCheckPoint",
+        Value.fromString(value as string)
+      );
+    }
+  }
+}
+
 export class Staker extends Entity {
   constructor(id: string) {
     super();
@@ -40,6 +100,41 @@ export class Staker extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get activeRETHBalance(): BigInt {
+    let value = this.get("activeRETHBalance");
+    return value.toBigInt();
+  }
+
+  set activeRETHBalance(value: BigInt) {
+    this.set("activeRETHBalance", Value.fromBigInt(value));
+  }
+
+  get totalETHRewards(): BigInt {
+    let value = this.get("totalETHRewards");
+    return value.toBigInt();
+  }
+
+  set totalETHRewards(value: BigInt) {
+    this.set("totalETHRewards", Value.fromBigInt(value));
+  }
+
+  get lastBalanceCheckpoint(): string | null {
+    let value = this.get("lastBalanceCheckpoint");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lastBalanceCheckpoint(value: string | null) {
+    if (value === null) {
+      this.unset("lastBalanceCheckpoint");
+    } else {
+      this.set("lastBalanceCheckpoint", Value.fromString(value as string));
+    }
   }
 
   get block(): BigInt {
@@ -94,21 +189,13 @@ export class RocketETHTransaction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get from(): string | null {
+  get from(): string {
     let value = this.get("from");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set from(value: string | null) {
-    if (value === null) {
-      this.unset("from");
-    } else {
-      this.set("from", Value.fromString(value as string));
-    }
+  set from(value: string) {
+    this.set("from", Value.fromString(value));
   }
 
   get amount(): BigInt {
@@ -120,21 +207,13 @@ export class RocketETHTransaction extends Entity {
     this.set("amount", Value.fromBigInt(value));
   }
 
-  get to(): string | null {
+  get to(): string {
     let value = this.get("to");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set to(value: string | null) {
-    if (value === null) {
-      this.unset("to");
-    } else {
-      this.set("to", Value.fromString(value as string));
-    }
+  set to(value: string) {
+    this.set("to", Value.fromString(value));
   }
 
   get block(): BigInt {
@@ -165,7 +244,7 @@ export class RocketETHTransaction extends Entity {
   }
 }
 
-export class RocketNetworkBalance extends Entity {
+export class NetworkBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -175,18 +254,21 @@ export class RocketNetworkBalance extends Entity {
     let id = this.get("id");
     assert(
       id !== null,
-      "Cannot save RocketNetworkBalance entity without an ID"
+      "Cannot save NetworkBalanceCheckpoint entity without an ID"
     );
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save RocketNetworkBalance entity with non-string ID. " +
+      "Cannot save NetworkBalanceCheckpoint entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("RocketNetworkBalance", id.toString(), this);
+    store.set("NetworkBalanceCheckpoint", id.toString(), this);
   }
 
-  static load(id: string): RocketNetworkBalance | null {
-    return store.get("RocketNetworkBalance", id) as RocketNetworkBalance | null;
+  static load(id: string): NetworkBalanceCheckpoint | null {
+    return store.get(
+      "NetworkBalanceCheckpoint",
+      id
+    ) as NetworkBalanceCheckpoint | null;
   }
 
   get id(): string {
@@ -216,31 +298,22 @@ export class RocketNetworkBalance extends Entity {
     this.set("totalEth", Value.fromBigInt(value));
   }
 
-  get rethCirculating(): BigInt {
-    let value = this.get("rethCirculating");
+  get rEthCirculating(): BigInt {
+    let value = this.get("rEthCirculating");
     return value.toBigInt();
   }
 
-  set rethCirculating(value: BigInt) {
-    this.set("rethCirculating", Value.fromBigInt(value));
+  set rEthCirculating(value: BigInt) {
+    this.set("rEthCirculating", Value.fromBigInt(value));
   }
 
-  get conversion(): BigDecimal {
-    let value = this.get("conversion");
-    return value.toBigDecimal();
-  }
-
-  set conversion(value: BigDecimal) {
-    this.set("conversion", Value.fromBigDecimal(value));
-  }
-
-  get epochId(): BigInt {
-    let value = this.get("epochId");
+  get rEthExchangeRate(): BigInt {
+    let value = this.get("rEthExchangeRate");
     return value.toBigInt();
   }
 
-  set epochId(value: BigInt) {
-    this.set("epochId", Value.fromBigInt(value));
+  set rEthExchangeRate(value: BigInt) {
+    this.set("rEthExchangeRate", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
@@ -262,7 +335,7 @@ export class RocketNetworkBalance extends Entity {
   }
 }
 
-export class Reward extends Entity {
+export class StakerBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -270,17 +343,23 @@ export class Reward extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save Reward entity without an ID");
+    assert(
+      id !== null,
+      "Cannot save StakerBalanceCheckpoint entity without an ID"
+    );
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save Reward entity with non-string ID. " +
+      "Cannot save StakerBalanceCheckpoint entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("Reward", id.toString(), this);
+    store.set("StakerBalanceCheckpoint", id.toString(), this);
   }
 
-  static load(id: string): Reward | null {
-    return store.get("Reward", id) as Reward | null;
+  static load(id: string): StakerBalanceCheckpoint | null {
+    return store.get(
+      "StakerBalanceCheckpoint",
+      id
+    ) as StakerBalanceCheckpoint | null;
   }
 
   get id(): string {
@@ -292,49 +371,49 @@ export class Reward extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get address(): Bytes {
-    let value = this.get("address");
-    return value.toBytes();
+  get staker(): string {
+    let value = this.get("staker");
+    return value.toString();
   }
 
-  set address(value: Bytes) {
-    this.set("address", Value.fromBytes(value));
+  set staker(value: string) {
+    this.set("staker", Value.fromString(value));
   }
 
-  get RocketNetworkBalancesId(): BigInt {
-    let value = this.get("RocketNetworkBalancesId");
+  get networkBalanceCheckpoint(): string {
+    let value = this.get("networkBalanceCheckpoint");
+    return value.toString();
+  }
+
+  set networkBalanceCheckpoint(value: string) {
+    this.set("networkBalanceCheckpoint", Value.fromString(value));
+  }
+
+  get ethBalance(): BigInt {
+    let value = this.get("ethBalance");
     return value.toBigInt();
   }
 
-  set RocketNetworkBalancesId(value: BigInt) {
-    this.set("RocketNetworkBalancesId", Value.fromBigInt(value));
+  set ethBalance(value: BigInt) {
+    this.set("ethBalance", Value.fromBigInt(value));
   }
 
-  get previousBalance(): BigInt {
-    let value = this.get("previousBalance");
+  get rEthBalance(): BigInt {
+    let value = this.get("rEthBalance");
     return value.toBigInt();
   }
 
-  set previousBalance(value: BigInt) {
-    this.set("previousBalance", Value.fromBigInt(value));
+  set rEthBalance(value: BigInt) {
+    this.set("rEthBalance", Value.fromBigInt(value));
   }
 
-  get newBalance(): BigInt {
-    let value = this.get("newBalance");
+  get ethRewardsSincePreviousCheckpoint(): BigInt {
+    let value = this.get("ethRewardsSincePreviousCheckpoint");
     return value.toBigInt();
   }
 
-  set newBalance(value: BigInt) {
-    this.set("newBalance", Value.fromBigInt(value));
-  }
-
-  get rewards(): BigInt {
-    let value = this.get("rewards");
-    return value.toBigInt();
-  }
-
-  set rewards(value: BigInt) {
-    this.set("rewards", Value.fromBigInt(value));
+  set ethRewardsSincePreviousCheckpoint(value: BigInt) {
+    this.set("ethRewardsSincePreviousCheckpoint", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
