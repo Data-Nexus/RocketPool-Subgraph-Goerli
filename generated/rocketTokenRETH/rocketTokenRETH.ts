@@ -148,9 +148,9 @@ export class Transfer__Params {
   }
 }
 
-export class rockenTokenRETH extends ethereum.SmartContract {
-  static bind(address: Address): rockenTokenRETH {
-    return new rockenTokenRETH("rockenTokenRETH", address);
+export class rocketTokenRETH extends ethereum.SmartContract {
+  static bind(address: Address): rocketTokenRETH {
+    return new rocketTokenRETH("rocketTokenRETH", address);
   }
 
   allowance(owner: Address, spender: Address): BigInt {

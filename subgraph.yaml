@@ -13,23 +13,37 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - EtherDeposited
-        - TokensBurned
-        - TokensMinted
-        - Transfer
+        - Staker
+        - RocketETHTransaction
       abis:
         - name: rocketTokenRETH
           file: ./abis/rocketTokenRETH.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: EtherDeposited(indexed address,uint256,uint256)
-          handler: handleEtherDeposited
         - event: TokensBurned(indexed address,uint256,uint256,uint256)
           handler: handleTokensBurned
         - event: TokensMinted(indexed address,uint256,uint256,uint256)
           handler: handleTokensMinted
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ./src/mapping.ts
+      file: ./src/mappings/rocketTokenRETHMapping.ts
+  - kind: ethereum/contract
+    name: rocketNetworkBalances
+    network: goerli
+    source:
+      address: "0x28CEa7b0f3916C1dbA667d3D58EC4836aD843c49"
+      abi: rocketNetworkBalances
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Staker
+        - RocketNetworkBalance
+        - StakerReward
+      abis:
+        - name: rocketNetworkBalances
+          file: ./abis/rocketNetworkBalances.json
+      eventHandlers:
+        - event: BalancesUpdated(uint256,uint256,uint256,uint256,uint256)
+          handler: handleBalancesUpdated
+      file: ./src/mappings/rocketNetworkBalancesMapping.ts

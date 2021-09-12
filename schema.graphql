@@ -1,42 +1,107 @@
-"Address information for a staker"
+# Entity that represents the RocketPool protocol and its various child entities.
+type RocketPoolProtocol @entity {
+  # Will contain the name of the protocol
+  id: ID! 
+
+  # All stakers (addresses holding rETH) associated with the RocketPool protocol.
+  stakers: [Staker]!
+
+  # Last known network balance checkpoint.
+  lastNetworkBalanceCheckPoint: NetworkBalanceCheckpoint
+}
+
+# Address information for a staker.
 type Staker @entity {
-  id: ID!
-  address: Bytes!
+  # Address that holds rETH.
+  id: ID! 
+
+  # Active rETH balance. (Based on last checkpoint & including all transactions that have passed)
+  activeRETHBalance: BigInt!
+
+  # Total ETH rewards.
+  totalETHRewards: BigInt!
+
+  # The last known staker balance checkpoint
+  lastBalanceCheckpoint: StakerBalanceCheckpoint
+
+  # Block number at which this staker first received rETH.
   block: BigInt!
+
+  # Block timestamp at which this staker first received rETH.
   blockTime: BigInt!
 }
 
-"Entity tracking the mint, burn and transfers of rETH. Minting and burning will occur to/from the rETH contract address"
-type Transactions @entity {
+# Entity tracking the mint, burn and transfers of rETH. Minting and burning will occur to/from the rETH contract address
+type RocketETHTransaction @entity {
+  # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
-  fromAddress: Bytes!
+
+  # The address that was the original owner of the rETH.
+  from: Staker!
+
+  # The rETH amount being transferred.
   amount: BigInt!
-  toAddress: Bytes!
+
+  # The address that was the recipient of the rETH.
+  to: Staker!
+
+  # The block number of this transaction.
   block: BigInt!
+
+  # The block timestamp of this transaction.
   blockTime: BigInt!
+
+  # The transaction hash.
   transactionHash: Bytes!
 }
 
-"entity tracking the ratio of rETH:ETH"
-type RocketNetworkBalances @entity {
+# Entity tracking the network balances that were reported by the ODAO members, and the rETH exchange rate.
+type NetworkBalanceCheckpoint @entity {
+  # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
+
+  # Total number of ETH actively staking in RocketPool
   ethStaked: BigInt!
+
+  # Total ETH in RocketPool
   totalEth: BigInt!
-  rethCirculating: BigInt!
-  conversion: BigDecimal!
-  epochId: BigInt!
+
+  # Total rETH supply circulation
+  rEthCirculating: BigInt!
+
+  # Current exchange rate of ETH:rETH
+  rEthExchangeRate: BigInt!
+
+  # Block Number
   block: BigInt!
+
+  # Block Timestamp
   blockTime: BigInt!
 }
 
-"Push of hourly entities indicating the rewards from an active wallet"
-type Rewards @entity {
+# Entity representing the staker balance for a specific network balance checkpoint.
+type StakerBalanceCheckpoint @entity {
+  # Composite key consisting of the NetworkBalanceCheckpoint ID and the Staker ID.
   id: ID!
-  address: Bytes!
-  RocketNetworkBalancesId: BigInt!
-  previousBalance: BigInt!
-  newBalance: BigInt!
-  rewards: BigInt!
+
+  # Staker that is associated with this checkpoint
+  staker: Staker!
+
+  # The network balance that triggered the creation of this reward.
+  networkBalanceCheckpoint: NetworkBalanceCheckpoint!
+
+  # ETH balance of the staker, at the time when the network balance was reported.
+  ethBalance: BigInt!
+
+  # rETH balance of the staker, at the time when the network balance was reported.
+  rEthBalance: BigInt!
+
+  # ETH rewards that have been accumulated since the previous checkpoint.
+  ethRewardsSincePreviousCheckpoint: BigInt!
+
+  # Block Number - Should be the same as the associated network balance checkpoint.
   block: BigInt!
+
+  # Block Timestamp - Should be the same as the associated network balance checkpoint.
   blockTime: BigInt!
 }
