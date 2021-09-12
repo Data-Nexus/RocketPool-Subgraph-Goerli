@@ -102,22 +102,22 @@ export class Staker extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get currentRETHBalance(): BigInt {
-    let value = this.get("currentRETHBalance");
+  get rETHBalance(): BigInt {
+    let value = this.get("rETHBalance");
     return value.toBigInt();
   }
 
-  set currentRETHBalance(value: BigInt) {
-    this.set("currentRETHBalance", Value.fromBigInt(value));
+  set rETHBalance(value: BigInt) {
+    this.set("rETHBalance", Value.fromBigInt(value));
   }
 
-  get currentETHBalance(): BigInt {
-    let value = this.get("currentETHBalance");
+  get ethBalance(): BigInt {
+    let value = this.get("ethBalance");
     return value.toBigInt();
   }
 
-  set currentETHBalance(value: BigInt) {
-    this.set("currentETHBalance", Value.fromBigInt(value));
+  set ethBalance(value: BigInt) {
+    this.set("ethBalance", Value.fromBigInt(value));
   }
 
   get totalETHRewards(): BigInt {
@@ -289,70 +289,70 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get stakerEthActivelyStakingTotal(): BigInt {
-    let value = this.get("stakerEthActivelyStakingTotal");
+  get totalStakerETHActivelyStaking(): BigInt {
+    let value = this.get("totalStakerETHActivelyStaking");
     return value.toBigInt();
   }
 
-  set stakerEthActivelyStakingTotal(value: BigInt) {
-    this.set("stakerEthActivelyStakingTotal", Value.fromBigInt(value));
+  set totalStakerETHActivelyStaking(value: BigInt) {
+    this.set("totalStakerETHActivelyStaking", Value.fromBigInt(value));
   }
 
-  get stakerEthWaitingInDepositPoolTotal(): BigInt {
-    let value = this.get("stakerEthWaitingInDepositPoolTotal");
+  get totalStakerETHWaitingInDepositPool(): BigInt {
+    let value = this.get("totalStakerETHWaitingInDepositPool");
     return value.toBigInt();
   }
 
-  set stakerEthWaitingInDepositPoolTotal(value: BigInt) {
-    this.set("stakerEthWaitingInDepositPoolTotal", Value.fromBigInt(value));
+  set totalStakerETHWaitingInDepositPool(value: BigInt) {
+    this.set("totalStakerETHWaitingInDepositPool", Value.fromBigInt(value));
   }
 
-  get stakerEthInRocketEthContractTotal(): BigInt {
-    let value = this.get("stakerEthInRocketEthContractTotal");
+  get totalStakerETHInRocketEthContract(): BigInt {
+    let value = this.get("totalStakerETHInRocketEthContract");
     return value.toBigInt();
   }
 
-  set stakerEthInRocketEthContractTotal(value: BigInt) {
-    this.set("stakerEthInRocketEthContractTotal", Value.fromBigInt(value));
+  set totalStakerETHInRocketEthContract(value: BigInt) {
+    this.set("totalStakerETHInRocketEthContract", Value.fromBigInt(value));
   }
 
-  get stakerEthInPendingOrExitedMinipoolsTotal(): BigInt {
-    let value = this.get("stakerEthInPendingOrExitedMinipoolsTotal");
+  get totalStakerETHInPendingOrExitedMinipools(): BigInt {
+    let value = this.get("totalStakerETHInPendingOrExitedMinipools");
     return value.toBigInt();
   }
 
-  set stakerEthInPendingOrExitedMinipoolsTotal(value: BigInt) {
+  set totalStakerETHInPendingOrExitedMinipools(value: BigInt) {
     this.set(
-      "stakerEthInPendingOrExitedMinipoolsTotal",
+      "totalStakerETHInPendingOrExitedMinipools",
       Value.fromBigInt(value)
     );
   }
 
-  get stakerEthProtocolTotal(): BigInt {
-    let value = this.get("stakerEthProtocolTotal");
+  get totalStakerETHInProtocol(): BigInt {
+    let value = this.get("totalStakerETHInProtocol");
     return value.toBigInt();
   }
 
-  set stakerEthProtocolTotal(value: BigInt) {
-    this.set("stakerEthProtocolTotal", Value.fromBigInt(value));
+  set totalStakerETHInProtocol(value: BigInt) {
+    this.set("totalStakerETHInProtocol", Value.fromBigInt(value));
   }
 
-  get rEthCirculating(): BigInt {
-    let value = this.get("rEthCirculating");
+  get totalRETHSupply(): BigInt {
+    let value = this.get("totalRETHSupply");
     return value.toBigInt();
   }
 
-  set rEthCirculating(value: BigInt) {
-    this.set("rEthCirculating", Value.fromBigInt(value));
+  set totalRETHSupply(value: BigInt) {
+    this.set("totalRETHSupply", Value.fromBigInt(value));
   }
 
-  get rEthExchangeRate(): BigInt {
-    let value = this.get("rEthExchangeRate");
+  get rETHExchangeRate(): BigInt {
+    let value = this.get("rETHExchangeRate");
     return value.toBigInt();
   }
 
-  set rEthExchangeRate(value: BigInt) {
-    this.set("rEthExchangeRate", Value.fromBigInt(value));
+  set rETHExchangeRate(value: BigInt) {
+    this.set("rETHExchangeRate", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
@@ -437,13 +437,13 @@ export class StakerBalanceCheckpoint extends Entity {
     this.set("ethBalance", Value.fromBigInt(value));
   }
 
-  get rEthBalance(): BigInt {
-    let value = this.get("rEthBalance");
+  get rETHBalance(): BigInt {
+    let value = this.get("rETHBalance");
     return value.toBigInt();
   }
 
-  set rEthBalance(value: BigInt) {
-    this.set("rEthBalance", Value.fromBigInt(value));
+  set rETHBalance(value: BigInt) {
+    this.set("rETHBalance", Value.fromBigInt(value));
   }
 
   get ethRewardsSincePreviousCheckpoint(): BigInt {

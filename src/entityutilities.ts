@@ -100,15 +100,15 @@ class RocketEntityUtilities {
     if(staker === null) return;
 
     // Set current rETH balance.
-    if (increase) staker.currentRETHBalance = staker.currentRETHBalance.plus(rEthAmount);
+    if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount);
     else {
-      if (staker.currentRETHBalance >= rEthAmount) staker.currentRETHBalance = staker.currentRETHBalance.minus(rEthAmount);
-      else staker.currentRETHBalance = BigInt.fromI32(0); // Could be zero address.
+      if (staker.rETHBalance >= rEthAmount) staker.rETHBalance = staker.rETHBalance.minus(rEthAmount);
+      else staker.rETHBalance = BigInt.fromI32(0); // Could be zero address.
     }
 
     // Set current ETH balance.
-    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0)) staker.currentETHBalance = staker.currentRETHBalance.times(rEthExchangeRate);
-    else staker.currentETHBalance = BigInt.fromI32(0);
+    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0)) staker.ethBalance = staker.rETHBalance.times(rEthExchangeRate);
+    else staker.ethBalance = BigInt.fromI32(0);
   }
 
   /**

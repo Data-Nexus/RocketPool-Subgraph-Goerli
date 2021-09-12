@@ -16,10 +16,10 @@ type Staker @entity {
   id: ID! 
 
   # Current rETH balance. (Based on last checkpoint & including all transactions that have passed)
-  currentRETHBalance: BigInt!
+  rETHBalance: BigInt!
 
   # Current ETH balance. (Based on the current rETH balance and the current rETH:ETH exchange rate)
-  currentETHBalance: BigInt!
+  ethBalance: BigInt!
 
   # Total ETH rewards accrued over all staker balance checkpoints.
   totalETHRewards: BigInt!
@@ -64,25 +64,25 @@ type NetworkStakerBalanceCheckpoint @entity {
   id: ID!
 
   # Total number of ETH actively staking in RocketPool by stakers.
-  stakerEthActivelyStakingTotal: BigInt!
+  totalStakerETHActivelyStaking: BigInt!
   
   # Total number of ETH waiting to be staked in the deposit pool.
-  stakerEthWaitingInDepositPoolTotal: BigInt!
+  totalStakerETHWaitingInDepositPool: BigInt!
  
   # Total number of ETH in the RocketETH contract.
-  stakerEthInRocketEthContractTotal: BigInt!
+  totalStakerETHInRocketEthContract: BigInt!
 
   # Total number of ETH in pending or exited (that still have balance) minipools. 
-  stakerEthInPendingOrExitedMinipoolsTotal: BigInt!
+  totalStakerETHInPendingOrExitedMinipools: BigInt!
 
   # Total ETH in RocketPool related to regular stakers.
-  stakerEthProtocolTotal: BigInt!
+  totalStakerETHInProtocol: BigInt!
 
-  # Total rETH supply circulation
-  rEthCirculating: BigInt!
+  # Total rETH supply
+  totalRETHSupply: BigInt!
 
-  # Current exchange rate of ETH:rETH
-  rEthExchangeRate: BigInt!
+  # Exchange rate of ETH:rETH
+  rETHExchangeRate: BigInt!
 
   # Block Number
   block: BigInt!
@@ -106,7 +106,7 @@ type StakerBalanceCheckpoint @entity {
   ethBalance: BigInt!
 
   # rETH balance of the staker, at the time when the network balance was reported.
-  rEthBalance: BigInt!
+  rETHBalance: BigInt!
 
   # ETH rewards that have been accumulated since the previous checkpoint.
   ethRewardsSincePreviousCheckpoint: BigInt!

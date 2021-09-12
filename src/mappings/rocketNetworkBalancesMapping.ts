@@ -20,33 +20,33 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     return
 
   // Load the RocketTokenRETH contract.
-  let rocketTokenRETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
-  if (rocketTokenRETHContract === null) return
+  let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
+  if (rETHContract === null) return
 
   // Load the rocketDepositPool contract
   let rocketDepositPoolContract = rocketDepositPool.bind(ADDRESS_ROCKET_DEPOSIT_POOL)
   if (rocketDepositPoolContract === null) return
 
   // How much is the total staker ETH balance in the deposit pool?
-  let stakerEthWaitingInDepositPoolTotal = rocketDepositPoolContract.getBalance();
+  let totalStakerETHWaitingInDepositPool = rocketDepositPoolContract.getBalance();
 
   // How much of the staker ETH balance in the deposit pool is not needed for queued minipools?
-  let depositPoolStakerEthExcessBalance = rocketDepositPoolContract.getExcessBalance();
+  let depositPoolStakerETHExcessBalance = rocketDepositPoolContract.getExcessBalance();
 
   // How much ETH is available as collateral in the RocketETH contract?
-  let rETHTotalCollateral = rocketTokenRETHContract.getTotalCollateral();
+  let rEthTotalCollateral = rETHContract.getTotalCollateral();
 
   // The RocketEth contract balance is equal to the total collateral - the excess deposit pool balance.
-  let stakerEthInRocketEthContractTotal = rETHTotalCollateral.minus(depositPoolStakerEthExcessBalance);
-  if(stakerEthInRocketEthContractTotal < BigInt.fromI32(0)) stakerEthInRocketEthContractTotal = BigInt.fromI32(0);
+  let totalStakerETHInRocketEthContract = rEthTotalCollateral.minus(depositPoolStakerETHExcessBalance);
+  if(totalStakerETHInRocketEthContract < BigInt.fromI32(0)) totalStakerETHInRocketEthContract = BigInt.fromI32(0);
 
   // Attempt to create a new network balance checkpoint.
   let networkBalanceCheckpoint = rocketPoolEntityFactory.createNetworkStakerBalanceCheckpoint(
     rocketEntityUtilities.extractIdForEntity(event),
     event,
-    stakerEthWaitingInDepositPoolTotal,
-    stakerEthInRocketEthContractTotal,
-    rocketTokenRETHContract.getExchangeRate(),
+    totalStakerETHWaitingInDepositPool,
+    totalStakerETHInRocketEthContract,
+    rETHContract.getExchangeRate(),
   )
   if (networkBalanceCheckpoint === null) return
 
@@ -106,15 +106,15 @@ function generateStakerBalanceCheckpoints(
      * These stakers will keep their last checkpoint link & total rewards. (if they had any)
      */
     let staker = Staker.load(stakerId)
-    if (staker === null || staker.currentRETHBalance === BigInt.fromI32(0))
+    if (staker === null || staker.rETHBalance === BigInt.fromI32(0))
       return
 
     // Store the current balances in temporary variables. This will make everything easier to read.
-    let currentRETHBalance = staker.currentRETHBalance
+    let currentRETHBalance = staker.rETHBalance
     if (currentRETHBalance < BigInt.fromI32(0))
       currentRETHBalance = BigInt.fromI32(0)
     let currentETHBalance = currentRETHBalance.times(
-      networkBalanceCheckpoint.rEthExchangeRate,
+      networkBalanceCheckpoint.rETHExchangeRate,
     )
     if (currentETHBalance < BigInt.fromI32(0))
       currentETHBalance = BigInt.fromI32(0)
@@ -129,7 +129,7 @@ function generateStakerBalanceCheckpoints(
         staker.lastBalanceCheckpoint,
       )
       if (previousStakerBalanceCheckpoint !== null) {
-        previousRETHBalance = previousStakerBalanceCheckpoint.rEthBalance
+        previousRETHBalance = previousStakerBalanceCheckpoint.rETHBalance
         previousETHBalance = previousStakerBalanceCheckpoint.ethBalance
       }
       if (previousRETHBalance < BigInt.fromI32(0))
@@ -164,6 +164,7 @@ function generateStakerBalanceCheckpoints(
 
     // Keep our staker up to date with the active usable links/value(s) from this iteration.
     staker.lastBalanceCheckpoint = stakerBalanceCheckpoint.id
+    staker.ethBalance = currentETHBalance;
     if (ethRewardsSincePreviousCheckpoint !== BigInt.fromI32(0)) {
       if (ethRewardsSincePreviousCheckpoint < BigInt.fromI32(0)) {
         staker.totalETHRewards = staker.totalETHRewards.minus(
