@@ -78,6 +78,12 @@ type NetworkStakerBalanceCheckpoint @entity {
   # Total ETH in RocketPool related to regular stakers.
   totalStakerETHInProtocol: BigInt!
 
+  # Total ETH rewards accross all stakers since the previous checkpoint.
+  totalStakerETHRewardsSincePreviousCheckpoint: BigInt!
+
+  # Total ETH rewards accross all stakers for all checkpoints up to the current checkpoint.
+  totalStakerETHRewardsUpToThisCheckpoint: BigInt!
+
   # Total rETH supply
   totalRETHSupply: BigInt!
 
@@ -115,5 +121,161 @@ type StakerBalanceCheckpoint @entity {
   block: BigInt!
 
   # Block Timestamp - Should be the same as the associated network balance checkpoint.
+  blockTime: BigInt!
+}
+
+# Entity representing the network timezones and the node count.
+type NetworkNodeTimezone @entity {
+  # Timezone name (string)
+  id: ID!
+
+  # Total number of nodes associated with this timezone.
+  totalNodes: BigInt!
+
+  # Block Number - On what block number was this timezone first registered.
+  block: BigInt!
+
+  # Block Timestamp - At what time was this timezone first registered.
+  blockTime: BigInt!
+}
+
+# Entity representing a node on RocketPool. (UNFINISHED, TO REVIEW)
+type Node @entity {
+  # Address that is associated with a node on RocketPool.
+  id: ID! 
+
+  # Current timezone for this node.
+  timezone: NetworkNodeTimezone!
+
+  # Current total RPL staked.
+  totalRPLStaked: BigInt!
+
+  # Current total effective RPL staked (Based on a specific minimum and maximum % of the initial deposit per minipool)
+  totalEffectiveRPLStaked: BigInt!
+
+  # Current total claimed RPL rewards.
+  totalClaimedRPLRewards: BigInt!
+ 
+  # Current RPL rewards claimed since last node balance checkpoint.
+  claimedRPLRewardsSinceLastCheckpoint: BigInt!
+
+  # Current minimum RPL needed to collateralize all its minipools by the bare minimum.
+  minimumRPLStake: BigInt!
+
+  # Current maximum RPL needed to collateralize all its minipools by the absolute maximum.
+  maximumRPLStake: BigInt!
+
+  # Current total of bonded minipools for this node.
+  totalBondedMinipools: BigInt!
+
+  # Current total of unbonded minipools for this node.
+  totalUnbondedMinipools: BigInt!
+
+  # Current total of queueud bonded minipools for this node.
+  totalQueuedBondedMinipools: BigInt!
+
+  # Current total of queueud unbonded minipools for this node.
+  totalQueuedUnbondedMinipools: BigInt!
+
+  # Current total bonded minipools that are actively staking.
+  totalStakingBondedMinipools: BigInt!
+
+  # Current total unbonded minipools that are actively staking.
+  totalStakingUnbondedMinipools: BigInt!
+
+  # Current total finalized bonded minipools.
+  totalFinalizedBondedMinipools: BigInt!
+
+  # Current total finalized unbonded minipools.
+  totalFinalizedUnbondedMinipools: BigInt!
+
+  # Last node balance checkpoint for this node.
+  lastNodeBalanceCheckpoint: NodeBalanceCheckpoint
+ 
+  # Block number at which this node was first registered with the protocol.
+  block: BigInt!
+
+  # Block timestamp at which this node was first registered with the protocol.
+  blockTime: BigInt!
+}
+
+# Entity representing the network balance checkpoint for all nodes. (UNFINISHED)
+type NetworkNodeBalanceCheckpoint @entity {
+  # Composite key based on transaction hash of the triggered event and its log index.
+  id: ID! 
+
+  # The total number of nodes associated with RocketPool for this checkpoint.
+  totalNodes: BigInt!
+
+  # The total RPL staked accross all nodes for this checkpoint.
+  totalRPLStaked: BigInt!
+
+  # The total effective RPL staked accross all nodes for this checkpoint.
+  totalEffectiveRPLStaked: BigInt!
+
+  # The total claimed RPL rewards from all previous checkpoints up to this checkpoint.
+  totalClaimedRPLRewardsUpToThisCheckpoint: BigInt!
+
+  # The RPL price in ETH for this checkpoint.
+  rplPriceInETH: BigInt!
+}
+
+# Entity representing a balance checkpoint for a node. (UNFINISHED, TO REVIEW)
+type NodeBalanceCheckpoint @entity {
+  # Composite key consisting of the NetworkNodeBalanceCheckpoint ID and the Node ID.
+  id: ID! 
+
+  # Node that is associated with this balance checkpoint.
+  Node: Node! 
+
+  # Network node balance checkpoint associated with this checkpoint.
+  NetworkNodeBalanceCheckpoint: NetworkNodeBalanceCheckpoint!
+
+  # Total RPL staked at the time of the checkpoint.
+  totalRPLStaked: BigInt!
+
+  # Total effective RPL staked at the time of the checkpoint.
+  totalEffectiveRPLStaked: BigInt!
+
+  # Total claimed RPL rewards at the time of the checkpoint.
+  totalClaimedRPLRewards: BigInt!
+ 
+  # Total RPL rewards claimed since last node balance checkpoint.
+  claimedRPLRewardsSinceLastCheckpoint: BigInt!
+
+  # Total minimum RPL needed to collateralize all its minipools by the bare minimum at the time of the checkpoint.
+  minimumRPLStake: BigInt!
+
+  # Total maximum RPL needed to collateralize all its minipools by the absolute maximum at the time of the checkpoint.
+  maximumRPLStake: BigInt!
+
+  # Total of bonded minipools for this node at the time of the checkpoint.
+  totalBondedMinipools: BigInt!
+
+  # Total of unbonded minipools for this node at the time of the checkpoint.
+  totalUnbondedMinipools: BigInt!
+
+  # Total of queueud bonded minipools for this node at the time of the checkpoint.
+  totalQueuedBondedMinipools: BigInt!
+
+  # Total of queueud unbonded minipools for this node at the time of the checkpoint.
+  totalQueuedUnbondedMinipools: BigInt!
+
+  # Total bonded minipools that are actively staking at the time of the checkpoint.
+  totalStakingBondedMinipools: BigInt!
+
+  # Total unbonded minipools that are actively staking at the time of the checkpoint.
+  totalStakingUnbondedMinipools: BigInt!
+
+  # Total finalized bonded minipools at the time of the checkpoint.
+  totalFinalizedBondedMinipools: BigInt!
+
+  # Total finalized unbonded minipools at the time of the checkpoint.
+  totalFinalizedUnbondedMinipools: BigInt!
+ 
+  # Block number that was associated with this checkpoint.
+  block: BigInt!
+
+  # Block timestamp that was associated with this checkpoint.
   blockTime: BigInt!
 }

@@ -171,11 +171,34 @@ class RocketEntityUtilities {
 
     return ethRewardsSincePreviousCheckpoint;
   }
+
+  /**
+   * Updates the given summary based on the rewards since previous checkpoint and the total rewards for a staker.
+   */
+  public updateNetworkStakerRewardCheckpointSummary(summary : NetworkStakerRewardCheckpointSummary, ethRewardsSincePreviousCheckpoint: BigInt, totalETHRewards: BigInt) : void {
+    if(summary === null) return
+    
+    if(ethRewardsSincePreviousCheckpoint > BigInt.fromI32(0)) {
+      summary.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint.plus(ethRewardsSincePreviousCheckpoint);
+    } else {
+      summary.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint.minus(ethRewardsSincePreviousCheckpoint);
+    }
+    if(totalETHRewards > BigInt.fromI32(0)) {
+      summary.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint.plus(totalETHRewards);
+    } else {
+      summary.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint.minus(totalETHRewards);
+    }
+  }
 }
 
-class TransactionStakers {
+export class TransactionStakers {
   fromStaker: Staker
   toStaker: Staker
+}
+
+export class NetworkStakerRewardCheckpointSummary {
+  totalStakerETHRewardsSincePreviousCheckpoint: BigInt
+  totalStakerETHRewardsUpToThisCheckpoint: BigInt
 }
 
 export let rocketEntityUtilities = new RocketEntityUtilities()
