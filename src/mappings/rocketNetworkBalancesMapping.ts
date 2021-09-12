@@ -106,22 +106,22 @@ function generateStakerBalanceCheckpoints(
      * These stakers will keep their last checkpoint link & total rewards. (if they had any)
      */
     let staker = Staker.load(stakerId)
-    if (staker === null || staker.activeRETHBalance === BigInt.fromI32(0))
+    if (staker === null || staker.currentRETHBalance === BigInt.fromI32(0))
       return
 
-    // Store the active balances in temporary variables. This will make everything easier to read.
-    let activeRETHBalance = staker.activeRETHBalance
-    if (activeRETHBalance < BigInt.fromI32(0))
-      activeRETHBalance = BigInt.fromI32(0)
-    let activeETHBalance = activeRETHBalance.times(
+    // Store the current balances in temporary variables. This will make everything easier to read.
+    let currentRETHBalance = staker.currentRETHBalance
+    if (currentRETHBalance < BigInt.fromI32(0))
+      currentRETHBalance = BigInt.fromI32(0)
+    let currentETHBalance = currentRETHBalance.times(
       networkBalanceCheckpoint.rEthExchangeRate,
     )
-    if (activeETHBalance < BigInt.fromI32(0))
-      activeETHBalance = BigInt.fromI32(0)
+    if (currentETHBalance < BigInt.fromI32(0))
+      currentETHBalance = BigInt.fromI32(0)
 
     // By default, assume the previous (r)ETH balances are the same as the current ones.
-    let previousRETHBalance = activeRETHBalance
-    let previousETHBalance = activeETHBalance
+    let previousRETHBalance = currentRETHBalance
+    let previousETHBalance = currentETHBalance
 
     // If we had a previous staker balance checkpoint, then use the balances from that link.
     if (staker.lastBalanceCheckpoint !== null) {
@@ -140,8 +140,8 @@ function generateStakerBalanceCheckpoints(
 
     // This will indicate how many ETH rewards we have since the previous checkpoint.
     let ethRewardsSincePreviousCheckpoint = rocketEntityUtilities.getETHRewardsSincePreviousStakerBalanceCheckpoint(
-      activeRETHBalance,
-      activeETHBalance,
+      currentRETHBalance,
+      currentETHBalance,
       previousRETHBalance,
       previousETHBalance,
     )
@@ -151,8 +151,8 @@ function generateStakerBalanceCheckpoints(
       stakerBalanceCheckpointId,
       staker,
       networkBalanceCheckpoint,
-      activeETHBalance,
-      activeRETHBalance,
+      currentETHBalance,
+      currentRETHBalance,
       ethRewardsSincePreviousCheckpoint,
       blockNumber,
       blockTime,

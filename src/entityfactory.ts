@@ -116,7 +116,8 @@ class RocketPoolEntityFactory {
     staker.block = blockNumber
     staker.blockTime = blockTime
     staker.lastBalanceCheckpoint = null
-    staker.activeRETHBalance = BigInt.fromI32(0)
+    staker.currentRETHBalance = BigInt.fromI32(0)
+    staker.currentETHBalance = BigInt.fromI32(0)
     staker.totalETHRewards = BigInt.fromI32(0)
 
     // Return our new Staker.
