@@ -7,7 +7,7 @@ type RocketPoolProtocol @entity {
   stakers: [Staker]!
 
   # Last known network balance checkpoint.
-  lastNetworkBalanceCheckPoint: NetworkBalanceCheckpoint
+  lastNetworkStakerBalanceCheckPoint: NetworkStakerBalanceCheckpoint
 }
 
 # Address information for a staker.
@@ -55,16 +55,25 @@ type RocketETHTransaction @entity {
   transactionHash: Bytes!
 }
 
-# Entity tracking the network balances that were reported by the ODAO members, and the rETH exchange rate.
-type NetworkBalanceCheckpoint @entity {
+# Entity tracking all staker balances that were reported by the ODAO members, and the rETH exchange rate.
+type NetworkStakerBalanceCheckpoint @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
 
-  # Total number of ETH actively staking in RocketPool
-  ethStaked: BigInt!
+  # Total number of ETH actively staking in RocketPool by stakers.
+  stakerEthActivelyStakingTotal: BigInt!
+  
+  # Total number of ETH waiting to be staked in the deposit pool.
+  stakerEthWaitingInDepositPoolTotal: BigInt!
+ 
+  # Total number of ETH in the RocketETH contract.
+  stakerEthInRocketEthContractTotal: BigInt!
 
-  # Total ETH in RocketPool
-  totalEth: BigInt!
+  # Total number of ETH in pending or exited (that still have balance) minipools. 
+  stakerEthInPendingOrExitedMinipoolsTotal: BigInt!
+
+  # Total ETH in RocketPool related to regular stakers.
+  stakerEthProtocolTotal: BigInt!
 
   # Total rETH supply circulation
   rEthCirculating: BigInt!
@@ -87,8 +96,8 @@ type StakerBalanceCheckpoint @entity {
   # Staker that is associated with this checkpoint
   staker: Staker!
 
-  # The network balance that triggered the creation of this reward.
-  networkBalanceCheckpoint: NetworkBalanceCheckpoint!
+  # The network staker balance checkpoint that triggered the creation of this reward.
+  networkStakerBalanceCheckpoint: NetworkStakerBalanceCheckpoint!
 
   # ETH balance of the staker, at the time when the network balance was reported.
   ethBalance: BigInt!

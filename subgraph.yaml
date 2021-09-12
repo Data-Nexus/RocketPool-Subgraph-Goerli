@@ -47,7 +47,9 @@ dataSources:
         - name: rocketNetworkBalances
           file: ./abis/rocketNetworkBalances.json
         - name: rocketTokenRETH
-          file: ./abis/rocketTokenRETH.json
+          file: ./abis/rocketTokenRETH.json   
+        - name: rocketDepositPool
+          file: ./abis/rocketDepositPool.json
       eventHandlers:
         - event: BalancesUpdated(uint256,uint256,uint256,uint256,uint256)
           handler: handleBalancesUpdated

@@ -1,13 +1,14 @@
 import { BalancesUpdated } from '../../generated/rocketNetworkBalances/rocketNetworkBalances'
 import {
   Staker,
-  NetworkBalanceCheckpoint,
+  NetworkStakerBalanceCheckpoint,
   StakerBalanceCheckpoint,
 } from '../../generated/schema'
-import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
+import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
+import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
 import { rocketEntityUtilities } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { ADDRESS_ROCKET_TOKEN_RETH } from './../constants'
+import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
 
 /**
@@ -15,17 +16,36 @@ import { BigInt } from '@graphprotocol/graph-ts'
  */
 export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Preliminary check to ensure we haven't handled this before.
-  if (rocketEntityUtilities.hasNetworkBalanceCheckpointHasBeenIndexed(event))
+  if (rocketEntityUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event))
     return
 
   // Load the RocketTokenRETH contract.
   let rocketTokenRETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
   if (rocketTokenRETHContract === null) return
 
+  // Load the rocketDepositPool contract
+  let rocketDepositPoolContract = rocketDepositPool.bind(ADDRESS_ROCKET_DEPOSIT_POOL)
+  if (rocketDepositPoolContract === null) return
+
+  // How much is the total staker ETH balance in the deposit pool?
+  let stakerEthWaitingInDepositPoolTotal = rocketDepositPoolContract.getBalance();
+
+  // How much of the staker ETH balance in the deposit pool is not needed for queued minipools?
+  let depositPoolStakerEthExcessBalance = rocketDepositPoolContract.getExcessBalance();
+
+  // How much ETH is available as collateral in the RocketETH contract?
+  let rETHTotalCollateral = rocketTokenRETHContract.getTotalCollateral();
+
+  // The RocketEth contract balance is equal to the total collateral - the excess deposit pool balance.
+  let stakerEthInRocketEthContractTotal = rETHTotalCollateral.minus(depositPoolStakerEthExcessBalance);
+  if(stakerEthInRocketEthContractTotal < BigInt.fromI32(0)) stakerEthInRocketEthContractTotal = BigInt.fromI32(0);
+
   // Attempt to create a new network balance checkpoint.
-  let networkBalanceCheckpoint = rocketPoolEntityFactory.createNetworkBalanceCheckpoint(
+  let networkBalanceCheckpoint = rocketPoolEntityFactory.createNetworkStakerBalanceCheckpoint(
     rocketEntityUtilities.extractIdForEntity(event),
     event,
+    stakerEthWaitingInDepositPoolTotal,
+    stakerEthInRocketEthContractTotal,
     rocketTokenRETHContract.getExchangeRate(),
   )
   if (networkBalanceCheckpoint === null) return
@@ -37,7 +57,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
 
   // Index the network balance checkpoint and store it as the last checkpoint.
   networkBalanceCheckpoint.save()
-  protocol.lastNetworkBalanceCheckPoint = networkBalanceCheckpoint.id
+  protocol.lastNetworkStakerBalanceCheckPoint = networkBalanceCheckpoint.id
   protocol.save()
 
   // Handle the staker impact.
@@ -56,7 +76,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
  */
 function generateStakerBalanceCheckpoints(
   stakerIds: Array<string> | null,
-  networkBalanceCheckpoint: NetworkBalanceCheckpoint | null,
+  networkBalanceCheckpoint: NetworkStakerBalanceCheckpoint | null,
   blockNumber: BigInt,
   blockTime: BigInt,
 ): void {
