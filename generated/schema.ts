@@ -102,13 +102,22 @@ export class Staker extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get activeRETHBalance(): BigInt {
-    let value = this.get("activeRETHBalance");
+  get currentRETHBalance(): BigInt {
+    let value = this.get("currentRETHBalance");
     return value.toBigInt();
   }
 
-  set activeRETHBalance(value: BigInt) {
-    this.set("activeRETHBalance", Value.fromBigInt(value));
+  set currentRETHBalance(value: BigInt) {
+    this.set("currentRETHBalance", Value.fromBigInt(value));
+  }
+
+  get currentETHBalance(): BigInt {
+    let value = this.get("currentETHBalance");
+    return value.toBigInt();
+  }
+
+  set currentETHBalance(value: BigInt) {
+    this.set("currentETHBalance", Value.fromBigInt(value));
   }
 
   get totalETHRewards(): BigInt {

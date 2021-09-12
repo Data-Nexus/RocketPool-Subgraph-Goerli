@@ -96,14 +96,19 @@ class RocketEntityUtilities {
   /**
    * Changes the balance for a staker, with the amount and either a minus or a plus operation.
    */
-  public changeStakerBalance(staker: Staker, rEthAmount: BigInt, increase: boolean) : void {
+  public changeStakerBalances(staker: Staker, rEthAmount: BigInt, rEthExchangeRate : BigInt, increase: boolean) : void {
     if(staker === null) return;
 
-    if (increase) staker.activeRETHBalance = staker.activeRETHBalance.plus(rEthAmount);
+    // Set current rETH balance.
+    if (increase) staker.currentRETHBalance = staker.currentRETHBalance.plus(rEthAmount);
     else {
-      if (staker.activeRETHBalance >= rEthAmount) staker.activeRETHBalance = staker.activeRETHBalance.minus(rEthAmount);
-      else staker.activeRETHBalance = BigInt.fromI32(0); // Could be zero address.
+      if (staker.currentRETHBalance >= rEthAmount) staker.currentRETHBalance = staker.currentRETHBalance.minus(rEthAmount);
+      else staker.currentRETHBalance = BigInt.fromI32(0); // Could be zero address.
     }
+
+    // Set current ETH balance.
+    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0)) staker.currentETHBalance = staker.currentRETHBalance.times(rEthExchangeRate);
+    else staker.currentETHBalance = BigInt.fromI32(0);
   }
 
   /**

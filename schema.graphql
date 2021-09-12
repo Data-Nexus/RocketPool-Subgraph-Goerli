@@ -15,13 +15,16 @@ type Staker @entity {
   # Address that holds rETH.
   id: ID! 
 
-  # Active rETH balance. (Based on last checkpoint & including all transactions that have passed)
-  activeRETHBalance: BigInt!
+  # Current rETH balance. (Based on last checkpoint & including all transactions that have passed)
+  currentRETHBalance: BigInt!
 
-  # Total ETH rewards.
+  # Current ETH balance. (Based on the current rETH balance and the current rETH:ETH exchange rate)
+  currentETHBalance: BigInt!
+
+  # Total ETH rewards accrued over all staker balance checkpoints.
   totalETHRewards: BigInt!
 
-  # The last known staker balance checkpoint
+  # The last known staker balance checkpoint for this staker.
   lastBalanceCheckpoint: StakerBalanceCheckpoint
 
   # Block number at which this staker first received rETH.

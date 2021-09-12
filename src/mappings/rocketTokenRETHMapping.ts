@@ -1,10 +1,11 @@
-import { ADDRESS_ZERO } from '../constants'
+import { ADDRESS_ZERO, ADDRESS_ROCKET_TOKEN_RETH } from '../constants'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
   TokensBurned,
   TokensMinted,
   Transfer,
 } from '../../generated/rocketTokenRETH/rocketTokenRETH'
+import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
 import { Staker } from '../../generated/schema'
 import { rocketEntityUtilities } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
@@ -116,9 +117,13 @@ function saveTransaction(
     protocol.save()
   }
 
+ // Load the RocketTokenRETH contract.
+ let rocketTokenRETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
+ if (rocketTokenRETHContract === null) return
+
   // Update active balances for stakesr.
-  rocketEntityUtilities.changeStakerBalance(fromStaker, rEthAmount, false);
-  rocketEntityUtilities.changeStakerBalance(toStaker, rEthAmount, true);
+  rocketEntityUtilities.changeStakerBalances(fromStaker, rEthAmount, rocketTokenRETHContract.getExchangeRate(), false);
+  rocketEntityUtilities.changeStakerBalances(toStaker, rEthAmount, rocketTokenRETHContract.getExchangeRate(), true);
 
   // Save all affected entities.
   fromStaker.save()
