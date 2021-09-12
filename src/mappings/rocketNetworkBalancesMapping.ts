@@ -6,7 +6,7 @@ import {
 } from '../../generated/schema'
 import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
-import { rocketEntityUtilities } from '../entityutilities'
+import { rocketEntityUtilities, NetworkStakerRewardCheckpointSummary } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
@@ -52,21 +52,46 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
 
   // Protocol entity should exist, if not, then we attempt to create it.
   let protocol = rocketEntityUtilities.getRocketPoolProtocolEntity()
-  if (protocol === null || protocol.id === null)
+  if (protocol === null || protocol.id === null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
+  }
 
   // Index the network balance checkpoint and store it as the last checkpoint.
   networkBalanceCheckpoint.save()
+  let previousNetworkBalanceCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint;
   protocol.lastNetworkStakerBalanceCheckPoint = networkBalanceCheckpoint.id
   protocol.save()
 
-  // Handle the staker impact.
-  generateStakerBalanceCheckpoints(
-    protocol.stakers,
-    networkBalanceCheckpoint,
-    event.block.number,
-    event.block.timestamp,
-  )
+
+    // We will use this to store the reward summary data for all staker checkpoints.
+    let summary = new NetworkStakerRewardCheckpointSummary();
+    summary.totalStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
+    summary.totalStakerETHRewardsUpToThisCheckpoint = BigInt.fromI32(0)
+
+    // Handle the staker impact.
+    generateStakerBalanceCheckpoints(
+      protocol.stakers,
+      networkBalanceCheckpoint,
+      event.block.number,
+      event.block.timestamp,
+      summary
+    )
+
+  // If for some reason our summary total up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
+  if (summary.totalStakerETHRewardsUpToThisCheckpoint == BigInt.fromI32(0)) {
+    let previousNetworkBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(previousNetworkBalanceCheckpointId);
+    if (previousNetworkBalanceCheckpoint !== null && 
+       previousNetworkBalanceCheckpoint.totalStakerETHRewardsUpToThisCheckpoint > BigInt.fromI32(0)) {
+      summary.totalStakerETHRewardsUpToThisCheckpoint = previousNetworkBalanceCheckpoint.totalStakerETHRewardsUpToThisCheckpoint;
+    }
+  }
+
+  // Based on the summary we got back from handling all the stakers, update our network balance checkpoint.
+  networkBalanceCheckpoint.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint;
+  networkBalanceCheckpoint.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint;
+  
+  // Index these changes.
+  networkBalanceCheckpoint.save();
 }
 
 /**
@@ -79,25 +104,23 @@ function generateStakerBalanceCheckpoints(
   networkBalanceCheckpoint: NetworkStakerBalanceCheckpoint | null,
   blockNumber: BigInt,
   blockTime: BigInt,
-): void {
+  summary : NetworkStakerRewardCheckpointSummary
+) : void {
   // If we don't have any stakers, stop.
   if (
     stakerIds === null ||
     stakerIds.length === 0 ||
     networkBalanceCheckpoint === null ||
-    networkBalanceCheckpoint.id === null
-  )
+    networkBalanceCheckpoint.id === null ||
+    summary === null
+  ) {
     return
+  }
 
   // Loop through all the stakers in the protocol..
   stakerIds.forEach((stakerId) => {
     // Preliminary check: staker ID can't be null.
     if (stakerId === null) return
-
-    // Check if we have already indexed a staker balance checkpoint for the current staker.
-    let stakerBalanceCheckpointId =
-      networkBalanceCheckpoint.id + ' - ' + stakerId
-    if (StakerBalanceCheckpoint.load(stakerBalanceCheckpointId) !== null) return
 
     /**
      * Load the indexed staker.
@@ -108,6 +131,15 @@ function generateStakerBalanceCheckpoints(
     let staker = Staker.load(stakerId)
     if (staker === null || staker.rETHBalance === BigInt.fromI32(0))
       return
+
+    // Check if we have already indexed a staker balance checkpoint for the current staker.
+    let stakerBalanceCheckpointId = networkBalanceCheckpoint.id + ' - ' + stakerId
+    let existingStakerCheckpoint = StakerBalanceCheckpoint.load(stakerBalanceCheckpointId)
+    if (existingStakerCheckpoint !== null) {
+      // If we already have a checkpoint, we just need to update the summary. (TODO: add the rewards from the loaded checkpoint to the staker total)
+      rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, existingStakerCheckpoint.ethRewardsSincePreviousCheckpoint, staker.totalETHRewards);
+      return
+    }
 
     // Store the current balances in temporary variables. This will make everything easier to read.
     let currentRETHBalance = staker.rETHBalance
@@ -157,7 +189,11 @@ function generateStakerBalanceCheckpoints(
       blockNumber,
       blockTime,
     )
-    if (stakerBalanceCheckpoint === null) return
+    if (stakerBalanceCheckpoint === null) {
+      // Unlikely, but update the summary with 0 rewards and the total ETH rewards up until now for this staker.
+      rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, BigInt.fromI32(0), staker.totalETHRewards);
+      return
+    }
 
     // Index the newly instantiated staker balance checkpoint.
     stakerBalanceCheckpoint.save()
@@ -176,6 +212,11 @@ function generateStakerBalanceCheckpoints(
         )
       }
     }
+    
+    // Index the changes for the staker.
     staker.save()
+
+    // Keep our summary up to date
+    rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, ethRewardsSincePreviousCheckpoint, staker.totalETHRewards);
   })
 }
