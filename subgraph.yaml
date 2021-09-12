@@ -8,6 +8,7 @@ dataSources:
     source:
       address: "0x178E141a0E3b34152f73Ff610437A7bf9B83267A"
       abi: rocketTokenRETH
+      startBlock: 5200000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -26,12 +27,14 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/mappings/rocketTokenRETHMapping.ts
+  
   - kind: ethereum/contract
     name: rocketNetworkBalances
     network: goerli
     source:
       address: "0x28CEa7b0f3916C1dbA667d3D58EC4836aD843c49"
       abi: rocketNetworkBalances
+      startBlock: 5200000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -43,6 +46,8 @@ dataSources:
       abis:
         - name: rocketNetworkBalances
           file: ./abis/rocketNetworkBalances.json
+        - name: rocketTokenRETH
+          file: ./abis/rocketTokenRETH.json
       eventHandlers:
         - event: BalancesUpdated(uint256,uint256,uint256,uint256,uint256)
           handler: handleBalancesUpdated
