@@ -51,8 +51,8 @@ export class RocketPoolProtocol extends Entity {
     this.set("stakers", Value.fromStringArray(value));
   }
 
-  get lastNetworkBalanceCheckPoint(): string | null {
-    let value = this.get("lastNetworkBalanceCheckPoint");
+  get lastNetworkStakerBalanceCheckPoint(): string | null {
+    let value = this.get("lastNetworkStakerBalanceCheckPoint");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -60,12 +60,12 @@ export class RocketPoolProtocol extends Entity {
     }
   }
 
-  set lastNetworkBalanceCheckPoint(value: string | null) {
+  set lastNetworkStakerBalanceCheckPoint(value: string | null) {
     if (value === null) {
-      this.unset("lastNetworkBalanceCheckPoint");
+      this.unset("lastNetworkStakerBalanceCheckPoint");
     } else {
       this.set(
-        "lastNetworkBalanceCheckPoint",
+        "lastNetworkStakerBalanceCheckPoint",
         Value.fromString(value as string)
       );
     }
@@ -244,7 +244,7 @@ export class RocketETHTransaction extends Entity {
   }
 }
 
-export class NetworkBalanceCheckpoint extends Entity {
+export class NetworkStakerBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -254,21 +254,21 @@ export class NetworkBalanceCheckpoint extends Entity {
     let id = this.get("id");
     assert(
       id !== null,
-      "Cannot save NetworkBalanceCheckpoint entity without an ID"
+      "Cannot save NetworkStakerBalanceCheckpoint entity without an ID"
     );
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save NetworkBalanceCheckpoint entity with non-string ID. " +
+      "Cannot save NetworkStakerBalanceCheckpoint entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("NetworkBalanceCheckpoint", id.toString(), this);
+    store.set("NetworkStakerBalanceCheckpoint", id.toString(), this);
   }
 
-  static load(id: string): NetworkBalanceCheckpoint | null {
+  static load(id: string): NetworkStakerBalanceCheckpoint | null {
     return store.get(
-      "NetworkBalanceCheckpoint",
+      "NetworkStakerBalanceCheckpoint",
       id
-    ) as NetworkBalanceCheckpoint | null;
+    ) as NetworkStakerBalanceCheckpoint | null;
   }
 
   get id(): string {
@@ -280,22 +280,52 @@ export class NetworkBalanceCheckpoint extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ethStaked(): BigInt {
-    let value = this.get("ethStaked");
+  get stakerEthActivelyStakingTotal(): BigInt {
+    let value = this.get("stakerEthActivelyStakingTotal");
     return value.toBigInt();
   }
 
-  set ethStaked(value: BigInt) {
-    this.set("ethStaked", Value.fromBigInt(value));
+  set stakerEthActivelyStakingTotal(value: BigInt) {
+    this.set("stakerEthActivelyStakingTotal", Value.fromBigInt(value));
   }
 
-  get totalEth(): BigInt {
-    let value = this.get("totalEth");
+  get stakerEthWaitingInDepositPoolTotal(): BigInt {
+    let value = this.get("stakerEthWaitingInDepositPoolTotal");
     return value.toBigInt();
   }
 
-  set totalEth(value: BigInt) {
-    this.set("totalEth", Value.fromBigInt(value));
+  set stakerEthWaitingInDepositPoolTotal(value: BigInt) {
+    this.set("stakerEthWaitingInDepositPoolTotal", Value.fromBigInt(value));
+  }
+
+  get stakerEthInRocketEthContractTotal(): BigInt {
+    let value = this.get("stakerEthInRocketEthContractTotal");
+    return value.toBigInt();
+  }
+
+  set stakerEthInRocketEthContractTotal(value: BigInt) {
+    this.set("stakerEthInRocketEthContractTotal", Value.fromBigInt(value));
+  }
+
+  get stakerEthInPendingOrExitedMinipoolsTotal(): BigInt {
+    let value = this.get("stakerEthInPendingOrExitedMinipoolsTotal");
+    return value.toBigInt();
+  }
+
+  set stakerEthInPendingOrExitedMinipoolsTotal(value: BigInt) {
+    this.set(
+      "stakerEthInPendingOrExitedMinipoolsTotal",
+      Value.fromBigInt(value)
+    );
+  }
+
+  get stakerEthProtocolTotal(): BigInt {
+    let value = this.get("stakerEthProtocolTotal");
+    return value.toBigInt();
+  }
+
+  set stakerEthProtocolTotal(value: BigInt) {
+    this.set("stakerEthProtocolTotal", Value.fromBigInt(value));
   }
 
   get rEthCirculating(): BigInt {
@@ -380,13 +410,13 @@ export class StakerBalanceCheckpoint extends Entity {
     this.set("staker", Value.fromString(value));
   }
 
-  get networkBalanceCheckpoint(): string {
-    let value = this.get("networkBalanceCheckpoint");
+  get networkStakerBalanceCheckpoint(): string {
+    let value = this.get("networkStakerBalanceCheckpoint");
     return value.toString();
   }
 
-  set networkBalanceCheckpoint(value: string) {
-    this.set("networkBalanceCheckpoint", Value.fromString(value));
+  set networkStakerBalanceCheckpoint(value: string) {
+    this.set("networkStakerBalanceCheckpoint", Value.fromString(value));
   }
 
   get ethBalance(): BigInt {

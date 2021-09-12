@@ -1,7 +1,7 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts'
 import {
   RocketETHTransaction,
-  NetworkBalanceCheckpoint,
+  NetworkStakerBalanceCheckpoint,
   Staker,
   RocketPoolProtocol,
 } from '../generated/schema'
@@ -42,14 +42,14 @@ class RocketEntityUtilities {
   }
 
   /**
-   * Checks if there is already an indexed network balance for the given event.
+   * Checks if there is already an indexed network staker balance checkpoint for the given event.
    */
-  public hasNetworkBalanceCheckpointHasBeenIndexed(
+  public hasNetworkStakerBalanceCheckpointHasBeenIndexed(
     event: ethereum.Event,
   ): boolean {
     // Is this transaction already logged?
     return (
-      NetworkBalanceCheckpoint.load(this.extractIdForEntity(event)) !== null
+      NetworkStakerBalanceCheckpoint.load(this.extractIdForEntity(event)) !== null
     )
   }
 

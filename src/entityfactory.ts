@@ -2,7 +2,7 @@ import { ethereum, BigInt } from '@graphprotocol/graph-ts'
 import {
   Staker,
   RocketETHTransaction,
-  NetworkBalanceCheckpoint,
+  NetworkStakerBalanceCheckpoint,
   RocketPoolProtocol,
   StakerBalanceCheckpoint,
 } from '../generated/schema'
@@ -16,7 +16,7 @@ class RocketPoolEntityFactory {
   public createRocketPoolProtocol(): RocketPoolProtocol {
     let protocol = new RocketPoolProtocol(ROCKETPOOL_PROTOCOL_ROOT_ID)
     protocol.stakers = new Array<string>(0)
-    protocol.lastNetworkBalanceCheckPoint = null
+    protocol.lastNetworkStakerBalanceCheckPoint = null
     return protocol
   }
 
@@ -56,13 +56,15 @@ class RocketPoolEntityFactory {
   }
 
   /**
-   * Attempts to create a new NetworkBalanceCheckpoint.
+   * Attempts to create a new NetworkStakerBalanceCheckpoint.
    */
-  public createNetworkBalanceCheckpoint(
+  public createNetworkStakerBalanceCheckpoint(
     id: string,
     event: BalancesUpdated,
+    stakerEthWaitingInDepositPoolTotal: BigInt,
+    stakerEthInRocketEthContractTotal: BigInt,
     rEthExchangeRate: BigInt,
-  ): NetworkBalanceCheckpoint | null {
+  ): NetworkStakerBalanceCheckpoint | null {
     if (
       id === null ||
       event === null ||
@@ -71,10 +73,25 @@ class RocketPoolEntityFactory {
     )
       return null
 
+    // Use 0 if negative was passed in for totals.
+    if(stakerEthWaitingInDepositPoolTotal < BigInt.fromI32(0)) stakerEthWaitingInDepositPoolTotal = BigInt.fromI32(0);
+    if(stakerEthInRocketEthContractTotal < BigInt.fromI32(0)) stakerEthInRocketEthContractTotal = BigInt.fromI32(0);
+    let stakerEthInProtocolTotal = BigInt.fromI32(0);
+    if(event.params.totalEth > BigInt.fromI32(0)) stakerEthInProtocolTotal = event.params.totalEth;
+    let stakerEthActivelyStakingTotal = BigInt.fromI32(0);
+    if(event.params.stakingEth > BigInt.fromI32(0)) stakerEthActivelyStakingTotal = event.params.stakingEth;
+
+    // Determine how much ETH was in the pending or exited minipools related to stakers.
+    let stakerEthInPendingOrExitedMinipoolsTotal = stakerEthInProtocolTotal.minus(stakerEthActivelyStakingTotal).minus(stakerEthWaitingInDepositPoolTotal).minus(stakerEthInRocketEthContractTotal);
+    if (stakerEthInPendingOrExitedMinipoolsTotal < BigInt.fromI32(0)) stakerEthInPendingOrExitedMinipoolsTotal = BigInt.fromI32(0);
+
     // Instantiate a new network balance.
-    let networkBalance = new NetworkBalanceCheckpoint(id)
-    networkBalance.ethStaked = event.params.stakingEth
-    networkBalance.totalEth = event.params.totalEth
+    let networkBalance = new NetworkStakerBalanceCheckpoint(id)
+    networkBalance.stakerEthActivelyStakingTotal = stakerEthActivelyStakingTotal
+    networkBalance.stakerEthWaitingInDepositPoolTotal = stakerEthWaitingInDepositPoolTotal
+    networkBalance.stakerEthInRocketEthContractTotal = stakerEthInRocketEthContractTotal
+    networkBalance.stakerEthInPendingOrExitedMinipoolsTotal = stakerEthInPendingOrExitedMinipoolsTotal
+    networkBalance.stakerEthProtocolTotal = stakerEthInProtocolTotal
     networkBalance.rEthCirculating = event.params.rethSupply
     networkBalance.rEthExchangeRate = rEthExchangeRate
     networkBalance.block = event.block.number
@@ -112,7 +129,7 @@ class RocketPoolEntityFactory {
   public createStakerBalanceCheckpoint(
     id: string,
     staker: Staker | null,
-    networkBalanceCheckpoint: NetworkBalanceCheckpoint | null,
+    networkStakerBalanceCheckpoint: NetworkStakerBalanceCheckpoint | null,
     ethBalance: BigInt,
     rEthBalance: BigInt,
     ethRewardsSincePreviousCheckpoint: BigInt,
@@ -123,16 +140,16 @@ class RocketPoolEntityFactory {
       id === null ||
       staker === null ||
       staker.id === null ||
-      networkBalanceCheckpoint === null ||
-      networkBalanceCheckpoint.id === null
+      networkStakerBalanceCheckpoint === null ||
+      networkStakerBalanceCheckpoint.id === null
     )
       return null
 
     // Instantiate a new staker balance checkpoint.
     let stakerBalanceCheckpoint = new StakerBalanceCheckpoint(id)
     stakerBalanceCheckpoint.staker = staker.id
-    stakerBalanceCheckpoint.networkBalanceCheckpoint =
-      networkBalanceCheckpoint.id
+    stakerBalanceCheckpoint.networkStakerBalanceCheckpoint =
+      networkStakerBalanceCheckpoint.id
     stakerBalanceCheckpoint.ethBalance = ethBalance
     stakerBalanceCheckpoint.rEthBalance = rEthBalance
     stakerBalanceCheckpoint.ethRewardsSincePreviousCheckpoint = ethRewardsSincePreviousCheckpoint
