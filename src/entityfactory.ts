@@ -11,12 +11,16 @@ import { ROCKETPOOL_PROTOCOL_ROOT_ID } from './constants'
 
 class RocketPoolEntityFactory {
   /**
-   * Should only every be saved once.
+   * Should only every be created once.
    */
   public createRocketPoolProtocol(): RocketPoolProtocol {
     let protocol = new RocketPoolProtocol(ROCKETPOOL_PROTOCOL_ROOT_ID)
     protocol.stakers = new Array<string>(0)
     protocol.lastNetworkStakerBalanceCheckPoint = null
+
+    protocol.nodes = new Array<string>(0);
+    protocol.networkNodeTimezones = new Array<string>(0);
+    protocol.lastNetworkNodeBalanceCheckPoint = null;
     return protocol
   }
 
