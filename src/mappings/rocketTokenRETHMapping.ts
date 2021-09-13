@@ -88,7 +88,7 @@ function saveTransaction(
   event: ethereum.Event,
   fromStaker: Staker,
   toStaker: Staker,
-  rEthAmount: BigInt,
+  rETHAmount: BigInt,
 ): void {
   // This state has to be valid before we can actually do anything.
   if (
@@ -105,7 +105,7 @@ function saveTransaction(
     rocketEntityUtilities.extractIdForEntity(event),
     fromStaker,
     toStaker,
-    rEthAmount,
+    rETHAmount,
     event,
   )
   if (rEthTransaction === null || rEthTransaction.id === null) return
@@ -118,12 +118,12 @@ function saveTransaction(
   }
 
  // Load the RocketTokenRETH contract.
- let rocketTokenRETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
- if (rocketTokenRETHContract === null) return
+ let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
+ if (rETHContract === null) return
 
   // Update active balances for stakesr.
-  rocketEntityUtilities.changeStakerBalances(fromStaker, rEthAmount, rocketTokenRETHContract.getExchangeRate(), false);
-  rocketEntityUtilities.changeStakerBalances(toStaker, rEthAmount, rocketTokenRETHContract.getExchangeRate(), true);
+  rocketEntityUtilities.changeStakerBalances(fromStaker, rETHAmount, rETHContract.getExchangeRate(), false);
+  rocketEntityUtilities.changeStakerBalances(toStaker, rETHAmount, rETHContract.getExchangeRate(), true);
 
   // Save all affected entities.
   fromStaker.save()

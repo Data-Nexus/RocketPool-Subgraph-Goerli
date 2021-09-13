@@ -11,7 +11,7 @@ import { ROCKETPOOL_PROTOCOL_ROOT_ID } from './constants'
 
 class RocketPoolEntityFactory {
   /**
-   * Should only every be saved once.
+   * Should only every be created once.
    */
   public createRocketPoolProtocol(): RocketPoolProtocol {
     let protocol = new RocketPoolProtocol(ROCKETPOOL_PROTOCOL_ROOT_ID)
@@ -61,8 +61,8 @@ class RocketPoolEntityFactory {
   public createNetworkStakerBalanceCheckpoint(
     id: string,
     event: BalancesUpdated,
-    stakerEthWaitingInDepositPoolTotal: BigInt,
-    stakerEthInRocketEthContractTotal: BigInt,
+    totalStakerETHWaitingInDepositPool: BigInt,
+    totalStakerETHInRocketEthContract: BigInt,
     rEthExchangeRate: BigInt,
   ): NetworkStakerBalanceCheckpoint | null {
     if (
@@ -74,26 +74,26 @@ class RocketPoolEntityFactory {
       return null
 
     // Use 0 if negative was passed in for totals.
-    if(stakerEthWaitingInDepositPoolTotal < BigInt.fromI32(0)) stakerEthWaitingInDepositPoolTotal = BigInt.fromI32(0);
-    if(stakerEthInRocketEthContractTotal < BigInt.fromI32(0)) stakerEthInRocketEthContractTotal = BigInt.fromI32(0);
-    let stakerEthInProtocolTotal = BigInt.fromI32(0);
-    if(event.params.totalEth > BigInt.fromI32(0)) stakerEthInProtocolTotal = event.params.totalEth;
-    let stakerEthActivelyStakingTotal = BigInt.fromI32(0);
-    if(event.params.stakingEth > BigInt.fromI32(0)) stakerEthActivelyStakingTotal = event.params.stakingEth;
+    if(totalStakerETHWaitingInDepositPool < BigInt.fromI32(0)) totalStakerETHWaitingInDepositPool = BigInt.fromI32(0);
+    if(totalStakerETHInRocketEthContract < BigInt.fromI32(0)) totalStakerETHInRocketEthContract = BigInt.fromI32(0);
+    let totalStakerETHInProtocol = BigInt.fromI32(0);
+    if(event.params.totalEth > BigInt.fromI32(0)) totalStakerETHInProtocol = event.params.totalEth;
+    let totalStakerETHActivelyStaking = BigInt.fromI32(0);
+    if(event.params.stakingEth > BigInt.fromI32(0)) totalStakerETHActivelyStaking = event.params.stakingEth;
 
     // Determine how much ETH was in the pending or exited minipools related to stakers.
-    let stakerEthInPendingOrExitedMinipoolsTotal = stakerEthInProtocolTotal.minus(stakerEthActivelyStakingTotal).minus(stakerEthWaitingInDepositPoolTotal).minus(stakerEthInRocketEthContractTotal);
-    if (stakerEthInPendingOrExitedMinipoolsTotal < BigInt.fromI32(0)) stakerEthInPendingOrExitedMinipoolsTotal = BigInt.fromI32(0);
+    let totalStakerETHInPendingOrExitedMinipools = totalStakerETHInProtocol.minus(totalStakerETHActivelyStaking).minus(totalStakerETHWaitingInDepositPool).minus(totalStakerETHInRocketEthContract);
+    if (totalStakerETHInPendingOrExitedMinipools < BigInt.fromI32(0)) totalStakerETHInPendingOrExitedMinipools = BigInt.fromI32(0);
 
     // Instantiate a new network balance.
     let networkBalance = new NetworkStakerBalanceCheckpoint(id)
-    networkBalance.stakerEthActivelyStakingTotal = stakerEthActivelyStakingTotal
-    networkBalance.stakerEthWaitingInDepositPoolTotal = stakerEthWaitingInDepositPoolTotal
-    networkBalance.stakerEthInRocketEthContractTotal = stakerEthInRocketEthContractTotal
-    networkBalance.stakerEthInPendingOrExitedMinipoolsTotal = stakerEthInPendingOrExitedMinipoolsTotal
-    networkBalance.stakerEthProtocolTotal = stakerEthInProtocolTotal
-    networkBalance.rEthCirculating = event.params.rethSupply
-    networkBalance.rEthExchangeRate = rEthExchangeRate
+    networkBalance.totalStakerETHActivelyStaking = totalStakerETHActivelyStaking
+    networkBalance.totalStakerETHWaitingInDepositPool = totalStakerETHWaitingInDepositPool
+    networkBalance.totalStakerETHInRocketEthContract = totalStakerETHInRocketEthContract
+    networkBalance.totalStakerETHInPendingOrExitedMinipools = totalStakerETHInPendingOrExitedMinipools
+    networkBalance.totalStakerETHInProtocol = totalStakerETHInProtocol
+    networkBalance.totalRETHSupply = event.params.rethSupply
+    networkBalance.rETHExchangeRate = rEthExchangeRate
     networkBalance.block = event.block.number
     networkBalance.blockTime = event.block.timestamp
 
@@ -113,12 +113,12 @@ class RocketPoolEntityFactory {
 
     // Instantiate a new staker.
     let staker = new Staker(id)
+    staker.rETHBalance = BigInt.fromI32(0)
+    staker.ethBalance = BigInt.fromI32(0)
+    staker.totalETHRewards = BigInt.fromI32(0)
+    staker.lastBalanceCheckpoint = null
     staker.block = blockNumber
     staker.blockTime = blockTime
-    staker.lastBalanceCheckpoint = null
-    staker.currentRETHBalance = BigInt.fromI32(0)
-    staker.currentETHBalance = BigInt.fromI32(0)
-    staker.totalETHRewards = BigInt.fromI32(0)
 
     // Return our new Staker.
     return staker
@@ -134,6 +134,7 @@ class RocketPoolEntityFactory {
     ethBalance: BigInt,
     rEthBalance: BigInt,
     ethRewardsSincePreviousCheckpoint: BigInt,
+    totalETHRewardsUpToThisCheckpoint: BigInt,
     blockNumber: BigInt,
     blockTime: BigInt,
   ): StakerBalanceCheckpoint | null {
@@ -152,8 +153,9 @@ class RocketPoolEntityFactory {
     stakerBalanceCheckpoint.networkStakerBalanceCheckpoint =
       networkStakerBalanceCheckpoint.id
     stakerBalanceCheckpoint.ethBalance = ethBalance
-    stakerBalanceCheckpoint.rEthBalance = rEthBalance
+    stakerBalanceCheckpoint.rETHBalance = rEthBalance
     stakerBalanceCheckpoint.ethRewardsSincePreviousCheckpoint = ethRewardsSincePreviousCheckpoint
+    stakerBalanceCheckpoint.totalETHRewardsUpToThisCheckpoint = totalETHRewardsUpToThisCheckpoint
     stakerBalanceCheckpoint.block = blockNumber
     stakerBalanceCheckpoint.blockTime = blockTime
 
