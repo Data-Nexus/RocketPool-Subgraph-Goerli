@@ -136,8 +136,11 @@ function generateStakerBalanceCheckpoints(
     let stakerBalanceCheckpointId = networkBalanceCheckpoint.id + ' - ' + stakerId
     let existingStakerCheckpoint = StakerBalanceCheckpoint.load(stakerBalanceCheckpointId)
     if (existingStakerCheckpoint !== null) {
-      // If we already have a checkpoint, we just need to update the summary. (TODO: add the rewards from the loaded checkpoint to the staker total)
-      rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, existingStakerCheckpoint.ethRewardsSincePreviousCheckpoint, staker.totalETHRewards);
+      // If we already have a checkpoint, we just need to update the summary.
+      rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(
+        summary, 
+        existingStakerCheckpoint.ethRewardsSincePreviousCheckpoint, 
+        existingStakerCheckpoint.totalETHRewardsUpToThisCheckpoint);
       return
     }
 
@@ -186,6 +189,7 @@ function generateStakerBalanceCheckpoints(
       currentETHBalance,
       currentRETHBalance,
       ethRewardsSincePreviousCheckpoint,
+      staker.totalETHRewards,
       blockNumber,
       blockTime,
     )

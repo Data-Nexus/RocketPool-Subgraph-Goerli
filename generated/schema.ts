@@ -70,44 +70,6 @@ export class RocketPoolProtocol extends Entity {
       );
     }
   }
-
-  get nodes(): Array<string | null> {
-    let value = this.get("nodes");
-    return value.toStringArray();
-  }
-
-  set nodes(value: Array<string | null>) {
-    this.set("nodes", Value.fromStringArray(value));
-  }
-
-  get networkNodeTimezones(): Array<string | null> {
-    let value = this.get("networkNodeTimezones");
-    return value.toStringArray();
-  }
-
-  set networkNodeTimezones(value: Array<string | null>) {
-    this.set("networkNodeTimezones", Value.fromStringArray(value));
-  }
-
-  get lastNetworkNodeBalanceCheckPoint(): string | null {
-    let value = this.get("lastNetworkNodeBalanceCheckPoint");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set lastNetworkNodeBalanceCheckPoint(value: string | null) {
-    if (value === null) {
-      this.unset("lastNetworkNodeBalanceCheckPoint");
-    } else {
-      this.set(
-        "lastNetworkNodeBalanceCheckPoint",
-        Value.fromString(value as string)
-      );
-    }
-  }
 }
 
 export class Staker extends Entity {
@@ -515,6 +477,15 @@ export class StakerBalanceCheckpoint extends Entity {
 
   set ethRewardsSincePreviousCheckpoint(value: BigInt) {
     this.set("ethRewardsSincePreviousCheckpoint", Value.fromBigInt(value));
+  }
+
+  get totalETHRewardsUpToThisCheckpoint(): BigInt {
+    let value = this.get("totalETHRewardsUpToThisCheckpoint");
+    return value.toBigInt();
+  }
+
+  set totalETHRewardsUpToThisCheckpoint(value: BigInt) {
+    this.set("totalETHRewardsUpToThisCheckpoint", Value.fromBigInt(value));
   }
 
   get block(): BigInt {

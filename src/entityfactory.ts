@@ -17,10 +17,6 @@ class RocketPoolEntityFactory {
     let protocol = new RocketPoolProtocol(ROCKETPOOL_PROTOCOL_ROOT_ID)
     protocol.stakers = new Array<string>(0)
     protocol.lastNetworkStakerBalanceCheckPoint = null
-
-    protocol.nodes = new Array<string>(0);
-    protocol.networkNodeTimezones = new Array<string>(0);
-    protocol.lastNetworkNodeBalanceCheckPoint = null;
     return protocol
   }
 
@@ -138,6 +134,7 @@ class RocketPoolEntityFactory {
     ethBalance: BigInt,
     rEthBalance: BigInt,
     ethRewardsSincePreviousCheckpoint: BigInt,
+    totalETHRewardsUpToThisCheckpoint: BigInt,
     blockNumber: BigInt,
     blockTime: BigInt,
   ): StakerBalanceCheckpoint | null {
@@ -158,6 +155,7 @@ class RocketPoolEntityFactory {
     stakerBalanceCheckpoint.ethBalance = ethBalance
     stakerBalanceCheckpoint.rETHBalance = rEthBalance
     stakerBalanceCheckpoint.ethRewardsSincePreviousCheckpoint = ethRewardsSincePreviousCheckpoint
+    stakerBalanceCheckpoint.totalETHRewardsUpToThisCheckpoint = totalETHRewardsUpToThisCheckpoint
     stakerBalanceCheckpoint.block = blockNumber
     stakerBalanceCheckpoint.blockTime = blockTime
 
