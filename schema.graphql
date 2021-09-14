@@ -103,7 +103,7 @@ type StakerBalanceCheckpoint @entity {
   id: ID!
 
   # Staker that is associated with this balance checkpoint.
-  staker: Staker!
+  stakerId: String!
 
   # The network staker balance checkpoint that triggered the creation of this reward.
   networkStakerBalanceCheckpointId: String!
