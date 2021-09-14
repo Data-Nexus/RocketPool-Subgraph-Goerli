@@ -434,13 +434,13 @@ export class StakerBalanceCheckpoint extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get staker(): string {
-    let value = this.get("staker");
+  get stakerId(): string {
+    let value = this.get("stakerId");
     return value.toString();
   }
 
-  set staker(value: string) {
-    this.set("staker", Value.fromString(value));
+  set stakerId(value: string) {
+    this.set("stakerId", Value.fromString(value));
   }
 
   get networkStakerBalanceCheckpointId(): string {
