@@ -150,8 +150,7 @@ class RocketPoolEntityFactory {
     // Instantiate a new staker balance checkpoint.
     let stakerBalanceCheckpoint = new StakerBalanceCheckpoint(id)
     stakerBalanceCheckpoint.staker = staker.id
-    stakerBalanceCheckpoint.networkStakerBalanceCheckpoint =
-      networkStakerBalanceCheckpoint.id
+    stakerBalanceCheckpoint.networkStakerBalanceCheckpointId = networkStakerBalanceCheckpoint.id
     stakerBalanceCheckpoint.ethBalance = ethBalance
     stakerBalanceCheckpoint.rETHBalance = rEthBalance
     stakerBalanceCheckpoint.ethRewardsSincePreviousCheckpoint = ethRewardsSincePreviousCheckpoint

@@ -443,13 +443,13 @@ export class StakerBalanceCheckpoint extends Entity {
     this.set("staker", Value.fromString(value));
   }
 
-  get networkStakerBalanceCheckpoint(): string {
-    let value = this.get("networkStakerBalanceCheckpoint");
+  get networkStakerBalanceCheckpointId(): string {
+    let value = this.get("networkStakerBalanceCheckpointId");
     return value.toString();
   }
 
-  set networkStakerBalanceCheckpoint(value: string) {
-    this.set("networkStakerBalanceCheckpoint", Value.fromString(value));
+  set networkStakerBalanceCheckpointId(value: string) {
+    this.set("networkStakerBalanceCheckpointId", Value.fromString(value));
   }
 
   get ethBalance(): BigInt {

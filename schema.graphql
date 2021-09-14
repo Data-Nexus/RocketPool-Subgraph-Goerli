@@ -106,7 +106,7 @@ type StakerBalanceCheckpoint @entity {
   staker: Staker!
 
   # The network staker balance checkpoint that triggered the creation of this reward.
-  networkStakerBalanceCheckpoint: NetworkStakerBalanceCheckpoint!
+  networkStakerBalanceCheckpointId: String!
 
   # ETH balance of the staker of this checkpoint.
   ethBalance: BigInt!
