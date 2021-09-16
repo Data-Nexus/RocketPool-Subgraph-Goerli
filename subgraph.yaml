@@ -20,8 +20,6 @@ dataSources:
         - name: rocketTokenRETH
           file: ./abis/rocketTokenRETH.json
       eventHandlers:
-        - event: TokensBurned(indexed address,uint256,uint256,uint256)
-          handler: handleTokensBurned
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/mappings/rocketTokenRETHMapping.ts

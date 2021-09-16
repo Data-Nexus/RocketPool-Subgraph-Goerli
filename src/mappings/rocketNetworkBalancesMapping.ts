@@ -8,7 +8,7 @@ import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTok
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
 import { rocketEntityUtilities, NetworkStakerRewardCheckpointSummary } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH, ONE_ETHER_IN_WEI } from './../constants'
+import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH, ADDRESS_ZERO, ONE_ETHER_IN_WEI } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
 
 /**
@@ -56,6 +56,14 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
   }
 
+  // Retrieve exchange rate.
+  let previousNetworkBalanceCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint;
+  let previousNetworkBalanceCheckpointExchangeRate = BigInt.fromI32(1);
+  let previousNetworkBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(previousNetworkBalanceCheckpointId);
+  if(previousNetworkBalanceCheckpoint !== null) {
+    previousNetworkBalanceCheckpointExchangeRate = previousNetworkBalanceCheckpoint.rETHExchangeRate;
+  }
+
   // We will use this to store the reward summary data for all staker checkpoints.
   let summary = new NetworkStakerRewardCheckpointSummary();
   summary.totalStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
@@ -67,13 +75,12 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     networkBalanceCheckpoint,
     event.block.number,
     event.block.timestamp,
-    summary
+    summary,
+    previousNetworkBalanceCheckpointExchangeRate
   )
 
   // If for some reason our summary total up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
   if (summary.totalStakerETHRewardsUpToThisCheckpoint == BigInt.fromI32(0)) {
-    let previousNetworkBalanceCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint;
-    let previousNetworkBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(previousNetworkBalanceCheckpointId);
     if (previousNetworkBalanceCheckpoint !== null &&
       previousNetworkBalanceCheckpoint.totalStakerETHRewardsUpToThisCheckpoint > BigInt.fromI32(0)) {
       summary.totalStakerETHRewardsUpToThisCheckpoint = previousNetworkBalanceCheckpoint.totalStakerETHRewardsUpToThisCheckpoint;
@@ -100,7 +107,8 @@ function generateStakerBalanceCheckpoints(
   networkBalanceCheckpoint: NetworkStakerBalanceCheckpoint | null,
   blockNumber: BigInt,
   blockTime: BigInt,
-  summary: NetworkStakerRewardCheckpointSummary
+  summary: NetworkStakerRewardCheckpointSummary,
+  previousNetworkStakerBalanceCheckpointExchangeRate: BigInt
 ): void {
   // If we don't have any stakers, stop.
   if (
@@ -112,6 +120,11 @@ function generateStakerBalanceCheckpoints(
     return
   }
 
+  // Just to be sure.. If this was 0 (First network checkpoint ever, then it was 1)
+  if (previousNetworkStakerBalanceCheckpointExchangeRate === BigInt.fromI32(0)) {
+     previousNetworkStakerBalanceCheckpointExchangeRate = BigInt.fromI32(1);
+  }
+
   // Loop through all the staker id's in the protocol.
   for (let index = 0; index < stakerIds.length; index++) {
 
@@ -119,7 +132,7 @@ function generateStakerBalanceCheckpoints(
      let stakerId = <string>stakerIds[index];
 
      // Preliminary check: staker ID can't be null.
-     if (stakerId === null) return
+     if (stakerId === null || stakerId === ADDRESS_ZERO.toString()) return
 
      /**
       * Load the indexed staker.
@@ -141,6 +154,9 @@ function generateStakerBalanceCheckpoints(
      if (currentETHBalance < BigInt.fromI32(0))
        currentETHBalance = BigInt.fromI32(0)
  
+     // Update the ETH balance of the staker.
+     staker.ethBalance = currentETHBalance;
+
      // By default, assume the previous (r)ETH balances are the same as the current ones.
      let previousRETHBalance = currentRETHBalance
      let previousETHBalance = currentETHBalance
@@ -166,8 +182,20 @@ function generateStakerBalanceCheckpoints(
        currentETHBalance,
        previousRETHBalance,
        previousETHBalance,
+       previousNetworkStakerBalanceCheckpointExchangeRate
      )
  
+     // Update stake total rewards based on how much he's earned since previous checkpoint.
+    if (ethRewardsSincePreviousCheckpoint < BigInt.fromI32(0)) {
+         staker.totalETHRewards = staker.totalETHRewards.minus(
+           ethRewardsSincePreviousCheckpoint,
+         )
+       } else {
+         staker.totalETHRewards = staker.totalETHRewards.plus(
+           ethRewardsSincePreviousCheckpoint,
+      )
+     }
+
      // Create a new staker balance checkpoint for everything we've determined in this iteration.
      let stakerBalanceCheckpoint = rocketPoolEntityFactory.createStakerBalanceCheckpoint(
        networkBalanceCheckpoint.id + ' - ' + stakerId,
@@ -184,24 +212,13 @@ function generateStakerBalanceCheckpoints(
        // Unlikely, but update the summary with 0 rewards and the total ETH rewards up until now for this staker.
        rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, BigInt.fromI32(0), staker.totalETHRewards);
        return
-     } else stakerBalanceCheckpoint.save()
+     }
  
      // Keep our staker up to date with the active usable links/value(s) from this iteration.
      staker.lastBalanceCheckpoint = stakerBalanceCheckpoint.id
-     staker.ethBalance = currentETHBalance;
-     if (ethRewardsSincePreviousCheckpoint !== BigInt.fromI32(0)) {
-       if (ethRewardsSincePreviousCheckpoint < BigInt.fromI32(0)) {
-         staker.totalETHRewards = staker.totalETHRewards.minus(
-           ethRewardsSincePreviousCheckpoint,
-         )
-       } else {
-         staker.totalETHRewards = staker.totalETHRewards.plus(
-           ethRewardsSincePreviousCheckpoint,
-         )
-       }
-     }
- 
-     // Index the changes for the staker.
+
+     // Index the newly instantiated staker balance checkpoint & the staker with the new values.
+     stakerBalanceCheckpoint.save()
      staker.save()
  
      // Keep our summary up to date
