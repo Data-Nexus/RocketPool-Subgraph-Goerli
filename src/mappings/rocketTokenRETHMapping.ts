@@ -26,20 +26,6 @@ export function handleTokensBurned(event: TokensBurned): void {
 }
 
 /**
- * Occurs when a staker asks the rETH contract (via the deposit pool) to mint an rETH amount.
- * The rETH amount will be based on the current exchange rate of ETH:rETH.
- * This ratio is reported by the ODAO.
- */
-export function handleTokensMinted(event: TokensMinted): void {
-  handleRocketETHTransaction(
-    event,
-    ADDRESS_ZERO,
-    event.params.to,
-    event.params.amount,
-  )
-}
-
-/**
  * Occurs when a staker transfer an rETH amount to another staker.
  */
 export function handleTransfer(event: Transfer): void {

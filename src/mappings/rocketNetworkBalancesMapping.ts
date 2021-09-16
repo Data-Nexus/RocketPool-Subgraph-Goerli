@@ -8,7 +8,7 @@ import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTok
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
 import { rocketEntityUtilities, NetworkStakerRewardCheckpointSummary } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH } from './../constants'
+import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH, ONE_ETHER_IN_WEI } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
 
 /**
@@ -137,7 +137,7 @@ function generateStakerBalanceCheckpoints(
        currentRETHBalance = BigInt.fromI32(0)
      let currentETHBalance = currentRETHBalance.times(
        networkBalanceCheckpoint.rETHExchangeRate,
-     )
+     ).div(ONE_ETHER_IN_WEI)
      if (currentETHBalance < BigInt.fromI32(0))
        currentETHBalance = BigInt.fromI32(0)
  

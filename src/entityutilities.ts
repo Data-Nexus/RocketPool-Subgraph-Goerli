@@ -7,7 +7,7 @@ import {
 } from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketPoolEntityFactory } from './entityfactory'
-import { ROCKETPOOL_PROTOCOL_ROOT_ID } from './constants'
+import { ROCKETPOOL_PROTOCOL_ROOT_ID, ONE_ETHER_IN_WEI } from './constants'
 
 class RocketEntityUtilities {
   /**
@@ -107,7 +107,7 @@ class RocketEntityUtilities {
     }
 
     // Set current ETH balance.
-    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0)) staker.ethBalance = staker.rETHBalance.times(rEthExchangeRate);
+    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0)) staker.ethBalance = staker.rETHBalance.times(rEthExchangeRate).div(ONE_ETHER_IN_WEI);
     else staker.ethBalance = BigInt.fromI32(0);
   }
 
@@ -148,6 +148,7 @@ class RocketEntityUtilities {
         let ethTransferredInCheckpoint = previousRETHBalance
           .minus(activeRETHBalance)
           .times(previousCheckpointExchangeRate)
+          .div(ONE_ETHER_IN_WEI)
         ethRewardsSincePreviousCheckpoint = activeETHBalance.minus(
           previousETHBalance.minus(ethTransferredInCheckpoint),
         )
@@ -163,6 +164,7 @@ class RocketEntityUtilities {
         let ethReceivedInCheckpoint = activeRETHBalance
           .minus(previousRETHBalance)
           .times(previousCheckpointExchangeRate)
+          .div(ONE_ETHER_IN_WEI)
         ethRewardsSincePreviousCheckpoint = activeETHBalance
           .minus(ethReceivedInCheckpoint)
           .minus(previousETHBalance)
