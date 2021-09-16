@@ -1,8 +1,6 @@
-import { ADDRESS_ZERO, ADDRESS_ROCKET_TOKEN_RETH } from '../constants'
+import { ADDRESS_ROCKET_TOKEN_RETH } from '../constants'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
-  TokensBurned,
-  TokensMinted,
   Transfer,
 } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
@@ -10,20 +8,6 @@ import { Staker } from '../../generated/schema'
 import { rocketEntityUtilities } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import { ethereum } from '@graphprotocol/graph-ts'
-
-/**
- * Occurs when a stakers burns rETH for ETH.
- * The ETH he will receive will be based on the current exchange rate of ETH:rETH.
- * This ratio is reported by the ODAO.
- */
-export function handleTokensBurned(event: TokensBurned): void {
-  handleRocketETHTransaction(
-    event,
-    event.params.from,
-    ADDRESS_ZERO,
-    event.params.amount,
-  )
-}
 
 /**
  * Occurs when a staker transfer an rETH amount to another staker.
