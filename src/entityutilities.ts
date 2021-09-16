@@ -7,7 +7,7 @@ import {
 } from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketPoolEntityFactory } from './entityfactory'
-import { ROCKETPOOL_PROTOCOL_ROOT_ID, ONE_ETHER_IN_WEI } from './constants'
+import { ROCKETPOOL_PROTOCOL_ROOT_ID, ONE_ETHER_IN_WEI, ADDRESS_ZERO } from './constants'
 
 class RocketEntityUtilities {
   /**
@@ -97,7 +97,8 @@ class RocketEntityUtilities {
    * Changes the balance for a staker, with the amount and either a minus or a plus operation.
    */
   public changeStakerBalances(staker: Staker, rEthAmount: BigInt, rEthExchangeRate : BigInt, increase: boolean) : void {
-    if(staker === null) return;
+    // Don't store balance for the zero address.
+    if (staker === null || staker.id === ADDRESS_ZERO.toString()) return
 
     // Set current rETH balance.
     if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount);
@@ -118,7 +119,8 @@ class RocketEntityUtilities {
     activeRETHBalance: BigInt, 
     activeETHBalance: BigInt, 
     previousRETHBalance: BigInt, 
-    previousETHBalance: BigInt) : BigInt {
+    previousETHBalance: BigInt,
+    previousCheckPointExchangeRate: BigInt) : BigInt {
 
     // This will indicate how many ETH rewards we have since the previous checkpoint.
     let ethRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
@@ -129,7 +131,7 @@ class RocketEntityUtilities {
      */
     if (
       previousRETHBalance > BigInt.fromI32(0) &&
-      activeETHBalance !== previousETHBalance
+      (activeETHBalance > previousETHBalance || activeETHBalance < previousETHBalance)
     ) {
       // CASE #1: The staker his rETH balance stayed the same since last checkpoint.
       if (activeRETHBalance === previousRETHBalance) {
@@ -139,15 +141,10 @@ class RocketEntityUtilities {
       }
       // CASE #2: The staker his rETH balance transferred some of holdings since last checkpoint.
       else if (activeRETHBalance < previousRETHBalance) {
-        // Determine the rETH:ETH exchange rate for the previous checkpoint.
-        let previousCheckpointExchangeRate = previousETHBalance.div(
-          previousRETHBalance,
-        )
-
         // How much was the ETH value that was transferred away during this checkpoint.
         let ethTransferredInCheckpoint = previousRETHBalance
           .minus(activeRETHBalance)
-          .times(previousCheckpointExchangeRate)
+          .times(previousCheckPointExchangeRate)
           .div(ONE_ETHER_IN_WEI)
         ethRewardsSincePreviousCheckpoint = activeETHBalance.minus(
           previousETHBalance.minus(ethTransferredInCheckpoint),
@@ -155,15 +152,10 @@ class RocketEntityUtilities {
       }
       // CASE #3: The staker his rETH balance transferred some of holdings since last checkpoint.
       else if (activeRETHBalance > previousRETHBalance) {
-        // Determine the rETH:ETH exchange rate for the previous checkpoint.
-        let previousCheckpointExchangeRate = previousETHBalance.div(
-          previousRETHBalance,
-        )
-
         // How much was the ETH value that was received during this checkpoint.
         let ethReceivedInCheckpoint = activeRETHBalance
           .minus(previousRETHBalance)
-          .times(previousCheckpointExchangeRate)
+          .times(previousCheckPointExchangeRate)
           .div(ONE_ETHER_IN_WEI)
         ethRewardsSincePreviousCheckpoint = activeETHBalance
           .minus(ethReceivedInCheckpoint)

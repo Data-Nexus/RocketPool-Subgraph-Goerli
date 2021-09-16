@@ -17,4 +17,4 @@ export let ADDRESS_ROCKET_DEPOSIT_POOL = Address.fromString(
 export let ROCKETPOOL_PROTOCOL_ROOT_ID = "ROCKETPOOL - DECENTRALIZED ETH2.0 STAKING PROTOCOL"
 
 // Used for calculations
-export let ONE_ETHER_IN_WEI = BigInt.fromI32(100000000000000).times(BigInt.fromI32(10000));
+export let ONE_ETHER_IN_WEI = BigInt.fromI32(1000000000).times(BigInt.fromI32(1000000000));
