@@ -1,8 +1,7 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 
-export let ADDRESS_ZERO = Address.fromString(
-  '0x0000000000000000000000000000000000000000',
-)
+export let ADDRESS_ZERO_STRING = '0x0000000000000000000000000000000000000000';
+export let ADDRESS_ZERO = Address.fromString(ADDRESS_ZERO_STRING);
 
 // Currently set fixed to GOERLI.
 export let ADDRESS_ROCKET_TOKEN_RETH = Address.fromString(
