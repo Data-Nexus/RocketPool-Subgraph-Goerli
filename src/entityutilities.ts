@@ -7,7 +7,7 @@ import {
 } from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketPoolEntityFactory } from './entityfactory'
-import { ROCKETPOOL_PROTOCOL_ROOT_ID, ONE_ETHER_IN_WEI, ADDRESS_ZERO } from './constants'
+import { ROCKETPOOL_PROTOCOL_ROOT_ID, ONE_ETHER_IN_WEI, ADDRESS_ZERO_STRING } from './constants'
 
 class RocketEntityUtilities {
   /**
@@ -98,7 +98,7 @@ class RocketEntityUtilities {
    */
   public changeStakerBalances(staker: Staker, rEthAmount: BigInt, rEthExchangeRate : BigInt, increase: boolean) : void {
     // Don't store balance for the zero address.
-    if (staker === null || staker.id == ADDRESS_ZERO.toString()) return
+    if (staker === null || staker.id == ADDRESS_ZERO_STRING) return
 
     // Set current rETH balance.
     if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount);

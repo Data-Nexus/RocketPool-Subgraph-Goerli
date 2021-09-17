@@ -8,7 +8,7 @@ import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTok
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
 import { rocketEntityUtilities, NetworkStakerRewardCheckpointSummary } from '../entityutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH, ADDRESS_ZERO, ONE_ETHER_IN_WEI } from './../constants'
+import { ADDRESS_ROCKET_DEPOSIT_POOL, ADDRESS_ROCKET_TOKEN_RETH, ADDRESS_ZERO_STRING, ONE_ETHER_IN_WEI } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
 
 /**
@@ -132,7 +132,7 @@ function generateStakerBalanceCheckpoints(
      let stakerId = <string>stakerIds[index];
 
      // Preliminary check: staker ID can't be null.
-     if (stakerId == null || stakerId == ADDRESS_ZERO.toString()) return
+     if (stakerId == null || stakerId == ADDRESS_ZERO_STRING) continue
 
      /**
       * Load the indexed staker.
@@ -141,8 +141,7 @@ function generateStakerBalanceCheckpoints(
       * These stakers will keep their last checkpoint link & total rewards. (if they had any)
       */
      let staker = Staker.load(stakerId)
-     if (staker == null || staker.rETHBalance == BigInt.fromI32(0))
-       return
+     if (staker === null  || staker.rETHBalance == BigInt.fromI32(0)) continue
  
      // Store the current balances in temporary variables. This will make everything easier to read.
      let currentRETHBalance = staker.rETHBalance
@@ -208,10 +207,10 @@ function generateStakerBalanceCheckpoints(
        blockNumber,
        blockTime,
      )
-     if (stakerBalanceCheckpoint == null) {
+     if (stakerBalanceCheckpoint === null) {
        // Unlikely, but update the summary with 0 rewards and the total ETH rewards up until now for this staker.
        rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, BigInt.fromI32(0), staker.totalETHRewards);
-       return
+       continue
      }
  
      // Keep our staker up to date with the active usable links/value(s) from this iteration.
