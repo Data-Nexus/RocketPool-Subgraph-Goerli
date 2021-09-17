@@ -121,7 +121,7 @@ function generateStakerBalanceCheckpoints(
   }
 
   // Just to be sure.. If this was 0 (First network checkpoint ever, then it was 1)
-  if (previousNetworkStakerBalanceCheckpointExchangeRate === BigInt.fromI32(0)) {
+  if (previousNetworkStakerBalanceCheckpointExchangeRate == BigInt.fromI32(0)) {
      previousNetworkStakerBalanceCheckpointExchangeRate = BigInt.fromI32(1);
   }
 
@@ -132,7 +132,7 @@ function generateStakerBalanceCheckpoints(
      let stakerId = <string>stakerIds[index];
 
      // Preliminary check: staker ID can't be null.
-     if (stakerId === null || stakerId === ADDRESS_ZERO.toString()) return
+     if (stakerId == null || stakerId == ADDRESS_ZERO.toString()) return
 
      /**
       * Load the indexed staker.
@@ -141,7 +141,7 @@ function generateStakerBalanceCheckpoints(
       * These stakers will keep their last checkpoint link & total rewards. (if they had any)
       */
      let staker = Staker.load(stakerId)
-     if (staker === null || staker.rETHBalance === BigInt.fromI32(0))
+     if (staker == null || staker.rETHBalance == BigInt.fromI32(0))
        return
  
      // Store the current balances in temporary variables. This will make everything easier to read.
@@ -208,7 +208,7 @@ function generateStakerBalanceCheckpoints(
        blockNumber,
        blockTime,
      )
-     if (stakerBalanceCheckpoint === null) {
+     if (stakerBalanceCheckpoint == null) {
        // Unlikely, but update the summary with 0 rewards and the total ETH rewards up until now for this staker.
        rocketEntityUtilities.updateNetworkStakerRewardCheckpointSummary(summary, BigInt.fromI32(0), staker.totalETHRewards);
        return

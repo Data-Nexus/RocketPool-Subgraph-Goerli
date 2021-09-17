@@ -98,7 +98,7 @@ class RocketEntityUtilities {
    */
   public changeStakerBalances(staker: Staker, rEthAmount: BigInt, rEthExchangeRate : BigInt, increase: boolean) : void {
     // Don't store balance for the zero address.
-    if (staker === null || staker.id === ADDRESS_ZERO.toString()) return
+    if (staker === null || staker.id == ADDRESS_ZERO.toString()) return
 
     // Set current rETH balance.
     if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount);
@@ -134,7 +134,7 @@ class RocketEntityUtilities {
       (activeETHBalance > previousETHBalance || activeETHBalance < previousETHBalance)
     ) {
       // CASE #1: The staker his rETH balance stayed the same since last checkpoint.
-      if (activeRETHBalance === previousRETHBalance) {
+      if (activeRETHBalance == previousRETHBalance) {
         ethRewardsSincePreviousCheckpoint = activeETHBalance.minus(
           previousETHBalance,
         )
