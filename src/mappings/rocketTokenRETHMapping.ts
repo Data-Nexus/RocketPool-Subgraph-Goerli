@@ -41,9 +41,9 @@ function handleRocketETHTransaction(
     event.block.timestamp,
   )
   if (
-    stakers === null ||
-    stakers.fromStaker === null ||
-    stakers.toStaker === null
+    stakers == null ||
+    stakers.fromStaker == null ||
+    stakers.toStaker == null
   )
     return
 
@@ -62,11 +62,11 @@ function saveTransaction(
 ): void {
   // This state has to be valid before we can actually do anything.
   if (
-    event === null ||
-    fromStaker === null ||
-    fromStaker.id === null ||
-    toStaker === null ||
-    toStaker.id === null
+    event == null ||
+    fromStaker == null ||
+    fromStaker.id == null ||
+    toStaker == null ||
+    toStaker.id == null
   )
     return
 
@@ -78,18 +78,18 @@ function saveTransaction(
     rETHAmount,
     event,
   )
-  if (rEthTransaction === null || rEthTransaction.id === null) return
+  if (rEthTransaction == null || rEthTransaction.id == null) return
 
   // Protocol entity should exist, if not, then we attempt to create it.
   let protocol = rocketEntityUtilities.getRocketPoolProtocolEntity()
-  if (protocol === null || protocol.id === null) {
+  if (protocol == null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
     protocol.save()
   }
 
  // Load the RocketTokenRETH contract.
  let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
- if (rETHContract === null) return
+ if (rETHContract == null) return
 
   // Update active balances for stakesr.
   rocketEntityUtilities.changeStakerBalances(fromStaker, rETHAmount, rETHContract.getExchangeRate(), false);
@@ -102,9 +102,9 @@ function saveTransaction(
 
   // Add the stakers to the protocol. (if necessary)
   let protocolStakers = protocol.stakers
-  if (protocolStakers.indexOf(fromStaker.id) === -1)
+  if (protocolStakers.indexOf(fromStaker.id) == -1)
     protocolStakers.push(fromStaker.id)
-  if (protocolStakers.indexOf(toStaker.id) === -1)
+  if (protocolStakers.indexOf(toStaker.id) == -1)
     protocolStakers.push(toStaker.id)
   protocol.stakers = protocolStakers
 
