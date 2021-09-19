@@ -21,16 +21,14 @@ class RocketEntityUtilities {
    * Extracts the ID that is commonly used to identify an entity based on the given event.
    */
   public extractIdForEntity(event: ethereum.Event): string {
-    return !!event && !!event.transaction && !!event.logIndex
-      ? event.transaction.hash.toHex() + '-' + event.logIndex.toString()
-      : null
+    return event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   }
 
   /**
    * Attempts to create a new Staker.
    */
   public extractStakerId(address: Address): string {
-    return !!address ? address.toHexString() : null
+    return address.toHexString();
   }
 
   /**
@@ -62,15 +60,13 @@ class RocketEntityUtilities {
     blockNumber: BigInt,
     blockTimeStamp: BigInt,
   ): TransactionStakers {
-    let transactionStakers = new TransactionStakers()
-
     /*
      * Load or attempt to create the (new) staker from whom the rETH is being transferred.
      */
     let fromId = this.extractStakerId(from)
-    transactionStakers.fromStaker = <Staker>Staker.load(fromId)
-    if (transactionStakers.fromStaker === null) {
-      transactionStakers.fromStaker = <Staker>(
+    let fromStaker : Staker | null  = <Staker | null>Staker.load(fromId);
+    if (fromStaker === null) {
+      fromStaker = <Staker>(
         rocketPoolEntityFactory.createStaker(
           fromId,
           blockNumber,
@@ -83,14 +79,14 @@ class RocketEntityUtilities {
      * Load or attempt to create the (new) staker to whom the rETH is being transferred.
      */
     let toId = this.extractStakerId(to)
-    transactionStakers.toStaker = <Staker>Staker.load(toId)
-    if (transactionStakers.toStaker === null) {
-      transactionStakers.toStaker = <Staker>(
+    let toStaker: Staker | null = <Staker | null>Staker.load(toId);
+    if (toStaker === null) {
+      toStaker = <Staker>(
         rocketPoolEntityFactory.createStaker(toId, blockNumber, blockTimeStamp)
       )
     }
 
-    return transactionStakers
+    return new TransactionStakers(<Staker>fromStaker, <Staker>toStaker);
   }
 
   /**
@@ -188,11 +184,21 @@ class RocketEntityUtilities {
 export class TransactionStakers {
   fromStaker: Staker
   toStaker: Staker
+
+  constructor(from: Staker, to: Staker) {
+    this.fromStaker = from;
+    this.toStaker = to;
+   }
 }
 
 export class NetworkStakerRewardCheckpointSummary {
   totalStakerETHRewardsSincePreviousCheckpoint: BigInt
   totalStakerETHRewardsUpToThisCheckpoint: BigInt
+
+  constructor(totalStakerETHRewardsSincePreviousCheckpoint: BigInt, totalStakerETHRewardsUpToThisCheckpoint: BigInt) {
+    this.totalStakerETHRewardsSincePreviousCheckpoint = totalStakerETHRewardsSincePreviousCheckpoint;
+    this.totalStakerETHRewardsUpToThisCheckpoint = totalStakerETHRewardsUpToThisCheckpoint;
+   }
 }
 
 export let rocketEntityUtilities = new RocketEntityUtilities()

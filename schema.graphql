@@ -4,7 +4,7 @@ type RocketPoolProtocol @entity {
   id: ID! 
 
   # All stakers (addresses holding rETH) associated with the RocketPool protocol.
-  stakers: [Staker]!
+  stakers: [Staker!]!
 
   # Last known staker network balance checkpoint.
   lastNetworkStakerBalanceCheckPoint: NetworkStakerBalanceCheckpoint

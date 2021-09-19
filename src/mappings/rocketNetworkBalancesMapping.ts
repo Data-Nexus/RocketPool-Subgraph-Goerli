@@ -59,15 +59,13 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Retrieve exchange rate.
   let previousNetworkBalanceCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint;
   let previousNetworkBalanceCheckpointExchangeRate = BigInt.fromI32(1);
-  let previousNetworkBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(previousNetworkBalanceCheckpointId);
+  let previousNetworkBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(<string>previousNetworkBalanceCheckpointId);
   if(previousNetworkBalanceCheckpoint !== null) {
     previousNetworkBalanceCheckpointExchangeRate = previousNetworkBalanceCheckpoint.rETHExchangeRate;
   }
 
   // We will use this to store the reward summary data for all staker checkpoints.
-  let summary = new NetworkStakerRewardCheckpointSummary();
-  summary.totalStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
-  summary.totalStakerETHRewardsUpToThisCheckpoint = BigInt.fromI32(0)
+  let summary = new NetworkStakerRewardCheckpointSummary(BigInt.fromI32(0), BigInt.fromI32(0));
 
   // Handle the staker impact.
   generateStakerBalanceCheckpoints(
@@ -163,7 +161,7 @@ function generateStakerBalanceCheckpoints(
      // If we had a previous staker balance checkpoint, then use the balances from that link.
      if (staker.lastBalanceCheckpoint !== null) {
        let previousStakerBalanceCheckpoint = StakerBalanceCheckpoint.load(
-         staker.lastBalanceCheckpoint,
+         <string>staker.lastBalanceCheckpoint,
        )
        if (previousStakerBalanceCheckpoint !== null) {
          previousRETHBalance = previousStakerBalanceCheckpoint.rETHBalance
