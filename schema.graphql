@@ -81,8 +81,29 @@ type NetworkStakerBalanceCheckpoint @entity {
   # Total staker ETH rewards since the previous staker balance checkpoint.
   totalStakerETHRewardsSincePreviousCheckpoint: BigInt!
 
+  # Total unique stakers that have had ETH rewards since the previous staker balance checkpoint.
+  totalStakersWithETHRewardsSincePreviousCheckpoint: BigInt
+
+  # Average staker ETH rewards since the previous staker balance checkpoint.
+  averageStakerETHRewardsSincePreviousCheckpoint: BigInt
+
   # Total staker ETH rewards for all staker balance checkpoints up to the current checkpoint.
   totalStakerETHRewardsUpToThisCheckpoint: BigInt!
+
+  # Total stakers that have had ETH rewards up to this checkpoint.
+  totalStakersWithETHRewardsUpToThisCheckpoint: BigInt
+
+  # Total staker checkpoints with ETH rewards up to this checkpoint.
+  totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint: BigInt
+
+  # Average checkpoints for stakers with rewards.
+  averageCheckpointsWithRewardsPerStaker: BigInt
+
+  # Average staker ETH rewards 
+  averageStakerETHRewardsPerCheckpoint: BigInt
+
+  # Total unique stakers that have an rETH balance greater than 0 at this checkpoint.
+  totalStakersWithAnRETHBalance: BigInt!
 
   # Total rETH supply at this checkpoint.
   totalRETHSupply: BigInt!

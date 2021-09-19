@@ -63,7 +63,7 @@ class RocketPoolEntityFactory {
     event: BalancesUpdated,
     totalStakerETHWaitingInDepositPool: BigInt,
     totalStakerETHInRocketEthContract: BigInt,
-    rEthExchangeRate: BigInt,
+    rEthExchangeRate: BigInt
   ): NetworkStakerBalanceCheckpoint | null {
     if (
       id === null ||

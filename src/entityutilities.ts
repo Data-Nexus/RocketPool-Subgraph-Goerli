@@ -217,11 +217,27 @@ export class TransactionStakers {
 
 export class NetworkStakerRewardCheckpointSummary {
   totalStakerETHRewardsSincePreviousCheckpoint: BigInt
+  totalStakersWithETHRewardsSincePreviousCheckpoint: BigInt
+  averageStakerETHRewardsSincePreviousCheckpoint: BigInt
   totalStakerETHRewardsUpToThisCheckpoint: BigInt
+  averageStakerETHRewardsUpToThisCheckpoint: BigInt
+  totalStakersWithETHRewardsUpToThisCheckpoint: BigInt
+  totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint: BigInt
+  averageCheckpointsWithRewardsPerStaker: BigInt
+  averageStakerETHRewardsPerCheckpoint: BigInt
+  totalStakersWithAnRETHBalance: BigInt
 
-  constructor(totalStakerETHRewardsSincePreviousCheckpoint: BigInt, totalStakerETHRewardsUpToThisCheckpoint: BigInt) {
-    this.totalStakerETHRewardsSincePreviousCheckpoint = totalStakerETHRewardsSincePreviousCheckpoint;
-    this.totalStakerETHRewardsUpToThisCheckpoint = totalStakerETHRewardsUpToThisCheckpoint;
+  constructor() {
+    this.totalStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0);
+    this.totalStakersWithETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0);
+    this.averageStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0);
+    this.totalStakerETHRewardsUpToThisCheckpoint =  BigInt.fromI32(0);
+    this.averageStakerETHRewardsUpToThisCheckpoint = BigInt.fromI32(0);
+    this.totalStakersWithETHRewardsUpToThisCheckpoint = BigInt.fromI32(0);
+    this.totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint = BigInt.fromI32(0);
+    this.averageCheckpointsWithRewardsPerStaker =  BigInt.fromI32(0);
+    this.averageStakerETHRewardsPerCheckpoint = BigInt.fromI32(0);
+    this.totalStakersWithAnRETHBalance = BigInt.fromI32(0);
    }
 }
 
