@@ -179,7 +179,8 @@ function generateStakerBalanceCheckpoints(
        currentETHBalance,
        previousRETHBalance,
        previousETHBalance,
-       previousNetworkStakerBalanceCheckpointExchangeRate
+       previousNetworkStakerBalanceCheckpointExchangeRate,
+       networkBalanceCheckpoint.rETHExchangeRate
      )
  
      // Update stake total rewards based on how much he's earned since previous checkpoint.

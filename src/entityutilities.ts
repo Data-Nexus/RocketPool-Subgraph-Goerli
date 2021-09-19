@@ -116,7 +116,8 @@ class RocketEntityUtilities {
     activeETHBalance: BigInt, 
     previousRETHBalance: BigInt, 
     previousETHBalance: BigInt,
-    previousCheckPointExchangeRate: BigInt) : BigInt {
+    previousCheckPointExchangeRate: BigInt,
+    currentCheckpointExchangeRate: BigInt) : BigInt {
 
     // This will indicate how many ETH rewards we have since the previous checkpoint.
     let ethRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
@@ -135,27 +136,50 @@ class RocketEntityUtilities {
           previousETHBalance,
         )
       }
-      // CASE #2: The staker his rETH balance transferred some of holdings since last checkpoint.
+      // CASE #2: The staker has burned or transferred some of his/her rETH holdings since last checkpoint.
       else if (activeRETHBalance < previousRETHBalance) {
         // How much was the ETH value that was transferred away during this checkpoint.
-        let ethTransferredInCheckpoint = previousRETHBalance
+        let ethTransferredSinceThePreviousCheckpoint = previousRETHBalance
           .minus(activeRETHBalance)
           .times(previousCheckPointExchangeRate)
           .div(ONE_ETHER_IN_WEI)
         ethRewardsSincePreviousCheckpoint = activeETHBalance.minus(
-          previousETHBalance.minus(ethTransferredInCheckpoint),
+          previousETHBalance.minus(ethTransferredSinceThePreviousCheckpoint),
         )
       }
-      // CASE #3: The staker his rETH balance transferred some of holdings since last checkpoint.
+      // CASE #3: The staker increased his/her rETH holdings since last checkpoint.
       else if (activeRETHBalance > previousRETHBalance) {
         // How much was the ETH value that was received during this checkpoint.
-        let ethReceivedInCheckpoint = activeRETHBalance
+        let ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate = activeRETHBalance
           .minus(previousRETHBalance)
           .times(previousCheckPointExchangeRate)
           .div(ONE_ETHER_IN_WEI)
+
+        // This accounts for everything excluding any rewards we earned OR value we lost on the minted rETH since last checkpoint.
         ethRewardsSincePreviousCheckpoint = activeETHBalance
-          .minus(ethReceivedInCheckpoint)
+          .minus(ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate)
           .minus(previousETHBalance)
+
+        /*
+          Depending on the exchange rate differences for the previous and current checkpoint..
+           - We might have lost value on the newly minted rETH amount. (if previous exchange rate > the current exchange rate)
+           - We might have gained value on the newly minted rETH amount. (if previous exchange rate > the current exchange rate)
+          We need to take this increase/decrease into account.
+        */
+        let ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate = 
+            activeRETHBalance
+              .minus(previousRETHBalance)
+              .times(currentCheckpointExchangeRate)
+              .div(ONE_ETHER_IN_WEI);
+        if(ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate > ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate) {
+          ethRewardsSincePreviousCheckpoint.plus(
+            ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate.minus(
+              ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate));
+        } else {
+          ethRewardsSincePreviousCheckpoint.minus(
+            ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate.minus(
+              ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate));
+        }
       }
     }
 
