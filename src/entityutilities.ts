@@ -7,7 +7,11 @@ import {
 } from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketPoolEntityFactory } from './entityfactory'
-import { ROCKETPOOL_PROTOCOL_ROOT_ID, ONE_ETHER_IN_WEI, ADDRESS_ZERO_STRING } from './constants'
+import {
+  ROCKETPOOL_PROTOCOL_ROOT_ID,
+  ONE_ETHER_IN_WEI,
+  ADDRESS_ZERO_STRING,
+} from './constants'
 
 class RocketEntityUtilities {
   /**
@@ -21,14 +25,14 @@ class RocketEntityUtilities {
    * Extracts the ID that is commonly used to identify an entity based on the given event.
    */
   public extractIdForEntity(event: ethereum.Event): string {
-    return event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+    return event.transaction.hash.toHex() + '-' + event.logIndex.toString()
   }
 
   /**
    * Attempts to create a new Staker.
    */
   public extractStakerId(address: Address): string {
-    return address.toHexString();
+    return address.toHexString()
   }
 
   /**
@@ -47,7 +51,8 @@ class RocketEntityUtilities {
   ): boolean {
     // Is this transaction already logged?
     return (
-      NetworkStakerBalanceCheckpoint.load(this.extractIdForEntity(event)) !== null
+      NetworkStakerBalanceCheckpoint.load(this.extractIdForEntity(event)) !==
+      null
     )
   }
 
@@ -64,7 +69,7 @@ class RocketEntityUtilities {
      * Load or attempt to create the (new) staker from whom the rETH is being transferred.
      */
     let fromId = this.extractStakerId(from)
-    let fromStaker : Staker | null  = <Staker | null>Staker.load(fromId);
+    let fromStaker: Staker | null = <Staker | null>Staker.load(fromId)
     if (fromStaker === null) {
       fromStaker = <Staker>(
         rocketPoolEntityFactory.createStaker(
@@ -79,46 +84,55 @@ class RocketEntityUtilities {
      * Load or attempt to create the (new) staker to whom the rETH is being transferred.
      */
     let toId = this.extractStakerId(to)
-    let toStaker: Staker | null = <Staker | null>Staker.load(toId);
+    let toStaker: Staker | null = <Staker | null>Staker.load(toId)
     if (toStaker === null) {
       toStaker = <Staker>(
         rocketPoolEntityFactory.createStaker(toId, blockNumber, blockTimeStamp)
       )
     }
 
-    return new TransactionStakers(<Staker>fromStaker, <Staker>toStaker);
+    return new TransactionStakers(<Staker>fromStaker, <Staker>toStaker)
   }
 
   /**
    * Changes the balance for a staker, with the amount and either a minus or a plus operation.
    */
-  public changeStakerBalances(staker: Staker, rEthAmount: BigInt, rEthExchangeRate : BigInt, increase: boolean) : void {
+  public changeStakerBalances(
+    staker: Staker,
+    rEthAmount: BigInt,
+    rEthExchangeRate: BigInt,
+    increase: boolean,
+  ): void {
     // Don't store balance for the zero address.
     if (staker === null || staker.id == ADDRESS_ZERO_STRING) return
 
     // Set current rETH balance.
-    if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount);
+    if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount)
     else {
-      if (staker.rETHBalance >= rEthAmount) staker.rETHBalance = staker.rETHBalance.minus(rEthAmount);
-      else staker.rETHBalance = BigInt.fromI32(0); // Could be zero address.
+      if (staker.rETHBalance >= rEthAmount)
+        staker.rETHBalance = staker.rETHBalance.minus(rEthAmount)
+      else staker.rETHBalance = BigInt.fromI32(0) // Could be zero address.
     }
 
     // Set current ETH balance.
-    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0)) staker.ethBalance = staker.rETHBalance.times(rEthExchangeRate).div(ONE_ETHER_IN_WEI);
-    else staker.ethBalance = BigInt.fromI32(0);
+    if (rEthExchangeRate > BigInt.fromI32(0) && rEthAmount > BigInt.fromI32(0))
+      staker.ethBalance = staker.rETHBalance
+        .times(rEthExchangeRate)
+        .div(ONE_ETHER_IN_WEI)
+    else staker.ethBalance = BigInt.fromI32(0)
   }
 
   /**
    * Returns the total ETH rewards for a staker since the previous staker balance checkpoint.
    */
   public getETHRewardsSincePreviousStakerBalanceCheckpoint(
-    activeRETHBalance: BigInt, 
-    activeETHBalance: BigInt, 
-    previousRETHBalance: BigInt, 
+    activeRETHBalance: BigInt,
+    activeETHBalance: BigInt,
+    previousRETHBalance: BigInt,
     previousETHBalance: BigInt,
     previousCheckPointExchangeRate: BigInt,
-    currentCheckpointExchangeRate: BigInt) : BigInt {
-
+    currentCheckpointExchangeRate: BigInt,
+  ): BigInt {
     // This will indicate how many ETH rewards we have since the previous checkpoint.
     let ethRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
 
@@ -128,7 +142,8 @@ class RocketEntityUtilities {
      */
     if (
       previousRETHBalance > BigInt.fromI32(0) &&
-      (activeETHBalance > previousETHBalance || activeETHBalance < previousETHBalance)
+      (activeETHBalance > previousETHBalance ||
+        activeETHBalance < previousETHBalance)
     ) {
       // CASE #1: The staker his rETH balance stayed the same since last checkpoint.
       if (activeRETHBalance == previousRETHBalance) {
@@ -166,41 +181,86 @@ class RocketEntityUtilities {
            - We might have gained value on the newly minted rETH amount. (if previous exchange rate > the current exchange rate)
           We need to take this increase/decrease into account.
         */
-        let ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate = 
-            activeRETHBalance
-              .minus(previousRETHBalance)
-              .times(currentCheckpointExchangeRate)
-              .div(ONE_ETHER_IN_WEI);
-        if(ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate > ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate) {
+        let ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate = activeRETHBalance
+          .minus(previousRETHBalance)
+          .times(currentCheckpointExchangeRate)
+          .div(ONE_ETHER_IN_WEI)
+        if (
+          ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate >
+          ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate
+        ) {
           ethRewardsSincePreviousCheckpoint.plus(
             ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate.minus(
-              ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate));
+              ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate,
+            ),
+          )
         } else {
           ethRewardsSincePreviousCheckpoint.minus(
             ethReceivedSinceThePreviousCheckpointAtPreviousExchangeRate.minus(
-              ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate));
+              ethReceivedSinceThePreviousCheckpointAtCurrentExchangeRate,
+            ),
+          )
         }
       }
     }
 
-    return ethRewardsSincePreviousCheckpoint;
+    return ethRewardsSincePreviousCheckpoint
   }
 
   /**
    * Updates the given summary based on the rewards since previous checkpoint and the total rewards for a staker.
    */
-  public updateNetworkStakerRewardCheckpointSummary(summary : NetworkStakerRewardCheckpointSummary, ethRewardsSincePreviousCheckpoint: BigInt, totalETHRewards: BigInt) : void {
-    if(summary === null) return
-    
-    if(ethRewardsSincePreviousCheckpoint > BigInt.fromI32(0)) {
-      summary.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint.plus(ethRewardsSincePreviousCheckpoint);
-    } else {
-      summary.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint.minus(ethRewardsSincePreviousCheckpoint);
+  public updateNetworkStakerRewardCheckpointSummary(
+    summary: NetworkStakerRewardCheckpointSummary,
+    ethRewardsSincePreviousCheckpoint: BigInt,
+    totalETHRewards: BigInt,
+    hasStakerAccruedETHRewardsDuringLifecycle: boolean,
+    stakerRETHBalance: BigInt,
+  ): void {
+    if (summary === null) return
+
+    // Increment when this staker has rewards (+/-) since the previous checkpoint.
+    if (ethRewardsSincePreviousCheckpoint != BigInt.fromI32(0)) {
+      summary.totalStakersWithETHRewardsSincePreviousCheckpoint = summary.totalStakersWithETHRewardsSincePreviousCheckpoint.plus(
+        BigInt.fromI32(1),
+      )
     }
-    if(totalETHRewards > BigInt.fromI32(0)) {
-      summary.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint.plus(totalETHRewards);
+
+    // Update the total ETH rewards (+/-) since previous checkpoint.
+    if (ethRewardsSincePreviousCheckpoint > BigInt.fromI32(0)) {
+      summary.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint.plus(
+        ethRewardsSincePreviousCheckpoint,
+      )
     } else {
-      summary.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint.minus(totalETHRewards);
+      summary.totalStakerETHRewardsSincePreviousCheckpoint = summary.totalStakerETHRewardsSincePreviousCheckpoint.minus(
+        ethRewardsSincePreviousCheckpoint,
+      )
+    }
+
+    // Update the total ETH rewards (+/-) up to this checkpoint based on the total rewards.
+    if (totalETHRewards > BigInt.fromI32(0)) {
+      summary.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint.plus(
+        totalETHRewards,
+      )
+    } else {
+      summary.totalStakerETHRewardsUpToThisCheckpoint = summary.totalStakerETHRewardsUpToThisCheckpoint.minus(
+        totalETHRewards,
+      )
+    }
+
+    // Keep track of all stakers that have an RETH balance this network balance checkpoint.
+    if (stakerRETHBalance > BigInt.fromI32(0)) {
+      summary.totalStakersWithAnRETHBalance = summary.totalStakersWithAnRETHBalance.plus(
+        BigInt.fromI32(1),
+      )
+    }
+
+    // If the staker has ever accrued ETH rewards (+/-) during its lifeclye, then increment the total counter for the network balance checkpoint.
+    // This counter is needed to calculate the averages.
+    if (hasStakerAccruedETHRewardsDuringLifecycle) {
+      summary.totalStakersWithETHRewardsUpToThisCheckpoint = summary.totalStakersWithETHRewardsUpToThisCheckpoint.plus(
+        BigInt.fromI32(1),
+      )
     }
   }
 }
@@ -210,9 +270,9 @@ export class TransactionStakers {
   toStaker: Staker
 
   constructor(from: Staker, to: Staker) {
-    this.fromStaker = from;
-    this.toStaker = to;
-   }
+    this.fromStaker = from
+    this.toStaker = to
+  }
 }
 
 export class NetworkStakerRewardCheckpointSummary {
@@ -223,22 +283,24 @@ export class NetworkStakerRewardCheckpointSummary {
   averageStakerETHRewardsUpToThisCheckpoint: BigInt
   totalStakersWithETHRewardsUpToThisCheckpoint: BigInt
   totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint: BigInt
-  averageCheckpointsWithRewardsPerStaker: BigInt
-  averageStakerETHRewardsPerCheckpoint: BigInt
+  averageCheckpointsWithETHRewardsPerStaker: BigInt
+  averageStakerETHRewardsPerCheckpointWithETHRewards: BigInt
   totalStakersWithAnRETHBalance: BigInt
 
   constructor() {
-    this.totalStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0);
-    this.totalStakersWithETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0);
-    this.averageStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0);
-    this.totalStakerETHRewardsUpToThisCheckpoint =  BigInt.fromI32(0);
-    this.averageStakerETHRewardsUpToThisCheckpoint = BigInt.fromI32(0);
-    this.totalStakersWithETHRewardsUpToThisCheckpoint = BigInt.fromI32(0);
-    this.totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint = BigInt.fromI32(0);
-    this.averageCheckpointsWithRewardsPerStaker =  BigInt.fromI32(0);
-    this.averageStakerETHRewardsPerCheckpoint = BigInt.fromI32(0);
-    this.totalStakersWithAnRETHBalance = BigInt.fromI32(0);
-   }
+    this.totalStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
+    this.totalStakersWithETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
+    this.averageStakerETHRewardsSincePreviousCheckpoint = BigInt.fromI32(0)
+    this.totalStakerETHRewardsUpToThisCheckpoint = BigInt.fromI32(0)
+    this.averageStakerETHRewardsUpToThisCheckpoint = BigInt.fromI32(0)
+    this.totalStakersWithETHRewardsUpToThisCheckpoint = BigInt.fromI32(0)
+    this.totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint = BigInt.fromI32(
+      0,
+    )
+    this.averageCheckpointsWithETHRewardsPerStaker = BigInt.fromI32(0)
+    this.averageStakerETHRewardsPerCheckpointWithETHRewards = BigInt.fromI32(0)
+    this.totalStakersWithAnRETHBalance = BigInt.fromI32(0)
+  }
 }
 
 export let rocketEntityUtilities = new RocketEntityUtilities()
