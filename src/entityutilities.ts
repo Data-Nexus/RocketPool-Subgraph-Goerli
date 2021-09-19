@@ -186,8 +186,8 @@ class RocketEntityUtilities {
 }
 
 export class TransactionStakers {
-  fromStaker: Staker
-  toStaker: Staker
+  fromStaker!: Staker
+  toStaker!: Staker
 }
 
 export class NetworkStakerRewardCheckpointSummary {
