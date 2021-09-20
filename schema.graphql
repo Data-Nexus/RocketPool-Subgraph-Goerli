@@ -84,26 +84,14 @@ type NetworkStakerBalanceCheckpoint @entity {
   # Total staker ETH rewards (+/-) (in WEI) since the previous staker balance checkpoint.
   totalStakerETHRewardsSincePreviousCheckpoint: BigInt!
 
-  # Total unique stakers that have had ETH rewards (+/-) since the previous staker balance checkpoint.
-  totalStakersWithETHRewardsSincePreviousCheckpoint: BigInt
-
-  # Average staker ETH rewards (+/-) (in WEI) since the previous staker balance checkpoint.
-  averageStakerETHRewardsSincePreviousCheckpoint: BigInt
-
-  # Total staker ETH rewards (+/-) (in WEI) for all staker balance checkpoints up to the current checkpoint.
-  totalStakerETHRewardsUpToThisCheckpoint: BigInt!
+  # Total staker ETH rewards (+/-) (in WEI) for all staker balance checkpoints up to this checkpoint.
+  totalStakerETHRewards: BigInt!
 
   # Total stakers that have had ETH rewards (+/-) up to this checkpoint.
-  totalStakersWithETHRewardsUpToThisCheckpoint: BigInt
+  totalStakersWithETHRewards: BigInt!
 
-  # Total staker checkpoints with ETH rewards (+/-) up to this checkpoint.
-  totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint: BigInt
-
-  # Average checkpoints with ETH rewards (+/-) per staker.
-  averageCheckpointsWithETHRewardsPerStaker: BigInt
-
-  # Average staker ETH rewards (in WEI) per checkpoint.
-  averageStakerETHRewardsPerCheckpointWithETHRewards: BigInt
+  # Average staker ETH rewards (+/-) (in WEI) up to this checkpoint.
+  averageStakerETHRewards: BigInt!
 
   # Total unique stakers that have an rETH balance (in WEI) greater than 0 at this checkpoint.
   totalStakersWithAnRETHBalance: BigInt!
