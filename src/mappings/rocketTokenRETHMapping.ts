@@ -1,11 +1,12 @@
-import { ADDRESS_ROCKET_TOKEN_RETH } from '../constants'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
-  Transfer,
-} from '../../generated/rocketTokenRETH/rocketTokenRETH'
-import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
+  ADDRESS_ROCKET_TOKEN_RETH,
+} from '../constants'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { Transfer } from '../../generated/rocketTokenRETH/rocketTokenRETH'
+import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { Staker } from '../../generated/schema'
-import { rocketEntityUtilities } from '../entityutilities'
+import { generalUtilities } from '../utilities/generalutilities'
+import { stakerUtilities } from '../utilities/stakerUtilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import { ethereum } from '@graphprotocol/graph-ts'
 
@@ -31,10 +32,10 @@ function handleRocketETHTransaction(
   rETHAmount: BigInt,
 ): void {
   // Preliminary check to ensure we haven't handled this before.
-  if (rocketEntityUtilities.hasTransactionHasBeenIndexed(event)) return
+  if (generalUtilities.hasTransactionHasBeenIndexed(event)) return
 
   // Who are the stakers for this transaction?
-  let stakers = rocketEntityUtilities.getTransactionStakers(
+  let stakers = stakerUtilities.getTransactionStakers(
     from,
     to,
     event.block.number,
@@ -56,56 +57,56 @@ function handleRocketETHTransaction(
  */
 function saveTransaction(
   event: ethereum.Event,
-  fromStaker: Staker,
-  toStaker: Staker,
+  from: Staker,
+  to: Staker,
   rETHAmount: BigInt,
 ): void {
   // This state has to be valid before we can actually do anything.
   if (
     event === null ||
-    fromStaker === null ||
-    fromStaker.id === null ||
-    toStaker === null ||
-    toStaker.id === null
+    from === null ||
+    from.id == null ||
+    to === null ||
+    to.id == null
   )
     return
 
   // Create a new transaction for the given values.
   let rEthTransaction = rocketPoolEntityFactory.createRocketETHTransaction(
-    rocketEntityUtilities.extractIdForEntity(event),
-    fromStaker,
-    toStaker,
+    generalUtilities.extractIdForEntity(event),
+    from,
+    to,
     rETHAmount,
     event,
   )
-  if (rEthTransaction === null || rEthTransaction.id === null) return
+  if (rEthTransaction === null || rEthTransaction.id == null) return
 
   // Protocol entity should exist, if not, then we attempt to create it.
-  let protocol = rocketEntityUtilities.getRocketPoolProtocolEntity()
-  if (protocol === null || protocol.id === null) {
+  let protocol = generalUtilities.getRocketPoolProtocolEntity()
+  if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
     protocol.save()
   }
 
- // Load the RocketTokenRETH contract.
- let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
- if (rETHContract === null) return
+  // Load the RocketTokenRETH contract.
+  let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
+  if (rETHContract === null) return
 
   // Update active balances for stakesr.
-  rocketEntityUtilities.changeStakerBalances(fromStaker, rETHAmount, rETHContract.getExchangeRate(), false);
-  rocketEntityUtilities.changeStakerBalances(toStaker, rETHAmount, rETHContract.getExchangeRate(), true);
+  let exchangeRate = rETHContract.getExchangeRate()
+  stakerUtilities.changeStakerBalances(from, rETHAmount, exchangeRate, false)
+  stakerUtilities.changeStakerBalances(to, rETHAmount, exchangeRate, true)
 
-  // Save all affected entities.
-  fromStaker.save()
-  toStaker.save()
+  // Save all directly affected entities.
+  from.save()
+  to.save()
   rEthTransaction.save()
 
+  // Save all indirectly affected entities.
   // Add the stakers to the protocol. (if necessary)
   let protocolStakers = protocol.stakers
-  if (protocolStakers.indexOf(fromStaker.id) == -1)
-    protocolStakers.push(fromStaker.id)
-  if (protocolStakers.indexOf(toStaker.id) == -1)
-    protocolStakers.push(toStaker.id)
+  if (protocolStakers.indexOf(from.id) == -1) protocolStakers.push(from.id)
+  if (protocolStakers.indexOf(to.id) == -1) protocolStakers.push(to.id)
   protocol.stakers = protocolStakers
 
   // Save changes to the protocol.

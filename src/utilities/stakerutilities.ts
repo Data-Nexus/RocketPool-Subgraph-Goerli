@@ -1,47 +1,20 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts'
 import {
-  RocketETHTransaction,
   NetworkStakerBalanceCheckpoint,
   Staker,
-  RocketPoolProtocol,
   StakerBalanceCheckpoint,
-} from '../generated/schema'
+} from '../../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { rocketPoolEntityFactory } from './entityfactory'
-import {
-  ROCKETPOOL_PROTOCOL_ROOT_ID,
-  ONE_ETHER_IN_WEI,
-  ADDRESS_ZERO_STRING,
-} from './constants'
+import { rocketPoolEntityFactory } from './../entityfactory'
+import { ONE_ETHER_IN_WEI, ADDRESS_ZERO_STRING } from './../constants'
+import { generalUtilities } from './generalutilities'
 
-class RocketEntityUtilities {
-  /**
-   * Loads the Rocket Protocol entity from
-   */
-  public getRocketPoolProtocolEntity(): RocketPoolProtocol | null {
-    return RocketPoolProtocol.load(ROCKETPOOL_PROTOCOL_ROOT_ID)
-  }
-
-  /**
-   * Extracts the ID that is commonly used to identify an entity based on the given event.
-   */
-  public extractIdForEntity(event: ethereum.Event): string {
-    return event.transaction.hash.toHex() + '-' + event.logIndex.toString()
-  }
-
+class StakerUtilities {
   /**
    * Attempts to create a new Staker.
    */
   public extractStakerId(address: Address): string {
     return address.toHexString()
-  }
-
-  /**
-   * Checks if there is already an indexed transaction for the given event.
-   */
-  public hasTransactionHasBeenIndexed(event: ethereum.Event): boolean {
-    // Is this transaction already logged?
-    return RocketETHTransaction.load(this.extractIdForEntity(event)) !== null
   }
 
   /**
@@ -52,8 +25,9 @@ class RocketEntityUtilities {
   ): boolean {
     // Is this transaction already logged?
     return (
-      NetworkStakerBalanceCheckpoint.load(this.extractIdForEntity(event)) !==
-      null
+      NetworkStakerBalanceCheckpoint.load(
+        generalUtilities.extractIdForEntity(event),
+      ) !== null
     )
   }
 
@@ -279,11 +253,7 @@ class RocketEntityUtilities {
     }
 
     // Update the total ETH rewards since previous checkpoint and until the current checkpoint.
-    rocketEntityUtilities.updateNetworkStakerBalanceCheckpoint(
-      networkCheckpoint,
-      ethRewardsSincePreviousCheckpoint,
-      staker,
-    )
+    this.updateNetworkStakerBalanceCheckpoint(networkCheckpoint, staker)
   }
 
   /**
@@ -291,15 +261,9 @@ class RocketEntityUtilities {
    */
   public updateNetworkStakerBalanceCheckpoint(
     networkCheckpoint: NetworkStakerBalanceCheckpoint,
-    ethRewardsSincePreviousCheckpoint: BigInt,
     staker: Staker,
   ): void {
     if (networkCheckpoint === null) return
-
-    // Update the total ETH rewards (+/-) since previous checkpoint.
-    networkCheckpoint.totalStakerETHRewardsSincePreviousCheckpoint = networkCheckpoint.totalStakerETHRewardsSincePreviousCheckpoint.plus(
-      ethRewardsSincePreviousCheckpoint,
-    )
 
     // Update the total ETH rewards (+/-) up to this checkpoint based on the total rewards.
     networkCheckpoint.totalStakerETHRewards = networkCheckpoint.totalStakerETHRewards.plus(
@@ -308,7 +272,7 @@ class RocketEntityUtilities {
 
     // Keep track of all stakers that have an RETH balance this network balance checkpoint.
     if (staker.rETHBalance > BigInt.fromI32(0)) {
-      networkCheckpoint.totalStakersWithAnRETHBalance = networkCheckpoint.totalStakersWithAnRETHBalance.plus(
+      networkCheckpoint.stakersWithAnRETHBalance = networkCheckpoint.stakersWithAnRETHBalance.plus(
         BigInt.fromI32(1),
       )
     }
@@ -346,4 +310,4 @@ export class StakerBalance {
   }
 }
 
-export let rocketEntityUtilities = new RocketEntityUtilities()
+export let stakerUtilities = new StakerUtilities()

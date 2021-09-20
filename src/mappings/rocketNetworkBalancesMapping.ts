@@ -1,20 +1,14 @@
 import { BalancesUpdated } from '../../generated/rocketNetworkBalances/rocketNetworkBalances'
-import {
-  Staker,
-  NetworkStakerBalanceCheckpoint,
-  StakerBalanceCheckpoint,
-} from '../../generated/schema'
+import { Staker, NetworkStakerBalanceCheckpoint } from '../../generated/schema'
 import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
-import {
-  rocketEntityUtilities,
-} from '../entityutilities'
+import { generalUtilities } from '../utilities/generalUtilities'
+import { stakerUtilities } from '../utilities/stakerutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import {
   ADDRESS_ROCKET_DEPOSIT_POOL,
   ADDRESS_ROCKET_TOKEN_RETH,
   ADDRESS_ZERO_STRING,
-  ONE_ETHER_IN_WEI,
 } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
 
@@ -23,9 +17,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
  */
 export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Preliminary check to ensure we haven't handled this before.
-  if (
-    rocketEntityUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event)
-  )
+  if (stakerUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event))
     return
 
   // Load the RocketTokenRETH contract.
@@ -39,47 +31,42 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   if (rocketDepositPoolContract === null) return
 
   // How much is the total staker ETH balance in the deposit pool?
-  let totalStakerETHWaitingInDepositPool = rocketDepositPoolContract.getBalance()
-
-  // How much of the staker ETH balance in the deposit pool is not needed for queued minipools?
-  let depositPoolStakerETHExcessBalance = rocketDepositPoolContract.getExcessBalance()
-
-  // How much ETH is available as collateral in the RocketETH contract?
-  let rEthTotalCollateral = rETHContract.getTotalCollateral()
+  let depositPoolBalance = rocketDepositPoolContract.getBalance()
+  let depositPoolExcessBalance = rocketDepositPoolContract.getExcessBalance()
 
   // The RocketEth contract balance is equal to the total collateral - the excess deposit pool balance.
-  let totalStakerETHInRocketEthContract = rEthTotalCollateral.minus(
-    depositPoolStakerETHExcessBalance,
+  let stakerETHInRocketETHContract = generalUtilities.getRocketETHBalance(
+    depositPoolExcessBalance,
+    rETHContract.getTotalCollateral(),
   )
-  if (totalStakerETHInRocketEthContract < BigInt.fromI32(0))
-    totalStakerETHInRocketEthContract = BigInt.fromI32(0)
 
   // Attempt to create a new network balance checkpoint.
+  let rETHExchangeRate = rETHContract.getExchangeRate()
   let checkpoint = rocketPoolEntityFactory.createNetworkStakerBalanceCheckpoint(
-    rocketEntityUtilities.extractIdForEntity(event),
+    generalUtilities.extractIdForEntity(event),
     event,
-    totalStakerETHWaitingInDepositPool,
-    totalStakerETHInRocketEthContract,
-    rETHContract.getExchangeRate(),
+    depositPoolBalance,
+    stakerETHInRocketETHContract,
+    rETHExchangeRate,
   )
   if (checkpoint === null) return
 
   // Protocol entity should exist, if not, then we attempt to create it.
-  let protocol = rocketEntityUtilities.getRocketPoolProtocolEntity()
-  if (protocol === null || protocol.id === null) {
+  let protocol = generalUtilities.getRocketPoolProtocolEntity()
+  if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
   }
 
   // Retrieve previous checkpoint.
   let previousCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint
   let previousTotalStakerETHRewards = BigInt.fromI32(0)
-  let previousRETHExchangeRate = BigInt.fromI32(1);
+  let previousRETHExchangeRate = BigInt.fromI32(1)
   let previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
     <string>previousCheckpointId,
   )
   if (previousCheckpoint !== null) {
-      previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
-      previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate;
+    previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
+    previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate
   }
 
   // Handle the staker impact.
@@ -88,7 +75,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     checkpoint,
     previousRETHExchangeRate,
     event.block.number,
-    event.block.timestamp
+    event.block.timestamp,
   )
 
   // If for some reason our summary total up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
@@ -101,14 +88,18 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     checkpoint.totalStakerETHRewards != BigInt.fromI32(0) &&
     checkpoint.totalStakersWithETHRewards >= BigInt.fromI32(1)
   ) {
-    checkpoint.averageStakerETHRewards = 
-      checkpoint.totalStakerETHRewards
-        .div(checkpoint.totalStakersWithETHRewards)
+    checkpoint.averageStakerETHRewards = checkpoint.totalStakerETHRewards.div(
+      checkpoint.totalStakersWithETHRewards,
+    )
   }
 
   // Index these changes.
   checkpoint.save()
+
+  // Update the link so the protocol points to the last network staker balance checkpoint.
   protocol.lastNetworkStakerBalanceCheckPoint = checkpoint.id
+
+  // Save changes to the protocol.
   protocol.save()
 }
 
@@ -122,7 +113,7 @@ function generateStakerBalanceCheckpoints(
   networkCheckpoint: NetworkStakerBalanceCheckpoint,
   previousRETHExchangeRate: BigInt,
   blockNumber: BigInt,
-  blockTime: BigInt
+  blockTime: BigInt,
 ): void {
   // If we don't have any stakers, stop.
   if (stakerIds.length === 0) {
@@ -139,10 +130,11 @@ function generateStakerBalanceCheckpoints(
     let staker = Staker.load(stakerId)
     if (staker === null) continue
     if (staker.rETHBalance == BigInt.fromI32(0)) {
-      rocketEntityUtilities.updateNetworkStakerBalanceCheckpoint(
+      // Stakers with 0 rETH don't get new staker balance checkpoint(s)
+      // But their rewards are accounted for in the total(s) of the current network checkpoint.
+      stakerUtilities.updateNetworkStakerBalanceCheckpoint(
         networkCheckpoint,
-        BigInt.fromI32(0),
-        staker
+        staker,
       )
 
       // Only generate a staker balance checkpoint if the staker still has an rETH balance.
@@ -150,20 +142,26 @@ function generateStakerBalanceCheckpoints(
     }
 
     // Get the current & previous balances for this staker and update the staker balance for the current exchange rate.
-    let stakerBalance = rocketEntityUtilities.getStakerBalance(staker, networkCheckpoint.rETHExchangeRate);
+    let stakerBalance = stakerUtilities.getStakerBalance(
+      staker,
+      networkCheckpoint.rETHExchangeRate,
+    )
     staker.ethBalance = stakerBalance.currentETHBalance
 
     // Calculate rewards (+/-) for this staker since the previous checkpoint.
-    let ethRewardsSincePreviousCheckpoint = rocketEntityUtilities.getETHRewardsSincePreviousStakerBalanceCheckpoint(
+    let ethRewardsSincePreviousCheckpoint = stakerUtilities.getETHRewardsSincePreviousStakerBalanceCheckpoint(
       stakerBalance.currentRETHBalance,
       stakerBalance.currentETHBalance,
       stakerBalance.previousRETHBalance,
       stakerBalance.previousETHBalance,
       previousRETHExchangeRate,
-      networkCheckpoint.rETHExchangeRate
+      networkCheckpoint.rETHExchangeRate,
     )
-    rocketEntityUtilities.handleEthRewardsSincePreviousCheckpoint(
-      ethRewardsSincePreviousCheckpoint, staker, networkCheckpoint);
+    stakerUtilities.handleEthRewardsSincePreviousCheckpoint(
+      ethRewardsSincePreviousCheckpoint,
+      staker,
+      networkCheckpoint,
+    )
 
     // Create a new staker balance checkpoint
     let stakerBalanceCheckpoint = rocketPoolEntityFactory.createStakerBalanceCheckpoint(
@@ -172,7 +170,6 @@ function generateStakerBalanceCheckpoints(
       networkCheckpoint,
       stakerBalance.currentETHBalance,
       stakerBalance.currentRETHBalance,
-      ethRewardsSincePreviousCheckpoint,
       staker.totalETHRewards,
       blockNumber,
       blockTime,
