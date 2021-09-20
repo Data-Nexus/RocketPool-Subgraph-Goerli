@@ -15,14 +15,17 @@ type Staker @entity {
   # Address that holds rETH.
   id: ID! 
 
-  # Current rETH balance. Based on the last checkpoint & all the transactions that have passed since.
+  # Current rETH balance. (in WEI) Based on the last checkpoint & all the transactions that have passed since.
   rETHBalance: BigInt!
 
-  # Current ETH balance. Based on the current rETH balance and the rETH:ETH exchange rate of the current staker balance checkpoint.
+  # Current ETH balance. (in WEI) Based on the current rETH balance and the rETH:ETH exchange rate of the current staker balance checkpoint.
   ethBalance: BigInt!
 
-  # Total ETH rewards accrued over all staker balance checkpoints.
+  # Total ETH rewards (in WEI) accrued over all staker balance checkpoints.
   totalETHRewards: BigInt!
+
+  # Indicates if this staker has accrued ETH rewards (in WEI) at some point in time during its lifetime.
+  hasAccruedETHRewardsDuringLifecycle: Boolean!
 
   # The last known staker balance checkpoint for this staker.
   lastBalanceCheckpoint: StakerBalanceCheckpoint
@@ -42,7 +45,7 @@ type RocketETHTransaction @entity {
   # The address that was the original owner of the rETH.
   from: Staker!
 
-  # The rETH amount being transferred.
+  # The rETH amount (in WEI) being transferred.
   amount: BigInt!
 
   # The address that was the recipient of the rETH.
@@ -63,31 +66,40 @@ type NetworkStakerBalanceCheckpoint @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
 
-  # Represents all staker ETH on the beacon chain at this checkpoint. This consists of their initial deposit + (ETH network rewards - average node fee)
+  # Represents all staker ETH (in WEI) on the beacon chain at this checkpoint. This consists of their initial deposit + (ETH network rewards - average node fee)
   totalStakerETHActivelyStaking: BigInt!
   
-  # Total number of staker ETH waiting to be staked in the deposit pool at this checkpoint.
+  # Total number of staker ETH (in WEI) waiting to be staked in the deposit pool at this checkpoint.
   totalStakerETHWaitingInDepositPool: BigInt!
  
-  # Total number of staker ETH in the RocketETH contract at this checkpoint.
+  # Total number of staker ETH (in WEI) in the RocketETH contract at this checkpoint.
   totalStakerETHInRocketEthContract: BigInt!
 
-  # Total number of staker ETH in pending or exited (that still have balance) minipools at this checkpoint.
+  # Total number of staker ETH (in WEI) in pending or exited (that still have balance) minipools at this checkpoint.
   totalStakerETHInPendingOrExitedMinipools: BigInt!
 
-  # Total number of staker ETH in RocketPool.
+  # Total number of staker ETH (in WEI) in RocketPool.
   totalStakerETHInProtocol: BigInt!
 
-  # Total staker ETH rewards since the previous staker balance checkpoint.
+  # Total staker ETH rewards (+/-) (in WEI) since the previous staker balance checkpoint.
   totalStakerETHRewardsSincePreviousCheckpoint: BigInt!
 
-  # Total staker ETH rewards for all staker balance checkpoints up to the current checkpoint.
-  totalStakerETHRewardsUpToThisCheckpoint: BigInt!
+  # Total staker ETH rewards (+/-) (in WEI) for all staker balance checkpoints up to this checkpoint.
+  totalStakerETHRewards: BigInt!
+
+  # Total stakers that have had ETH rewards (+/-) up to this checkpoint.
+  totalStakersWithETHRewards: BigInt!
+
+  # Average staker ETH rewards (+/-) (in WEI) up to this checkpoint.
+  averageStakerETHRewards: BigInt!
+
+  # Total unique stakers that have an rETH balance (in WEI) greater than 0 at this checkpoint.
+  totalStakersWithAnRETHBalance: BigInt!
 
   # Total rETH supply at this checkpoint.
   totalRETHSupply: BigInt!
 
-  # Exchange rate of ETH:rETH  at this checkpoint.
+  # Exchange rate of ETH:rETH (in WEI) at this checkpoint.
   rETHExchangeRate: BigInt!
 
   # Block Number of this checkpoint.
@@ -108,16 +120,16 @@ type StakerBalanceCheckpoint @entity {
   # The network staker balance checkpoint that triggered the creation of this reward.
   networkStakerBalanceCheckpointId: String!
 
-  # ETH balance of the staker of this checkpoint.
+  # ETH balance (in WEI) of the staker of this checkpoint.
   ethBalance: BigInt!
 
-  # rETH balance of the staker of this checkpoint.
+  # rETH balance (in WEI) of the staker of this checkpoint.
   rETHBalance: BigInt!
 
-  # ETH rewards that have accumulated since the previous checkpoint.
+  # ETH rewards (in WEI) that have accumulated since the previous checkpoint.
   ethRewardsSincePreviousCheckpoint: BigInt!
 
-  # Total staker ETH rewards that have accumulated up to this checkpoint.
+  # Total staker ETH rewards (in WEI) that have accumulated up to this checkpoint.
   totalETHRewardsUpToThisCheckpoint: BigInt!
 
   # Block Number of this checkpoint.

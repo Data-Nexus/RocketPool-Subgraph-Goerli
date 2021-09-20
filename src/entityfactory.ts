@@ -63,7 +63,7 @@ class RocketPoolEntityFactory {
     event: BalancesUpdated,
     totalStakerETHWaitingInDepositPool: BigInt,
     totalStakerETHInRocketEthContract: BigInt,
-    rEthExchangeRate: BigInt,
+    rEthExchangeRate: BigInt
   ): NetworkStakerBalanceCheckpoint | null {
     if (
       id === null ||
@@ -117,6 +117,7 @@ class RocketPoolEntityFactory {
     staker.ethBalance = BigInt.fromI32(0)
     staker.totalETHRewards = BigInt.fromI32(0)
     staker.lastBalanceCheckpoint = null
+    staker.hasAccruedETHRewardsDuringLifecycle = false;
     staker.block = blockNumber
     staker.blockTime = blockTime
 
