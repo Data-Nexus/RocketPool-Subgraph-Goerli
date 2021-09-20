@@ -61,12 +61,14 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let previousCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint
   let previousTotalStakerETHRewards = BigInt.fromI32(0)
   let previousRETHExchangeRate = BigInt.fromI32(1)
-  let previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
-    <string>previousCheckpointId,
-  )
-  if (previousCheckpoint !== null) {
-    previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
-    previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate
+  if (previousCheckpointId != null) {
+    let previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
+      <string>previousCheckpointId,
+    )
+    if (previousCheckpoint !== null) {
+      previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
+      previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate
+    }
   }
 
   // Handle the staker impact.
