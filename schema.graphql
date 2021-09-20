@@ -1,13 +1,7 @@
 # Entity that represents the RocketPool protocol and its various child entities. (Will eventually also hold Node related entities)
 type RocketPoolProtocol @entity {
-  # Will contain the name of the protocol
+  # The name of the RocketPOOL protocol.
   id: ID! 
-
-  # Accepts deposits from addresses and mints rETH at the current exchange rate.
-  depositPool: DepositPool
-
-  # The contract that mints rETH (or swaps rETH to ETH) for regular stakers.
-  rocketETH: RocketETH
 
   # All stakers (addresses holding rETH) associated with the RocketPool protocol.
   stakers: [Staker!]!
@@ -20,33 +14,6 @@ type RocketPoolProtocol @entity {
 
   # All timezones associated with registered nodes.
   nodeTimezones: [NetworkNodeTimezone!]!
-}
-
-# Accepts deposits from addresses and mints rETH at the current exchange rate.
-type RocketETH @entity {
-  # Will contain the address of the rocket ETH contract.
-  id: ID! 
-
-  # Total rETH currently in supply.
-  totalRETHSupply: BigInt!
-
-  # Current exchange rate of rETH:ETH.
-  exchangeRate: BigInt!
-
-  # Current ETH in the contract. Can be used to swap back for ETH or can be recycled into the DepositPool if a certain collateral target is met.
-  stakerETHInContract: BigInt!
-}
-
-# Accepts deposits from addresses and mints rETH at the current exchange rate.
-type DepositPool @entity {
-  # Will contain the address of the deposit pool.
-  id: ID! 
-
-  # Current staker ETH balance that can be used to assign to queued minipools.
-  stakerETHBalance: BigInt!
-
-  # Balance that cannot be assigned because there is a shortage of queued minipools.
-  excessStakerETHBalance: BigInt!
 }
 
 # A Staker on RocketPool is an address that is/was associated with an rETH balance.

@@ -19,8 +19,6 @@ dataSources:
       abis:
         - name: rocketTokenRETH
           file: ./abis/rocketTokenRETH.json
-        - name: rocketDepositPool
-          file: ./abis/rocketDepositPool.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer

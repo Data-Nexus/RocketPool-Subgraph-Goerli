@@ -2,14 +2,10 @@ import { ethereum } from '@graphprotocol/graph-ts'
 import {
   RocketETHTransaction,
   RocketPoolProtocol,
-  DepositPool,
-  RocketETH,
 } from '../../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import {
-  ROCKETPOOL_PROTOCOL_ROOT_ID,
-  ADDRESS_ROCKET_DEPOSIT_POOL_STRING,
-  ADDRESS_ROCKET_TOKEN_RETH_STRING,
+  ROCKETPOOL_PROTOCOL_ROOT_ID
 } from './../constants'
 
 class GeneralUtilities {
@@ -18,20 +14,6 @@ class GeneralUtilities {
    */
   public getRocketPoolProtocolEntity(): RocketPoolProtocol | null {
     return RocketPoolProtocol.load(ROCKETPOOL_PROTOCOL_ROOT_ID)
-  }
-
-  /**
-   * Loads the deposit pool entity.
-   */
-  public getDepositPool(): DepositPool | null {
-    return DepositPool.load(ADDRESS_ROCKET_DEPOSIT_POOL_STRING)
-  }
-
-  /**
-   * Loads the rocket ETH entity.
-   */
-  public getRocketETH(): RocketETH | null {
-    return RocketETH.load(ADDRESS_ROCKET_TOKEN_RETH_STRING)
   }
 
   /**

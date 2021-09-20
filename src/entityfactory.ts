@@ -5,8 +5,6 @@ import {
   NetworkStakerBalanceCheckpoint,
   RocketPoolProtocol,
   StakerBalanceCheckpoint,
-  DepositPool,
-  RocketETH,
 } from '../generated/schema'
 import { BalancesUpdated } from '../generated/rocketNetworkBalances/rocketNetworkBalances'
 import {
@@ -24,31 +22,8 @@ class RocketPoolEntityFactory {
     protocol.stakers = new Array<string>(0)
     protocol.lastNetworkStakerBalanceCheckPoint = null
     protocol.nodes = new Array<string>(0)
-    protocol.rocketETH = null
     protocol.nodeTimezones = new Array<string>(0)
-    protocol.depositPool = null
     return protocol
-  }
-
-  /**
-   * Should only every be created once.
-   */
-  public createDepositPool(): DepositPool {
-    let depositPool = new DepositPool(ADDRESS_ROCKET_DEPOSIT_POOL_STRING)
-    depositPool.stakerETHBalance = BigInt.fromI32(0)
-    depositPool.excessStakerETHBalance = BigInt.fromI32(0)
-    return depositPool
-  }
-
-  /**
-   * Should only every be created once.
-   */
-  public createRocketETH(): RocketETH {
-    let rocketETH = new RocketETH(ADDRESS_ROCKET_TOKEN_RETH_STRING)
-    rocketETH.totalRETHSupply = BigInt.fromI32(0)
-    rocketETH.exchangeRate = BigInt.fromI32(1)
-    rocketETH.stakerETHInContract = BigInt.fromI32(0)
-    return rocketETH
   }
 
   /**

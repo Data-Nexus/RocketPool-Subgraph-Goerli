@@ -1,15 +1,10 @@
 import {
-  ADDRESS_ROCKET_DEPOSIT_POOL,
-  ADDRESS_ROCKET_DEPOSIT_POOL_STRING,
   ADDRESS_ROCKET_TOKEN_RETH,
-  ADDRESS_ROCKET_TOKEN_RETH_STRING,
-  ADDRESS_ZERO_STRING,
 } from '../constants'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { Transfer } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
-import { rocketDepositPool } from '../../generated/rocketTokenRETH/rocketDepositPool'
-import { RocketPoolProtocol, Staker } from '../../generated/schema'
+import { Staker } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalutilities'
 import { stakerUtilities } from '../utilities/stakerUtilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
@@ -62,25 +57,25 @@ function handleRocketETHTransaction(
  */
 function saveTransaction(
   event: ethereum.Event,
-  fromStaker: Staker,
-  toStaker: Staker,
+  from: Staker,
+  to: Staker,
   rETHAmount: BigInt,
 ): void {
   // This state has to be valid before we can actually do anything.
   if (
     event === null ||
-    fromStaker === null ||
-    fromStaker.id == null ||
-    toStaker === null ||
-    toStaker.id == null
+    from === null ||
+    from.id == null ||
+    to === null ||
+    to.id == null
   )
     return
 
   // Create a new transaction for the given values.
   let rEthTransaction = rocketPoolEntityFactory.createRocketETHTransaction(
     generalUtilities.extractIdForEntity(event),
-    fromStaker,
-    toStaker,
+    from,
+    to,
     rETHAmount,
     event,
   )
@@ -99,76 +94,15 @@ function saveTransaction(
 
   // Update active balances for stakesr.
   let exchangeRate = rETHContract.getExchangeRate()
-  stakerUtilities.changeStakerBalances(
-    fromStaker,
-    rETHAmount,
-    exchangeRate,
-    false,
-  )
-  stakerUtilities.changeStakerBalances(
-    toStaker, 
-    rETHAmount, 
-    exchangeRate, 
-    true)
+  stakerUtilities.changeStakerBalances(from, rETHAmount, exchangeRate, false)
+  stakerUtilities.changeStakerBalances(to, rETHAmount, exchangeRate, true)
 
   // Save all directly affected entities.
-  fromStaker.save()
-  toStaker.save()
+  from.save()
+  to.save()
   rEthTransaction.save()
 
   // Save all indirectly affected entities.
-  saveProtocolRelatedStateForRETHTransaction(
-    rETHAmount,
-    fromStaker,
-    toStaker,
-    protocol,
-    exchangeRate,
-    rETHContract,
-  )
-}
-
-/**
- * Updates related protocol state for this rETH transaction.
- */
-function saveProtocolRelatedStateForRETHTransaction(
-  rETHAmount: BigInt,
-  from: Staker,
-  to: Staker,
-  protocol: RocketPoolProtocol,
-  rETHExchangeRate: BigInt,
-  rETHContract: rocketTokenRETH,
-) : void {
-  // Load up the deposit pool, as it contains some state that we need to update.
-  let depositPool = generalUtilities.getDepositPool()
-  if (depositPool === null || depositPool.id == null) {
-    depositPool = rocketPoolEntityFactory.createDepositPool()
-    protocol.depositPool = depositPool.id
-  }
-
-  // Update & index the deposit pool based on the latest state in the contract.
-  let depositPoolContract = rocketDepositPool.bind(ADDRESS_ROCKET_DEPOSIT_POOL)
-  depositPool.stakerETHBalance = depositPoolContract.getBalance()
-  depositPool.excessStakerETHBalance = depositPoolContract.getExcessBalance()
-  depositPool.save()
-
-  // Load up the rocket ETH, as it contains some state that we need to update.
-  let rocketETH = generalUtilities.getRocketETH()
-  if (rocketETH === null || rocketETH.id == null) {
-    rocketETH = rocketPoolEntityFactory.createRocketETH()
-    protocol.rocketETH = rocketETH.id
-  }
-
-  // Update & index the deposit pool based on the latest state in the contract.
-  if (from.id == ADDRESS_ZERO_STRING && rETHAmount > BigInt.fromI32(0)) {
-    rocketETH.totalRETHSupply = rocketETH.totalRETHSupply.plus(rETHAmount)
-  }
-  rocketETH.exchangeRate = rETHExchangeRate
-  rocketETH.stakerETHInContract = generalUtilities.getRocketETHBalance(
-    depositPoolContract.getExcessBalance(),
-    rETHContract.getTotalCollateral(),
-  )
-  rocketETH.save()
-
   // Add the stakers to the protocol. (if necessary)
   let protocolStakers = protocol.stakers
   if (protocolStakers.indexOf(from.id) == -1) protocolStakers.push(from.id)

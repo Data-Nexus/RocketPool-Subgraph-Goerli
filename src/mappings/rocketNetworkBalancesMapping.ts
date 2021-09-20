@@ -11,7 +11,6 @@ import {
   ADDRESS_ZERO_STRING,
 } from './../constants'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { RocketPoolProtocol } from '../../generated/schema'
 
 /**
  * Occurs when an ODAO member votes on a balance (per block) and a consensus threshold is reached.
@@ -97,16 +96,11 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Index these changes.
   checkpoint.save()
 
-  // Save protocol related changes.
-  saveProtocolRelatedStateForNetworkBalancesCheckpoint(
-    protocol,
-    depositPoolBalance,
-    depositPoolExcessBalance,
-    stakerETHInRocketETHContract,
-    rETHExchangeRate,
-    event.params.rethSupply,
-    checkpoint.id,
-  )
+  // Update the link so the protocol points to the last network staker balance checkpoint.
+  protocol.lastNetworkStakerBalanceCheckPoint = checkpoint.id
+
+  // Save changes to the protocol.
+  protocol.save()
 }
 
 /**
@@ -187,50 +181,4 @@ function generateStakerBalanceCheckpoints(
     stakerBalanceCheckpoint.save()
     staker.save()
   }
-}
-
-/**
- * Updates related protocol state for a network staker balance checkpoint.
- */
-function saveProtocolRelatedStateForNetworkBalancesCheckpoint(
-  protocol: RocketPoolProtocol,
-  // Deposit Pool related.
-  depositPoolBalance: BigInt,
-  depositPoolExcessBalance: BigInt,
-  // RocketETH related.
-  stakerETHInRocketETHContract: BigInt,
-  rETHExchangeRate: BigInt,
-  rETHSupply: BigInt,
-  // NetworkStakerBalanceCheckpoint realted.
-  lastNetworkStakerBalanceCheckPointId: string,
-) : void {
-  let depositPool = generalUtilities.getDepositPool()
-  if (depositPool === null || depositPool.id == null) {
-    depositPool = rocketPoolEntityFactory.createDepositPool()
-    protocol.depositPool = depositPool.id
-  }
-
-  // Update & index the deposit pool based on the latest state in the contract.
-  depositPool.stakerETHBalance = depositPoolBalance
-  depositPool.excessStakerETHBalance = depositPoolExcessBalance
-  depositPool.save()
-
-  // Load up the rocket ETH, as it contains some state that we need to update.
-  let rocketETH = generalUtilities.getRocketETH()
-  if (rocketETH === null || rocketETH.id == null) {
-    rocketETH = rocketPoolEntityFactory.createRocketETH()
-    protocol.rocketETH = rocketETH.id
-  }
-
-  // Update & index the deposit pool based on the latest state in the contract.
-  rocketETH.stakerETHInContract = stakerETHInRocketETHContract 
-  rocketETH.exchangeRate = rETHExchangeRate
-  rocketETH.totalRETHSupply = rETHSupply
-  rocketETH.save()
-
-  // Update the link so the protocol points to the last network staker balance checkpoint.
-  protocol.lastNetworkStakerBalanceCheckPoint = lastNetworkStakerBalanceCheckPointId
-
-  // Save changes to the protocol.
-  protocol.save()
 }
