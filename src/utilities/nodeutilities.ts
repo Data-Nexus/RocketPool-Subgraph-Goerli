@@ -1,7 +1,8 @@
 import { Address } from '@graphprotocol/graph-ts'
 import { rocketNodeManager } from '../../generated/rocketNodeManager/rocketNodeManager'
+import { rocketDAONodeTrusted } from '../../generated/rocketRewardsPool/rocketDAONodeTrusted'
 import { rocketStorage } from '../../generated/rocketRewardsPool/rocketStorage'
-import { ROCKET_NODE_MANAGER_CONTRACT_NAME, ROCKET_STORAGE_ADDRESS } from '../constants/contractconstants'
+import { ROCKET_NODE_MANAGER_CONTRACT_NAME, ROCKET_STORAGE_ADDRESS, ROCKET_DAO_NODE_TRUSTED_CONTRACT_NAME } from '../constants/contractconstants'
 import { generalUtilities } from './generalUtilities';
 
 class NodeUtilities {
@@ -17,6 +18,28 @@ class NodeUtilities {
     )
     if (nodeTimezoneStringId == null) nodeTimezoneStringId = 'UNKNOWN'
     return nodeTimezoneStringId
+  }
+
+  /**
+   * Checks if the given address is actually a trusted node.
+   */
+  public getIsTrustedNode(rocketStorageContract: rocketStorage, address: Address) : boolean {
+    let isTrustedNode: boolean = false;
+
+    let rocketDaoNodeTrustedAddress = rocketStorageContract.getAddress(
+      generalUtilities.getRocketVaultContractAddressKey(ROCKET_DAO_NODE_TRUSTED_CONTRACT_NAME)
+    )
+    if (rocketDaoNodeTrustedAddress !== null) {
+      let rocketDaoNodeTrustedContract = rocketDAONodeTrusted.bind(
+        rocketDaoNodeTrustedAddress,
+      )
+        isTrustedNode = (
+          rocketDaoNodeTrustedContract !== null &&
+          rocketDaoNodeTrustedContract.getMemberIsValid(address)
+        )
+    }
+
+    return isTrustedNode;
   }
 }
 

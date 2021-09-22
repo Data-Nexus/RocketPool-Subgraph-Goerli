@@ -137,8 +137,16 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   // Index the reward claim.
   rplRewardClaim.save()
 
-  // Add this reward claim to the current interval and update the grand total claimed.
+  // If the claimer was a (trusted) node, then increment its total claimed rewards.
+  let associatedNode = Node.bind(event.params.claimingAddress);
+  if(associatedNode !== null) {
+    associatedNode.totalClaimedRPLRewards =  associatedNode.totalClaimedRPLRewards.plus(event.params.amount);
+  }
+
+  // Update the grand total claimed of the current interval.
   activeIndexedRewardInterval.totalRPLClaimed = activeIndexedRewardInterval.totalRPLClaimed.plus(rplRewardClaim.amount);
+
+   // Add this reward claim to the current interval
   let currentRPLRewardClaims = activeIndexedRewardInterval.rplRewardClaims
   currentRPLRewardClaims.push(rplRewardClaim.id)
   activeIndexedRewardInterval.rplRewardClaims = currentRPLRewardClaims

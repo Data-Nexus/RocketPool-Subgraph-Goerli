@@ -11,7 +11,7 @@ import {
   ROCKET_DEPOSIT_POOL_CONTRACT_NAME,
   ROCKET_TOKEN_RETH_CONTRACT_NAME,
 } from './../constants/contractconstants'
-import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketStorage } from '../../generated/rocketRewardsPool/rocketStorage'
 
 /**

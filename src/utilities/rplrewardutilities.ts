@@ -12,6 +12,7 @@ import {
   } from '../constants/enumconstants'  
 import { Node } from '../../generated/schema'
 import { generalUtilities } from './generalUtilities'
+import { nodeUtilities } from './nodeutilities';
 
 class RPLRewardUtilties {
     
@@ -46,21 +47,8 @@ public getRplRewardClaimerType(
     }
   
     // #2: Could be a trusted node.
-    if (rplRewardClaimerType == null) {
-      let rocketDaoNodeTrustedAddress = rocketStorageContract.getAddress(
-        generalUtilities.getRocketVaultContractAddressKey(ROCKET_DAO_NODE_TRUSTED_CONTRACT_NAME)
-      )
-      if (rocketDaoNodeTrustedAddress !== null) {
-        let rocketDaoNodeTrustedContract = rocketDAONodeTrusted.bind(
-          rocketDaoNodeTrustedAddress,
-        )
-        if (
-          rocketDaoNodeTrustedContract !== null &&
-          rocketDaoNodeTrustedContract.getMemberIsValid(claimingAddress)
-        ) {
-          rplRewardClaimerType = RPLREWARDCLAIMERTYPE_TRUSTEDNODE
-        }
-      }
+    if (rplRewardClaimerType == null && nodeUtilities.getIsTrustedNode(rocketStorageContract, claimingAddress)) {
+       rplRewardClaimerType = RPLREWARDCLAIMERTYPE_TRUSTEDNODE
     }
   
     // #3: if the claimer type is still null, it **should** be a regular node.
