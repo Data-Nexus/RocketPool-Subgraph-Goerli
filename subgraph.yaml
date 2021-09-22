@@ -19,11 +19,13 @@ dataSources:
       abis:
         - name: rocketTokenRETH
           file: ./abis/rocketTokenRETH.json
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json 
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/mappings/rocketTokenRETHMapping.ts
-  
+
   - kind: ethereum/contract
     name: rocketNetworkBalances
     network: goerli
@@ -36,9 +38,8 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Staker
-        - RocketNetworkBalance
-        - StakerReward
+        - NetworkStakerBalanceCheckpoint
+        - StakerBalanceCheckpoint
       abis:
         - name: rocketNetworkBalances
           file: ./abis/rocketNetworkBalances.json
@@ -46,7 +47,92 @@ dataSources:
           file: ./abis/rocketTokenRETH.json   
         - name: rocketDepositPool
           file: ./abis/rocketDepositPool.json
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json 
       eventHandlers:
         - event: BalancesUpdated(uint256,uint256,uint256,uint256,uint256)
           handler: handleBalancesUpdated
       file: ./src/mappings/rocketNetworkBalancesMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketNodeManager
+    network: goerli
+    source:
+      address: "0xCd05a20bf753E56Ca69bc6AeF23C9cA056d2149D"
+      abi: rocketNodeManager
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Node
+        - NetworkNodeTimezone
+      abis:
+        - name: rocketNodeManager
+          file: ./abis/rocketNodeManager.json    
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json 
+      eventHandlers:
+        - event: NodeRegistered(indexed address,uint256)
+          handler: handleNodeRegister
+        - event: NodeTimezoneLocationSet(indexed address,uint256)
+          handler: handleNodeTimezoneChanged
+      file: ./src/mappings/rocketNodeManagerMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketNodeStaking
+    network: goerli
+    source:
+      address: "0xc0367B558fCF45d5E6cAdf55567d4Fb94BF62703"
+      abi: rocketNodeStaking
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - NodeRPLStakeTransaction
+      abis:
+        - name: rocketNodeStaking
+          file: ./abis/rocketNodeStaking.json    
+        - name: rocketNetworkPrices
+          file: ./abis/rocketNetworkPrices.json    
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json 
+      eventHandlers:
+        - event: RPLStaked(indexed address,uint256,uint256)
+          handler: handleRPLStaked
+        - event: RPLWithdrawn(indexed address,uint256,uint256)
+          handler: handleRPLWithdrawn
+        - event: RPLSlashed(indexed address,uint256,uint256,uint256)
+          handler: handleRPLSlashed
+      file: ./src/mappings/rocketNodeStakingMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketRewardsPool
+    network: goerli
+    source:
+      address: "0xf9aE18eB0CE4930Bc3d7d1A5E33e4286d4FB0f8B"
+      abi: rocketRewardsPool
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - RPLRewardInterval
+        - RPLRewardClaim
+      abis:
+        - name: rocketRewardsPool
+          file: ./abis/rocketRewardsPool.json     
+        - name: rocketDAONodeTrusted
+          file: ./abis/rocketDAONodeTrusted.json 
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json 
+        - name: rocketNetworkPrices
+          file: ./abis/rocketNetworkPrices.json    
+      eventHandlers:
+        - event: RPLTokensClaimed(indexed address,indexed address,uint256,uint256)
+          handler: handleRPLTokensClaimed
+      file: ./src/mappings/rocketRewardsPoolMapping.ts

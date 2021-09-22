@@ -1,17 +1,20 @@
 import { ethereum, BigInt } from '@graphprotocol/graph-ts'
 import {
   Staker,
+  Node,
   RocketETHTransaction,
   NetworkStakerBalanceCheckpoint,
   RocketPoolProtocol,
   StakerBalanceCheckpoint,
+  NetworkNodeTimezone,
+  NodeRPLStakeTransaction,
+  RPLRewardInterval,
+  RPLRewardClaim,
 } from '../generated/schema'
 import { BalancesUpdated } from '../generated/rocketNetworkBalances/rocketNetworkBalances'
 import {
   ROCKETPOOL_PROTOCOL_ROOT_ID,
-  ADDRESS_ROCKET_DEPOSIT_POOL_STRING,
-  ADDRESS_ROCKET_TOKEN_RETH_STRING,
-} from './constants'
+} from './constants/generalconstants'
 
 class RocketPoolEntityFactory {
   /**
@@ -23,6 +26,7 @@ class RocketPoolEntityFactory {
     protocol.lastNetworkStakerBalanceCheckPoint = null
     protocol.nodes = new Array<string>(0)
     protocol.nodeTimezones = new Array<string>(0)
+    protocol.lastRPLRewardInterval = null;
     return protocol
   }
 
@@ -48,7 +52,6 @@ class RocketPoolEntityFactory {
     )
       return null
 
-    // Instantiate a new transaction.
     let rocketETHTransaction = new RocketETHTransaction(id)
     rocketETHTransaction.from = from.id
     rocketETHTransaction.amount = amount
@@ -57,7 +60,6 @@ class RocketPoolEntityFactory {
     rocketETHTransaction.blockTime = event.block.timestamp
     rocketETHTransaction.transactionHash = event.transaction.hash
 
-    // Return our new transaction.
     return rocketETHTransaction
   }
 
@@ -91,7 +93,6 @@ class RocketPoolEntityFactory {
     if (event.params.stakingEth > BigInt.fromI32(0))
       totalStakerETHActivelyStaking = event.params.stakingEth
 
-    // Instantiate a new network balance.
     let networkBalance = new NetworkStakerBalanceCheckpoint(id)
     networkBalance.stakerETHActivelyStaking = totalStakerETHActivelyStaking
     networkBalance.stakerETHWaitingInDepositPool = stakerETHWaitingInDepositPool
@@ -102,7 +103,6 @@ class RocketPoolEntityFactory {
     networkBalance.block = event.block.number
     networkBalance.blockTime = event.block.timestamp
 
-    // Return the new network balance checkpoint.
     return networkBalance
   }
 
@@ -116,7 +116,6 @@ class RocketPoolEntityFactory {
   ): Staker | null {
     if (id == null) return null
 
-    // Instantiate a new staker.
     let staker = new Staker(id)
     staker.rETHBalance = BigInt.fromI32(0)
     staker.ethBalance = BigInt.fromI32(0)
@@ -126,7 +125,6 @@ class RocketPoolEntityFactory {
     staker.block = blockNumber
     staker.blockTime = blockTime
 
-    // Return our new Staker.
     return staker
   }
 
@@ -152,7 +150,6 @@ class RocketPoolEntityFactory {
     )
       return null
 
-    // Instantiate a new staker balance checkpoint.
     let stakerBalanceCheckpoint = new StakerBalanceCheckpoint(id)
     stakerBalanceCheckpoint.stakerId = staker.id
     stakerBalanceCheckpoint.networkStakerBalanceCheckpointId =
@@ -163,8 +160,125 @@ class RocketPoolEntityFactory {
     stakerBalanceCheckpoint.block = blockNumber
     stakerBalanceCheckpoint.blockTime = blockTime
 
-    // Return the new staker balance checkpoint.
     return stakerBalanceCheckpoint
+  }
+
+  /**
+   * Attempts to create a node timezone.
+   */
+   public createNodeTimezone(timezoneId: string): NetworkNodeTimezone {
+    let timezone = new NetworkNodeTimezone(timezoneId)
+    timezone.totalRegisteredNodes = BigInt.fromI32(0);
+    return timezone
+  }
+
+  /**
+   * Attempts to create a new Node.
+   */
+   public createNode(
+    id: string,
+    timezoneId: string,
+    blockNumber: BigInt,
+    blockTime: BigInt,
+  ): Node | null {
+    if (id == null) return null
+
+    let node = new Node(id)
+    node.timezone = timezoneId
+    node.rplStaked = BigInt.fromI32(0);
+    node.effectiveRPLStaked = BigInt.fromI32(0);
+    node.totalRPLSlashed = BigInt.fromI32(0);
+    node.totalClaimedRPLRewards = BigInt.fromI32(0);
+    node.minimumRPLNeededForMinipools = BigInt.fromI32(0);
+    node.maximumRPLNeededForMinipools = BigInt.fromI32(0);
+    node.queuedMinipools = BigInt.fromI32(0);
+    node.stakingMinipools = BigInt.fromI32(0);
+    node.unbondedStakingMinipools = BigInt.fromI32(0);
+    node.withdrawableMinipools = BigInt.fromI32(0);
+    node.totalFinalizedMinipools = BigInt.fromI32(0);
+    node.averageMinipoolFee = BigInt.fromI32(0);
+    node.lastNodeBalanceCheckpoint = null;
+    node.block = blockNumber
+    node.blockTime = blockTime
+    return node
+  }
+
+  /**
+   * Attempts to create a new Node RPL Transaction.
+   */
+   public createNodeRPLStakeTransaction(
+    id: string,
+    nodeId: string,
+    amount: BigInt,
+    ethAmount: BigInt,
+    type: string,
+    blockNumber: BigInt,
+    blockTime: BigInt,
+  ): NodeRPLStakeTransaction | null {
+    if (id == null) return null
+
+    let transaction = new NodeRPLStakeTransaction(id)
+    transaction.node = nodeId
+    transaction.amount = amount
+    transaction.ethAmount = ethAmount
+    transaction.type = type;
+    transaction.block = blockNumber
+    transaction.blockTime = blockTime
+
+    return transaction
+  }
+
+  /**
+   * Attempts to create a new RPL Reward Interval.
+   */
+   public createRPLRewardInterval(
+    id: string,
+    claimableRewards: BigInt,
+    intervalStartTime: BigInt,
+    intervalDuration: BigInt,
+    blockNumber: BigInt,
+    blockTime: BigInt,
+  ): RPLRewardInterval | null {
+    if (id == null) return null
+
+    let rewardInterval = new RPLRewardInterval(id);
+    rewardInterval.claimableRewards = claimableRewards;
+    rewardInterval.totalRPLClaimed = BigInt.fromI32(0)
+    rewardInterval.rplRewardClaims = new Array<string>(0)
+    rewardInterval.isClosed = false;
+    rewardInterval.intervalStartTime = intervalStartTime;
+    rewardInterval.intervalClosedTime = null;
+    rewardInterval.intervalDuration = intervalDuration;
+    rewardInterval.intervalDurationActual = null;
+    rewardInterval.block = blockNumber;
+    rewardInterval.blockTime = blockTime;
+
+    return rewardInterval
+  }
+
+  /**
+   * Attempts to create a new RPL Reward Claim.
+   */
+   public createRPLRewardClaim(
+    id: string,
+    claimer: string,
+    claimerType: string,
+    amount: BigInt,
+    ethAmount: BigInt,
+    blockNumber: BigInt,
+    blockTime: BigInt,
+  ): RPLRewardClaim | null {
+    if (id == null || claimer == null || claimerType == null || amount == BigInt.fromI32(0) || ethAmount == BigInt.fromI32(0)) return null
+
+    let rewardInterval = new RPLRewardClaim(id);
+    rewardInterval.claimer = claimer;
+    rewardInterval.claimerType = claimerType;
+    rewardInterval.amount = amount;
+    rewardInterval.ethAmount = ethAmount
+    rewardInterval.block = blockNumber;
+    rewardInterval.blockTime = blockTime;
+
+    return rewardInterval
   }
 }
 

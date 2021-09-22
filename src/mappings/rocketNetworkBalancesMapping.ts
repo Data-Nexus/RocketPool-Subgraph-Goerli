@@ -6,11 +6,13 @@ import { generalUtilities } from '../utilities/generalUtilities'
 import { stakerUtilities } from '../utilities/stakerutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import {
-  ADDRESS_ROCKET_DEPOSIT_POOL,
-  ADDRESS_ROCKET_TOKEN_RETH,
-  ADDRESS_ZERO_STRING,
-} from './../constants'
-import { BigInt } from '@graphprotocol/graph-ts'
+  ZERO_ADDRESS_STRING,
+  ROCKET_STORAGE_ADDRESS,
+  ROCKET_DEPOSIT_POOL_CONTRACT_NAME,
+  ROCKET_TOKEN_RETH_CONTRACT_NAME,
+} from './../constants/contractconstants'
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { rocketStorage } from '../../generated/rocketRewardsPool/rocketStorage'
 
 /**
  * Occurs when an ODAO member votes on a balance (per block) and a consensus threshold is reached.
@@ -20,14 +22,17 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   if (stakerUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event))
     return
 
-  // Load the RocketTokenRETH contract.
-  let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
+  // Load the RocketTokenRETH contract via the rocketstorage.
+  // We will need the rocketvault smart contract state to get specific addresses.
+  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS);
+  let rETHContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME))
+  let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
   if (rETHContract === null) return
+  
 
   // Load the rocketDepositPool contract
-  let rocketDepositPoolContract = rocketDepositPool.bind(
-    ADDRESS_ROCKET_DEPOSIT_POOL,
-  )
+  let rocketDepositPoolContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_DEPOSIT_POOL_CONTRACT_NAME)) 
+  let rocketDepositPoolContract = rocketDepositPool.bind(rocketDepositPoolContractAddress)
   if (rocketDepositPoolContract === null) return
 
   // How much is the total staker ETH balance in the deposit pool?
@@ -126,7 +131,7 @@ function generateStakerBalanceCheckpoints(
   for (let index = 0; index < stakerIds.length; index++) {
     // Determine current staker ID.
     let stakerId = <string>stakerIds[index]
-    if (stakerId == null || stakerId == ADDRESS_ZERO_STRING) continue
+    if (stakerId == null || stakerId == ZERO_ADDRESS_STRING) continue
 
     // Load the indexed staker.
     let staker = Staker.load(stakerId)
@@ -184,3 +189,4 @@ function generateStakerBalanceCheckpoints(
     staker.save()
   }
 }
+

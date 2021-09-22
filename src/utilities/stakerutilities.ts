@@ -3,15 +3,17 @@ import {
   NetworkStakerBalanceCheckpoint,
   Staker,
   StakerBalanceCheckpoint,
+  RocketETHTransaction,
 } from '../../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketPoolEntityFactory } from './../entityfactory'
-import { ONE_ETHER_IN_WEI, ADDRESS_ZERO_STRING } from './../constants'
+import { ONE_ETHER_IN_WEI } from '../constants/generalconstants'
+import { ZERO_ADDRESS_STRING } from '../constants/contractconstants'
 import { generalUtilities } from './generalutilities'
 
 class StakerUtilities {
   /**
-   * Attempts to create a new Staker.
+   * Returns the hexadecimal address representation.
    */
   public extractStakerId(address: Address): string {
     return address.toHexString()
@@ -79,7 +81,7 @@ class StakerUtilities {
     increase: boolean,
   ): void {
     // Don't store balance for the zero address.
-    if (staker === null || staker.id == ADDRESS_ZERO_STRING) return
+    if (staker === null || staker.id == ZERO_ADDRESS_STRING) return
 
     // Set current rETH balance.
     if (increase) staker.rETHBalance = staker.rETHBalance.plus(rEthAmount)
@@ -228,6 +230,14 @@ class StakerUtilities {
 
     return ethRewardsSincePreviousCheckpoint
   }
+
+  /**
+   * Checks if there is already an indexed transaction for the given event.
+   */
+   public hasTransactionHasBeenIndexed(event: ethereum.Event): boolean {
+    // Is this transaction already logged?
+    return RocketETHTransaction.load(generalUtilities.extractIdForEntity(event)) !== null
+   }
 
   /**
    * Updates the total ETH rewards of the staker.

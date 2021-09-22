@@ -1,13 +1,12 @@
-import {
-  ADDRESS_ROCKET_TOKEN_RETH,
-} from '../constants'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { ROCKET_STORAGE_ADDRESS, ROCKET_TOKEN_RETH_CONTRACT_NAME } from '../constants/contractconstants'
+import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Transfer } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { Staker } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalutilities'
 import { stakerUtilities } from '../utilities/stakerUtilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
+import { rocketStorage } from '../../generated/rocketNodeStaking/rocketStorage'
 import { ethereum } from '@graphprotocol/graph-ts'
 
 /**
@@ -32,7 +31,7 @@ function handleRocketETHTransaction(
   rETHAmount: BigInt,
 ): void {
   // Preliminary check to ensure we haven't handled this before.
-  if (generalUtilities.hasTransactionHasBeenIndexed(event)) return
+  if (stakerUtilities.hasTransactionHasBeenIndexed(event)) return
 
   // Who are the stakers for this transaction?
   let stakers = stakerUtilities.getTransactionStakers(
@@ -89,7 +88,11 @@ function saveTransaction(
   }
 
   // Load the RocketTokenRETH contract.
-  let rETHContract = rocketTokenRETH.bind(ADDRESS_ROCKET_TOKEN_RETH)
+  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
+  let rETHContractAddress = rocketStorageContract.getAddress(
+    generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME) 
+  )
+  let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
   if (rETHContract === null) return
 
   // Update active balances for stakesr.
@@ -102,8 +105,7 @@ function saveTransaction(
   to.save()
   rEthTransaction.save()
 
-  // Save all indirectly affected entities.
-  // Add the stakers to the protocol. (if necessary)
+  // Save all indirectly affected entities of the protocol
   let protocolStakers = protocol.stakers
   if (protocolStakers.indexOf(from.id) == -1) protocolStakers.push(from.id)
   if (protocolStakers.indexOf(to.id) == -1) protocolStakers.push(to.id)
