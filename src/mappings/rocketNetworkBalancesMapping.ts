@@ -15,12 +15,20 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { rocketStorage } from '../../generated/rocketRewardsPool/rocketStorage'
 
 /**
- * Occurs when an ODAO member votes on a balance (per block) and a consensus threshold is reached.
+ * Occurs when enough ODAO members votes on a balance and a consensus threshold is reached.
  */
 export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Preliminary check to ensure we haven't handled this before.
   if (stakerUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event))
     return
+
+
+  // Protocol entity should exist, if not, then we attempt to create it.
+  let protocol = generalUtilities.getRocketPoolProtocolEntity()
+  if (protocol === null || protocol.id == null) {
+    protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
+  }
+  if(protocol === null) return;
 
   // Load the RocketTokenRETH contract via the rocketstorage.
   // We will need the rocketvault smart contract state to get specific addresses.
@@ -29,7 +37,6 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
   if (rETHContract === null) return
   
-
   // Load the rocketDepositPool contract
   let rocketDepositPoolContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_DEPOSIT_POOL_CONTRACT_NAME)) 
   let rocketDepositPoolContract = rocketDepositPool.bind(rocketDepositPoolContractAddress)
@@ -56,15 +63,10 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   )
   if (checkpoint === null) return
 
-  // Protocol entity should exist, if not, then we attempt to create it.
-  let protocol = generalUtilities.getRocketPoolProtocolEntity()
-  if (protocol === null || protocol.id == null) {
-    protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
-  }
-
   // Retrieve previous checkpoint.
   let previousCheckpointId = protocol.lastNetworkStakerBalanceCheckPoint
   let previousTotalStakerETHRewards = BigInt.fromI32(0)
+  let previousTotalStakersWithETHRewards = BigInt.fromI32(0)
   let previousRETHExchangeRate = BigInt.fromI32(1)
   if (previousCheckpointId != null) {
     let previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
@@ -72,6 +74,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     )
     if (previousCheckpoint !== null) {
       previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
+      previousTotalStakersWithETHRewards = previousCheckpoint.totalStakersWithETHRewards;
       previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate
     }
   }
@@ -85,9 +88,12 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     event.block.timestamp,
   )
 
-  // If for some reason our summary total up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
+  // If for some reason the running summary totals up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
   if (checkpoint.totalStakerETHRewards == BigInt.fromI32(0)) {
     checkpoint.totalStakerETHRewards = previousTotalStakerETHRewards
+  }
+  if (checkpoint.totalStakersWithETHRewards == BigInt.fromI32(0)) {
+    checkpoint.totalStakersWithETHRewards = previousTotalStakersWithETHRewards;
   }
 
   // Calculate average staker reward up to this checkpoint.
@@ -99,7 +105,6 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
       checkpoint.totalStakersWithETHRewards,
     )
   }
-
   
   // Update the link so the protocol points to the last network staker balance checkpoint.
   protocol.lastNetworkStakerBalanceCheckPoint = checkpoint.id

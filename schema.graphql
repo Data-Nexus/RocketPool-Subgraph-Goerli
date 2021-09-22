@@ -17,6 +17,9 @@ type RocketPoolProtocol @entity {
 
   # Last known RPL reward interval.
   lastRPLRewardInterval: RPLRewardInterval
+
+  # Last known node network balance checkpoint.
+  lastNetworkNodeBalanceCheckPoint: NetworkNodeBalanceCheckpoint
 }
 
 # A Staker on RocketPool is an address that is/was associated with an rETH balance.
@@ -181,7 +184,7 @@ type Node @entity {
   totalFinalizedMinipools: BigInt!
 
   # Average minipool fee for this node operator.
-  averageMinipoolFee: BigInt
+  averageMinipoolFee: BigInt!
  
   # Last node balance checkpoint for this node.
   lastNodeBalanceCheckpoint: NodeBalanceCheckpoint
@@ -326,11 +329,17 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
 
-  # Minimum RPL needed to collateralize the entire protocol by the absolute minimum.
-  minimumRPLNeededForMinipools: BigInt!
+  # Minimum RPL needed to start a new minipool at this checkpoint.
+  minimumRPLNeededForNewMinipool: BigInt!
 
-  # maximum RPL needed to collateralize the entire protocol to the absolute maximum.
-  maximumRPLNeededForMinipools: BigInt!
+  # Maximum RPL needed to start a new minipool at this checkpoint.
+  maximumRPLNeededForNewMinipool: BigInt!
+
+  # Minimum RPL needed to collateralize the entire protocol by the absolute minimum at this checkpoint.
+  minimumRPLNeededForQueuedOrStakingMinipools: BigInt!
+
+  # maximum RPL needed to collateralize the entire protocol to the absolute maximum at this checkpoint.
+  maximumRPLNeededForQueuedOrStakingMinipools: BigInt!
 
   # The RPL price in ETH at this checkpoint.
   rplPriceInETH: BigInt!
@@ -356,8 +365,14 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total finalized minipools accross all nodes up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee accross all nodes at this checkpoint.
-  averageMinipoolFee: BigInt
+  # Average minipool fee accross all nodes (and minipools) up to and including this checkpoint.
+  averageMinipoolFee: BigInt!
+
+  # Average minipool fee accross all nodes and the eligible minipools at this checkpoint.
+  averageFeeForActivelyQueuedOrStakedMinipools: BigInt!
+
+  # Fee to start a new minipool at this checkpoint.
+  newMinipoolFee: BigInt!
 
   # Block number that was associated with this checkpoint.
   block: BigInt!
@@ -411,7 +426,10 @@ type NodeBalanceCheckpoint @entity {
   totalFinalizedMinipools: BigInt!
 
   # Average minipool fee for this node at this checkpoint.
-  averageMinipoolFee: BigInt
+  averageMinipoolFee: BigInt!
+
+  # Average minipool fee for this node and the eligible minipools at this checkpoint.
+  averageFeeForActivelyQueuedOrStakedMinipools: BigInt!
 
   # Block number that was associated with this checkpoint.
   block: BigInt!

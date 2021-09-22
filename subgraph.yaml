@@ -136,3 +136,29 @@ dataSources:
         - event: RPLTokensClaimed(indexed address,indexed address,uint256,uint256)
           handler: handleRPLTokensClaimed
       file: ./src/mappings/rocketRewardsPoolMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketNetworkPrices
+    network: goerli
+    source:
+      address: "0x12f96dC173a806D18d71fAFe3C1BA2149c3E3Dc6"
+      abi: rocketNetworkPrices
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - NetworkNodeBalanceCheckpoint
+        - NodeBalanceCheckpoint
+      abis:
+        - name: rocketNetworkPrices
+          file: ./abis/rocketNetworkPrices.json
+        - name: rocketNetworkFees
+          file: ./abis/rocketNetworkFees.json
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json   
+      eventHandlers:
+        - event: PricesUpdated(uint256,uint256,uint256,uint256)
+          handler: handlePricesUpdated
+      file: ./src/mappings/rocketNetworkPricesMapping.ts

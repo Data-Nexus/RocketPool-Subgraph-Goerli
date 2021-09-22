@@ -21,3 +21,4 @@ export let ROCKET_REWARDS_POOL_CONTRACT_NAME= 'rocketRewardsPool';
 export let ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_NAME= 'rocketClaimDAO';
 export let ROCKET_DAO_NODE_TRUSTED_CONTRACT_NAME= 'rocketDAONodeTrusted';
 export let ROCKET_NETWORK_PRICES_CONTRACT_NAME= 'rocketNetworkPrices';
+export let ROCKET_NETWORK_FEES_CONTRACT_NAME = 'rocketNetworkFees';
