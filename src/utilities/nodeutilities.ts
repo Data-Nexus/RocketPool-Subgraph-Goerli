@@ -14,7 +14,7 @@ class NodeUtilities {
     let rocketNodeManagerContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_NODE_MANAGER_CONTRACT_NAME));
     let rocketNodeManagerContract = rocketNodeManager.bind(rocketNodeManagerContractAddress)
     let nodeTimezoneStringId = rocketNodeManagerContract.getNodeTimezoneLocation(
-      Address.fromHexString(nodeAddress),
+      Address.fromString(nodeAddress),
     )
     if (nodeTimezoneStringId == null) nodeTimezoneStringId = 'UNKNOWN'
     return nodeTimezoneStringId

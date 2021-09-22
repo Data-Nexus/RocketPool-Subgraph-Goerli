@@ -32,9 +32,6 @@ export function handleNodeRegister(event: NodeRegistered): void {
     BigInt.fromI32(1),
   )
 
-  //Index the timezone changes.
-  nodeTimezone.save()
-
   // Create the node for this timezone and index it.
   node = rocketPoolEntityFactory.createNode(
     event.params.node.toHex(),
@@ -42,19 +39,22 @@ export function handleNodeRegister(event: NodeRegistered): void {
     event.block.number,
     event.block.timestamp,
   )
-  node.save()
+  if (node === null) return
 
   // Protocol entity should exist, if not, then we attempt to create it.
   let protocol = generalUtilities.getRocketPoolProtocolEntity()
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
-    protocol.save()
   }
 
   // Add this node to the collection of the protocol if necessary and index.
   let protocolNodes = protocol.nodes
   if (protocol.nodes.indexOf(node.id) == -1) protocolNodes.push(node.id)
   protocol.nodes = protocolNodes
+
+  // Index changes.
+  node.save()
+  nodeTimezone.save()
   protocol.save()
 }
 
@@ -71,9 +71,11 @@ export function handleNodeTimezoneChanged(
   let node = Node.load(event.params.node.toHex())
   if (node === null) return
 
+  let oldNodeTimezone: NetworkNodeTimezone | null = null
+
   // Decrement the total registered nodes for the old timezone.
   if (node.timezone != null) {
-    let oldNodeTimezone = NetworkNodeTimezone.load(node.timezone)
+    oldNodeTimezone = NetworkNodeTimezone.load(node.timezone)
     if (oldNodeTimezone !== null) {
       oldNodeTimezone.totalRegisteredNodes = oldNodeTimezone.totalRegisteredNodes.minus(
         BigInt.fromI32(1),
@@ -81,7 +83,6 @@ export function handleNodeTimezoneChanged(
       if (oldNodeTimezone.totalRegisteredNodes < BigInt.fromI32(0)) {
         oldNodeTimezone.totalRegisteredNodes = BigInt.fromI32(0)
       }
-      oldNodeTimezone.save()
     }
   }
 
@@ -89,8 +90,9 @@ export function handleNodeTimezoneChanged(
   let newNodeTimezoneId = nodeUtilities.getNodeTimezoneId(
     event.params.node.toHex(),
   )
+  let newNodeTimezone: NetworkNodeTimezone | null = null
   if (newNodeTimezoneId != null) {
-    let newNodeTimezone = NetworkNodeTimezone.load(newNodeTimezoneId)
+    newNodeTimezone = NetworkNodeTimezone.load(newNodeTimezoneId)
     if (newNodeTimezone === null || newNodeTimezone.id == null) {
       newNodeTimezone = rocketPoolEntityFactory.createNodeTimezone(
         newNodeTimezoneId,
@@ -101,6 +103,8 @@ export function handleNodeTimezoneChanged(
     newNodeTimezone.totalRegisteredNodes = newNodeTimezone.totalRegisteredNodes.plus(
       BigInt.fromI32(1),
     )
-    newNodeTimezone.save()
   }
+
+  if (oldNodeTimezone !== null) oldNodeTimezone.save()
+  if (newNodeTimezone !== null) newNodeTimezone.save()
 }

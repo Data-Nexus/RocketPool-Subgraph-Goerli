@@ -1,5 +1,8 @@
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { rocketRewardsPool, RPLTokensClaimed } from '../../generated/rocketRewardsPool/rocketRewardsPool'
+import {
+  rocketRewardsPool,
+  RPLTokensClaimed,
+} from '../../generated/rocketRewardsPool/rocketRewardsPool'
 import { rocketStorage } from '../../generated/rocketRewardsPool/rocketStorage'
 import { rocketNetworkPrices } from '../../generated/rocketRewardsPool/rocketNetworkprices'
 import { RPLRewardClaim, RPLRewardInterval, Node } from '../../generated/schema'
@@ -22,8 +25,8 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   if (
     event === null ||
     event.params === null ||
-    event.params.claimingAddress == null ||
-    event.params.claimingContract == null ||
+    event.params.claimingAddress === null ||
+    event.params.claimingContract === null ||
     event.block === null ||
     event.params.amount == BigInt.fromI32(0)
   )
@@ -42,7 +45,6 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   let protocol = generalUtilities.getRocketPoolProtocolEntity()
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
-    protocol.save()
   }
 
   // We will need the rocketvault smart contract state to get specific addresses.
@@ -51,7 +53,9 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   // We will need the rocket rewards pool contract to get its smart contract state.
   let rocketRewardPoolContract = rocketRewardsPool.bind(
     rocketStorageContract.getAddress(
-      generalUtilities.getRocketVaultContractAddressKey(ROCKET_REWARDS_POOL_CONTRACT_NAME) 
+      generalUtilities.getRocketVaultContractAddressKey(
+        ROCKET_REWARDS_POOL_CONTRACT_NAME,
+      ),
     ),
   )
 
@@ -60,13 +64,13 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   let lastRPLRewardIntervalId = protocol.lastRPLRewardInterval
   if (lastRPLRewardIntervalId != null) {
     activeIndexedRewardInterval = RPLRewardInterval.load(
-      lastRPLRewardIntervalId,
+      <string>lastRPLRewardIntervalId,
     )
   }
 
   // Determine claimer type based on the claiming contract and/or claiming address.
   let rplRewardClaimerType:
-    | string
+    string
     | null = rplRewardUtilities.getRplRewardClaimerType(
     rocketStorageContract,
     event.params.claimingContract,
@@ -80,6 +84,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   // If we don't have an indexed RPL Reward interval,
   // or if the last indexed RPL Reward interval isn't equal to the current one in the smart contracts:
   let smartContractCurrentRewardIntervalStartTime = rocketRewardPoolContract.getClaimIntervalTimeStart()
+  let previousActiveIndexedRewardInterval: RPLRewardInterval | null = null;
   if (
     activeIndexedRewardInterval === null ||
     activeIndexedRewardInterval.intervalStartTime !=
@@ -88,10 +93,12 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     // If there was an indexed RPL Reward interval which has a different start time then the interval in the smart contracts.
     if (activeIndexedRewardInterval !== null) {
       // We need to close our indexed RPL Rewards interval.
-      activeIndexedRewardInterval.intervalClosedTime = event.block.timestamp;
-      activeIndexedRewardInterval.isClosed = true;
-      activeIndexedRewardInterval.intervalDurationActual = event.block.timestamp.minus(activeIndexedRewardInterval.intervalStartTime);
-      activeIndexedRewardInterval.save();
+      activeIndexedRewardInterval.intervalClosedTime = event.block.timestamp
+      activeIndexedRewardInterval.isClosed = true
+      activeIndexedRewardInterval.intervalDurationActual = event.block.timestamp.minus(
+        activeIndexedRewardInterval.intervalStartTime,
+      )
+      previousActiveIndexedRewardInterval = activeIndexedRewardInterval;
     }
 
     // Create a new RPL Reward interval so we can add this first claim to it.
@@ -104,13 +111,16 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
       event.block.number,
       event.block.timestamp,
     )
+    if (activeIndexedRewardInterval === null) return
     protocol.lastRPLRewardInterval = activeIndexedRewardInterval.id
   }
 
   // We need this to determine the current RPL/ETH price based on the smart contracts.
   // If for some reason this fails, something is horribly wrong and we need to stop indexing.
   let networkPricesContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(ROCKET_NETWORK_PRICES_CONTRACT_NAME) 
+    generalUtilities.getRocketVaultContractAddressKey(
+      ROCKET_NETWORK_PRICES_CONTRACT_NAME,
+    ),
   )
   let networkPricesContract = rocketNetworkPrices.bind(
     networkPricesContractAddress,
@@ -127,31 +137,36 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   let rplRewardClaim = rocketPoolEntityFactory.createRPLRewardClaim(
     rplRewardClaimId,
     event.params.claimingAddress.toHexString(),
-    rplRewardClaimerType,
+    <string>rplRewardClaimerType,
     event.params.amount,
     rplRewardETHAmount,
     event.block.number,
     event.block.timestamp,
   )
-
-  // Index the reward claim.
-  rplRewardClaim.save()
+  if (rplRewardClaim === null) return
 
   // If the claimer was a (trusted) node, then increment its total claimed rewards.
-  let associatedNode = Node.bind(event.params.claimingAddress);
-  if(associatedNode !== null) {
-    associatedNode.totalClaimedRPLRewards =  associatedNode.totalClaimedRPLRewards.plus(event.params.amount);
+  let associatedNode = Node.load(event.params.claimingAddress.toHexString())
+  if (associatedNode !== null) {
+    associatedNode.totalClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.plus(
+      event.params.amount,
+    )
   }
 
   // Update the grand total claimed of the current interval.
-  activeIndexedRewardInterval.totalRPLClaimed = activeIndexedRewardInterval.totalRPLClaimed.plus(rplRewardClaim.amount);
+  activeIndexedRewardInterval.totalRPLClaimed = activeIndexedRewardInterval.totalRPLClaimed.plus(
+    rplRewardClaim.amount,
+  )
 
-   // Add this reward claim to the current interval
+  // Add this reward claim to the current interval
   let currentRPLRewardClaims = activeIndexedRewardInterval.rplRewardClaims
   currentRPLRewardClaims.push(rplRewardClaim.id)
   activeIndexedRewardInterval.rplRewardClaims = currentRPLRewardClaims
 
   // Index changes to the (new) interval and protocol.
+  rplRewardClaim.save()
+  if (associatedNode !== null) associatedNode.save()
+  if (previousActiveIndexedRewardInterval !== null) previousActiveIndexedRewardInterval.save();
   activeIndexedRewardInterval.save()
   protocol.save()
 }

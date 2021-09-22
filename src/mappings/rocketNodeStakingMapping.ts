@@ -109,9 +109,6 @@ function saveNodeRPLStakeTransaction(
   if (nodeRPLStakeTransaction === null || nodeRPLStakeTransaction.id == null)
     return
 
-  // Index transaction.
-  nodeRPLStakeTransaction.save()
-
   // We will need the rocket node staking contract to get some latest state for the associated node.
   let rocketNodeStakingContractAddress = rocketStorageContract.getAddress(
     generalUtilities.getRocketVaultContractAddressKey(ROCKET_NODE_STAKING_CONTRACT_NAME) 
@@ -127,6 +124,9 @@ function saveNodeRPLStakeTransaction(
     transactionType,
     rocketNodeStakingContract,
   )
+
+  // Index
+  nodeRPLStakeTransaction.save()
   node.save()
 }
 
@@ -138,12 +138,12 @@ function updateNodeRPLBalances(
   amount: BigInt,
   transactionType: string,
   rocketNodeStakingContract: rocketNodeStaking,
-) {
+) : void {
   node.rplStaked = rocketNodeStakingContract.getNodeRPLStake(
-    Address.fromHexString(node.id),
+    Address.fromString(node.id),
   )
   node.effectiveRPLStaked = rocketNodeStakingContract.getNodeEffectiveRPLStake(
-    Address.fromHexString(node.id),
+    Address.fromString(node.id),
   )
 
   // This isn't accessible via smart contracts, so we have to keep track manually.

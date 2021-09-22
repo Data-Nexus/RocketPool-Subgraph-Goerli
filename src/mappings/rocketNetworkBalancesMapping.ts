@@ -100,13 +100,12 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     )
   }
 
-  // Index these changes.
-  checkpoint.save()
-
+  
   // Update the link so the protocol points to the last network staker balance checkpoint.
   protocol.lastNetworkStakerBalanceCheckPoint = checkpoint.id
 
-  // Save changes to the protocol.
+  // Index these changes.
+  checkpoint.save()
   protocol.save()
 }
 
@@ -182,9 +181,9 @@ function generateStakerBalanceCheckpoints(
       blockTime,
     )
     if (stakerBalanceCheckpoint == null) continue
-
-    // Index both the updated staker & the new staker balance checkpoint.
     staker.lastBalanceCheckpoint = stakerBalanceCheckpoint.id
+
+    // Index both the updated staker & the new staker balance checkpoint.   
     stakerBalanceCheckpoint.save()
     staker.save()
   }

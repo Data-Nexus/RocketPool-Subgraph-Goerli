@@ -51,7 +51,7 @@ export let generalUtilities = new GeneralUtilities()
 
 export class TheGraphRPHelperContract extends ethereum.SmartContract {
   static get(): TheGraphRPHelperContract {
-    return new TheGraphRPHelperContract("rocketPoolTheGraphHelper", Address.fromHexString(ROCKETPOOL_THEGRAPH_HELPER_CONTACT_ADDRESS_NAME));
+    return new TheGraphRPHelperContract("rocketPoolTheGraphHelper", Address.fromString(ROCKETPOOL_THEGRAPH_HELPER_CONTACT_ADDRESS_NAME));
   }
 
   getContractAddress(key: string): Bytes {

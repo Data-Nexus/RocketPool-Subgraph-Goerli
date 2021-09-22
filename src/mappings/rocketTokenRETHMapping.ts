@@ -84,7 +84,6 @@ function saveTransaction(
   let protocol = generalUtilities.getRocketPoolProtocolEntity()
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
-    protocol.save()
   }
 
   // Load the RocketTokenRETH contract.
@@ -100,17 +99,15 @@ function saveTransaction(
   stakerUtilities.changeStakerBalances(from, rETHAmount, exchangeRate, false)
   stakerUtilities.changeStakerBalances(to, rETHAmount, exchangeRate, true)
 
-  // Save all directly affected entities.
-  from.save()
-  to.save()
-  rEthTransaction.save()
-
   // Save all indirectly affected entities of the protocol
   let protocolStakers = protocol.stakers
   if (protocolStakers.indexOf(from.id) == -1) protocolStakers.push(from.id)
   if (protocolStakers.indexOf(to.id) == -1) protocolStakers.push(to.id)
   protocol.stakers = protocolStakers
 
-  // Save changes to the protocol.
+  // Index all state.
+  from.save()
+  to.save()
+  rEthTransaction.save()
   protocol.save()
 }
