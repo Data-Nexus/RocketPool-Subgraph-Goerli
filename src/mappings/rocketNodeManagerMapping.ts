@@ -13,12 +13,12 @@ import { Node, NetworkNodeTimezone } from '../../generated/schema'
  */
 export function handleNodeRegister(event: NodeRegistered): void {
   // We can only register an address as a node if it hasn't been registered yet.
-  let node = Node.load(event.params.node.toHex())
+  let node = Node.load(event.params.node.toHexString())
   if (node !== null) return
 
   // Retrieve the associated timezone, if the timezone doesn't exist yet, we need to create it.
   let nodeTimezoneStringId = nodeUtilities.getNodeTimezoneId(
-    event.params.node.toHex(),
+    event.params.node.toHexString(),
   )
   let nodeTimezone = NetworkNodeTimezone.load(nodeTimezoneStringId)
   if (nodeTimezone === null || nodeTimezone.id == null) {
@@ -34,7 +34,7 @@ export function handleNodeRegister(event: NodeRegistered): void {
 
   // Create the node for this timezone and index it.
   node = rocketPoolEntityFactory.createNode(
-    event.params.node.toHex(),
+    event.params.node.toHexString(),
     nodeTimezone.id,
     event.block.number,
     event.block.timestamp,
@@ -68,7 +68,7 @@ export function handleNodeTimezoneChanged(
     return
 
   // The node in question has to exist before we can change its timezone.
-  let node = Node.load(event.params.node.toHex())
+  let node = Node.load(event.params.node.toHexString())
   if (node === null) return
 
   let oldNodeTimezone: NetworkNodeTimezone | null = null
@@ -88,7 +88,7 @@ export function handleNodeTimezoneChanged(
 
   // If the newly set timezone doesn't exist yet, we need to create it.
   let newNodeTimezoneId = nodeUtilities.getNodeTimezoneId(
-    event.params.node.toHex(),
+    event.params.node.toHexString(),
   )
   let newNodeTimezone: NetworkNodeTimezone | null = null
   if (newNodeTimezoneId != null) {

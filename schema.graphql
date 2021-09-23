@@ -195,6 +195,9 @@ type Node @entity {
   # Last node balance checkpoint for this node.
   lastNodeBalanceCheckpoint: NodeBalanceCheckpoint
 
+  # Associated minipools for this node.
+  minipools: [Minipool!]!
+
   # Block number at which this node was first registered with the protocol.
   block: BigInt!
 
@@ -442,4 +445,34 @@ type NodeBalanceCheckpoint @entity {
 
   # Block timestamp that was associated with this checkpoint.
   blockTime: BigInt!
+}
+
+# Entity representing a minipool for a node.
+type Minipool @entity {
+  # Address of the minipool
+  id: ID! 
+
+  # Node that is associated with this minipool
+  node: Node!
+
+  # Fee that is associated with this minipool
+  fee: BigInt! 
+
+  # Block timestamp that was associated with the creation of this minipool.
+  queuedBlockTime: BigInt!
+
+  # Block timestamp that was associated with the dequeue of the minipool that will (most of the time) lead to staking.
+  dequeuedBlockTime: BigInt!
+
+  # Block timestamp that was associated with the destruction of this minipool.
+  destroyedBlockTime: BigInt!
+
+  # Block number that was associated with this minipool transitioning to the staking state.
+  stakingBlockTime: BigInt!
+
+  # Block timestamp that was associated with this minipool being marked as withdrawable.
+  withdrawableBlockTime: BigInt!
+
+  # Block timestamp that was associated with this minipool being marked as finalized.
+  finalizedBlockTime: BigInt!
 }

@@ -30,7 +30,7 @@ import { rocketPoolEntityFactory } from '../entityfactory'
 export function handleRPLStaked(event: RPLStaked): void {
   saveNodeRPLStakeTransaction(
     event,
-    event.params.from.toHex(),
+    event.params.from.toHexString(),
     NODERPLSTAKETRANSACTIONTYPE_STAKED,
     event.params.amount,
   )
@@ -42,7 +42,7 @@ export function handleRPLStaked(event: RPLStaked): void {
 export function handleRPLSlashed(event: RPLSlashed): void {
   saveNodeRPLStakeTransaction(
     event,
-    event.params.node.toHex(),
+    event.params.node.toHexString(),
     NODERPLSTAKETRANSACTIONTYPE_SLASHED,
     event.params.amount,
   )
@@ -54,7 +54,7 @@ export function handleRPLSlashed(event: RPLSlashed): void {
 export function handleRPLWithdrawn(event: RPLWithdrawn): void {
   saveNodeRPLStakeTransaction(
     event,
-    event.params.to.toHex(),
+    event.params.to.toHexString(),
     NODERPLSTAKETRANSACTIONTYPE_WITHDRAWAL,
     event.params.amount,
   )
