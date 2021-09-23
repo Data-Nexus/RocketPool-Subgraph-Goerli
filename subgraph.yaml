@@ -156,6 +156,12 @@ dataSources:
           file: ./abis/rocketNetworkPrices.json
         - name: rocketNetworkFees
           file: ./abis/rocketNetworkFees.json
+        - name: rocketMinipoolManager
+          file: ./abis/rocketMinipoolManager.json
+        - name: rocketDAOProtocolSettingsNode
+          file: ./abis/rocketDAOProtocolSettingsNode.json
+        - name: rocketDAOProtocolSettingsMinipool
+          file: ./abis/rocketDAOProtocolSettingsMinipool.json
         - name: rocketStorage
           file: ./abis/rocketStorage.json   
       eventHandlers:

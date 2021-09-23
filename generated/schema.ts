@@ -392,6 +392,40 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get previousCheckpointId(): string | null {
+    let value = this.get("previousCheckpointId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set previousCheckpointId(value: string | null) {
+    if (!value) {
+      this.unset("previousCheckpointId");
+    } else {
+      this.set("previousCheckpointId", Value.fromString(<string>value));
+    }
+  }
+
+  get nextCheckpointId(): string | null {
+    let value = this.get("nextCheckpointId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nextCheckpointId(value: string | null) {
+    if (!value) {
+      this.unset("nextCheckpointId");
+    } else {
+      this.set("nextCheckpointId", Value.fromString(<string>value));
+    }
+  }
+
   get stakerETHActivelyStaking(): BigInt {
     let value = this.get("stakerETHActivelyStaking");
     return value!.toBigInt();
@@ -624,10 +658,10 @@ export class Node extends Entity {
     this.set("maximumRPLNeededForMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("unbondedStakingMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("withdrawableMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("totalFinalizedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("averageMinipoolFee", Value.fromBigInt(BigInt.zero()));
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("block", Value.fromBigInt(BigInt.zero()));
     this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
@@ -739,13 +773,13 @@ export class Node extends Entity {
     this.set("stakingMinipools", Value.fromBigInt(value));
   }
 
-  get unbondedStakingMinipools(): BigInt {
-    let value = this.get("unbondedStakingMinipools");
+  get stakingUnbondedMinipools(): BigInt {
+    let value = this.get("stakingUnbondedMinipools");
     return value!.toBigInt();
   }
 
-  set unbondedStakingMinipools(value: BigInt) {
-    this.set("unbondedStakingMinipools", Value.fromBigInt(value));
+  set stakingUnbondedMinipools(value: BigInt) {
+    this.set("stakingUnbondedMinipools", Value.fromBigInt(value));
   }
 
   get withdrawableMinipools(): BigInt {
@@ -766,13 +800,13 @@ export class Node extends Entity {
     this.set("totalFinalizedMinipools", Value.fromBigInt(value));
   }
 
-  get averageMinipoolFee(): BigInt {
-    let value = this.get("averageMinipoolFee");
+  get averageFeeForActiveMinipools(): BigInt {
+    let value = this.get("averageFeeForActiveMinipools");
     return value!.toBigInt();
   }
 
-  set averageMinipoolFee(value: BigInt) {
-    this.set("averageMinipoolFee", Value.fromBigInt(value));
+  set averageFeeForActiveMinipools(value: BigInt) {
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(value));
   }
 
   get lastNodeBalanceCheckpoint(): string | null {
@@ -951,6 +985,40 @@ export class RPLRewardInterval extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get previousIntervalId(): string | null {
+    let value = this.get("previousIntervalId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set previousIntervalId(value: string | null) {
+    if (!value) {
+      this.unset("previousIntervalId");
+    } else {
+      this.set("previousIntervalId", Value.fromString(<string>value));
+    }
+  }
+
+  get nextIntervalId(): string | null {
+    let value = this.get("nextIntervalId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nextIntervalId(value: string | null) {
+    if (!value) {
+      this.unset("nextIntervalId");
+    } else {
+      this.set("nextIntervalId", Value.fromString(<string>value));
+    }
   }
 
   get claimableRewards(): BigInt {
@@ -1242,20 +1310,11 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     );
     this.set("rplPriceInETH", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("queuedMinipoolsTotalCapacity", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "queuedMinipoolsEffectiveCapacity",
-      Value.fromBigInt(BigInt.zero())
-    );
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("withdrawableMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("totalFinalizedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("averageMinipoolFee", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "averageFeeForActivelyQueuedOrStakedMinipools",
-      Value.fromBigInt(BigInt.zero())
-    );
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("newMinipoolFee", Value.fromBigInt(BigInt.zero()));
     this.set("block", Value.fromBigInt(BigInt.zero()));
     this.set("blockTime", Value.fromBigInt(BigInt.zero()));
@@ -1290,6 +1349,40 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get previousCheckpointId(): string | null {
+    let value = this.get("previousCheckpointId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set previousCheckpointId(value: string | null) {
+    if (!value) {
+      this.unset("previousCheckpointId");
+    } else {
+      this.set("previousCheckpointId", Value.fromString(<string>value));
+    }
+  }
+
+  get nextCheckpointId(): string | null {
+    let value = this.get("nextCheckpointId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nextCheckpointId(value: string | null) {
+    if (!value) {
+      this.unset("nextCheckpointId");
+    } else {
+      this.set("nextCheckpointId", Value.fromString(<string>value));
+    }
   }
 
   get nodesRegistered(): BigInt {
@@ -1397,24 +1490,6 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("queuedMinipools", Value.fromBigInt(value));
   }
 
-  get queuedMinipoolsTotalCapacity(): BigInt {
-    let value = this.get("queuedMinipoolsTotalCapacity");
-    return value!.toBigInt();
-  }
-
-  set queuedMinipoolsTotalCapacity(value: BigInt) {
-    this.set("queuedMinipoolsTotalCapacity", Value.fromBigInt(value));
-  }
-
-  get queuedMinipoolsEffectiveCapacity(): BigInt {
-    let value = this.get("queuedMinipoolsEffectiveCapacity");
-    return value!.toBigInt();
-  }
-
-  set queuedMinipoolsEffectiveCapacity(value: BigInt) {
-    this.set("queuedMinipoolsEffectiveCapacity", Value.fromBigInt(value));
-  }
-
   get stakingMinipools(): BigInt {
     let value = this.get("stakingMinipools");
     return value!.toBigInt();
@@ -1451,25 +1526,13 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("totalFinalizedMinipools", Value.fromBigInt(value));
   }
 
-  get averageMinipoolFee(): BigInt {
-    let value = this.get("averageMinipoolFee");
+  get averageFeeForActiveMinipools(): BigInt {
+    let value = this.get("averageFeeForActiveMinipools");
     return value!.toBigInt();
   }
 
-  set averageMinipoolFee(value: BigInt) {
-    this.set("averageMinipoolFee", Value.fromBigInt(value));
-  }
-
-  get averageFeeForActivelyQueuedOrStakedMinipools(): BigInt {
-    let value = this.get("averageFeeForActivelyQueuedOrStakedMinipools");
-    return value!.toBigInt();
-  }
-
-  set averageFeeForActivelyQueuedOrStakedMinipools(value: BigInt) {
-    this.set(
-      "averageFeeForActivelyQueuedOrStakedMinipools",
-      Value.fromBigInt(value)
-    );
+  set averageFeeForActiveMinipools(value: BigInt) {
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(value));
   }
 
   get newMinipoolFee(): BigInt {
@@ -1518,11 +1581,7 @@ export class NodeBalanceCheckpoint extends Entity {
     this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("withdrawableMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("totalFinalizedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("averageMinipoolFee", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "averageFeeForActivelyQueuedOrStakedMinipools",
-      Value.fromBigInt(BigInt.zero())
-    );
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("block", Value.fromBigInt(BigInt.zero()));
     this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
@@ -1675,25 +1734,13 @@ export class NodeBalanceCheckpoint extends Entity {
     this.set("totalFinalizedMinipools", Value.fromBigInt(value));
   }
 
-  get averageMinipoolFee(): BigInt {
-    let value = this.get("averageMinipoolFee");
+  get averageFeeForActiveMinipools(): BigInt {
+    let value = this.get("averageFeeForActiveMinipools");
     return value!.toBigInt();
   }
 
-  set averageMinipoolFee(value: BigInt) {
-    this.set("averageMinipoolFee", Value.fromBigInt(value));
-  }
-
-  get averageFeeForActivelyQueuedOrStakedMinipools(): BigInt {
-    let value = this.get("averageFeeForActivelyQueuedOrStakedMinipools");
-    return value!.toBigInt();
-  }
-
-  set averageFeeForActivelyQueuedOrStakedMinipools(value: BigInt) {
-    this.set(
-      "averageFeeForActivelyQueuedOrStakedMinipools",
-      Value.fromBigInt(value)
-    );
+  set averageFeeForActiveMinipools(value: BigInt) {
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(value));
   }
 
   get block(): BigInt {

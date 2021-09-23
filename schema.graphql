@@ -78,6 +78,12 @@ type NetworkStakerBalanceCheckpoint @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
 
+  # Id to the the previous checkpoint.
+  previousCheckpointId: String
+
+  # Id to the the next checkpoint.
+  nextCheckpointId: String
+
   # Staker ETH (in WEI) balance (initial deposit + (ETH network rewards - average node fee)) on the beacon chain at this checkpoint. 
   stakerETHActivelyStaking: BigInt!
   
@@ -175,7 +181,7 @@ type Node @entity {
   stakingMinipools: BigInt!
 
   # Current unbonded staking minipools
-  unbondedStakingMinipools: BigInt!
+  stakingUnbondedMinipools: BigInt!
 
   # Current withdrawable minipools.
   withdrawableMinipools: BigInt!
@@ -184,7 +190,7 @@ type Node @entity {
   totalFinalizedMinipools: BigInt!
 
   # Average minipool fee for this node operator.
-  averageMinipoolFee: BigInt!
+  averageFeeForActiveMinipools: BigInt!
  
   # Last node balance checkpoint for this node.
   lastNodeBalanceCheckpoint: NodeBalanceCheckpoint
@@ -231,6 +237,12 @@ type NodeRPLStakeTransaction @entity {
 type RPLRewardInterval @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
+
+  # ID to the previous.
+  previousIntervalId: String
+
+  # ID to the next interval.
+  nextIntervalId: String
 
   # The total rewards that are claimable for this interval. This is the total from minted inflation and unclaimed from previous interval(s).
   claimableRewards: BigInt!
@@ -314,6 +326,12 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID! 
 
+  # Id to the the previous checkpoint.
+  previousCheckpointId: String
+
+  # Id to the the next checkpoint.
+  nextCheckpointId: String
+
   # Total number of registered RocketPool nodes at this checkpoint.
   nodesRegistered: BigInt!
 
@@ -347,12 +365,6 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Current queued minipools accross all nodes at this checkpoint.
   queuedMinipools: BigInt!
 
-  # Total capacity of the queued minipools accross all nodes at this checkpoint.
-  queuedMinipoolsTotalCapacity: BigInt!
-
-  # Effective capacity of the queued minipools accross all nodes at this checkpoint.
-  queuedMinipoolsEffectiveCapacity: BigInt!
-
   # Current staking minipools accross all nodes at this checkpoint.
   stakingMinipools: BigInt!
 
@@ -365,11 +377,8 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total finalized minipools accross all nodes up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee accross all nodes (and minipools) up to and including this checkpoint.
-  averageMinipoolFee: BigInt!
-
-  # Average minipool fee accross all nodes and the eligible minipools at this checkpoint.
-  averageFeeForActivelyQueuedOrStakedMinipools: BigInt!
+  # Average minipool fee accross all nodes and the eligible (queued, staking, withdrawable) minipools at this checkpoint.
+  averageFeeForActiveMinipools: BigInt!
 
   # Fee to start a new minipool at this checkpoint.
   newMinipoolFee: BigInt!
@@ -425,11 +434,8 @@ type NodeBalanceCheckpoint @entity {
   # Total Finalized minipools for this node up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee for this node at this checkpoint.
-  averageMinipoolFee: BigInt!
-
-  # Average minipool fee for this node and the eligible minipools at this checkpoint.
-  averageFeeForActivelyQueuedOrStakedMinipools: BigInt!
+  # Average minipool fee for this node and the eligible (queued, staking, withdrawable) minipools at this checkpoint.
+  averageFeeForActiveMinipools: BigInt!
 
   # Block number that was associated with this checkpoint.
   block: BigInt!

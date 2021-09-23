@@ -15,6 +15,7 @@ export let ROCKET_STORAGE_ADDRESS = Address.fromString(
 // Used to determine the latest contract address that is associated the names below.
 export let ROCKET_TOKEN_RETH_CONTRACT_NAME = 'rocketTokenRETH';
 export let ROCKET_DEPOSIT_POOL_CONTRACT_NAME = "rocketDepositPool";
+export let ROCKET_MINIPOOL_MANAGER_CONTRACT_NAME = 'rocketMinipoolManager';
 export let ROCKET_NODE_MANAGER_CONTRACT_NAME = "rocketNodeManager";
 export let ROCKET_NODE_STAKING_CONTRACT_NAME = 'rocketNodeStaking';
 export let ROCKET_REWARDS_POOL_CONTRACT_NAME= 'rocketRewardsPool';
@@ -22,3 +23,5 @@ export let ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_NAME= 'rocketClaimDAO';
 export let ROCKET_DAO_NODE_TRUSTED_CONTRACT_NAME= 'rocketDAONodeTrusted';
 export let ROCKET_NETWORK_PRICES_CONTRACT_NAME= 'rocketNetworkPrices';
 export let ROCKET_NETWORK_FEES_CONTRACT_NAME = 'rocketNetworkFees';
+export let ROCKET_DAO_PROTOCOL_SETTINGS_MINIPOOL = 'rocketDAOProtocolSettingsMinipool';
+export let ROCKET_DAO_PROTOCOL_SETTINGS_NODE = 'rocketDAOProtocolSettingsNode';

@@ -11,6 +11,7 @@ import {
   RPLRewardInterval,
   RPLRewardClaim,
   NetworkNodeBalanceCheckpoint,
+  NodeBalanceCheckpoint,
 } from '../generated/schema'
 import { BalancesUpdated } from '../generated/rocketNetworkBalances/rocketNetworkBalances'
 import { ROCKETPOOL_PROTOCOL_ROOT_ID } from './constants/generalconstants'
@@ -68,6 +69,7 @@ class RocketPoolEntityFactory {
    */
   public createNetworkStakerBalanceCheckpoint(
     id: string,
+    previousCheckpointId: string | null,
     event: BalancesUpdated,
     stakerETHWaitingInDepositPool: BigInt,
     stakerETHInRocketEthContract: BigInt,
@@ -94,6 +96,7 @@ class RocketPoolEntityFactory {
       totalStakerETHActivelyStaking = event.params.stakingEth
 
     let networkBalance = new NetworkStakerBalanceCheckpoint(id)
+    networkBalance.previousCheckpointId = previousCheckpointId;
     networkBalance.stakerETHActivelyStaking = totalStakerETHActivelyStaking
     networkBalance.stakerETHWaitingInDepositPool = stakerETHWaitingInDepositPool
     networkBalance.stakerETHInRocketETHContract = stakerETHInRocketEthContract
@@ -194,10 +197,10 @@ class RocketPoolEntityFactory {
     node.maximumRPLNeededForMinipools = BigInt.fromI32(0)
     node.queuedMinipools = BigInt.fromI32(0)
     node.stakingMinipools = BigInt.fromI32(0)
-    node.unbondedStakingMinipools = BigInt.fromI32(0)
+    node.stakingUnbondedMinipools = BigInt.fromI32(0)
     node.withdrawableMinipools = BigInt.fromI32(0)
     node.totalFinalizedMinipools = BigInt.fromI32(0)
-    node.averageMinipoolFee = BigInt.fromI32(0)
+    node.averageFeeForActiveMinipools = BigInt.fromI32(0)
     node.lastNodeBalanceCheckpoint = null
     node.block = blockNumber
     node.blockTime = blockTime
@@ -234,6 +237,7 @@ class RocketPoolEntityFactory {
    */
   public createRPLRewardInterval(
     id: string,
+    previousIntervalId: string | null,
     claimableRewards: BigInt,
     intervalStartTime: BigInt,
     intervalDuration: BigInt,
@@ -243,6 +247,7 @@ class RocketPoolEntityFactory {
     if (id == null) return null
 
     let rewardInterval = new RPLRewardInterval(id)
+    rewardInterval.previousIntervalId = previousIntervalId;
     rewardInterval.claimableRewards = claimableRewards
     rewardInterval.totalRPLClaimed = BigInt.fromI32(0)
     rewardInterval.rplRewardClaims = new Array<string>(0)
@@ -294,6 +299,7 @@ class RocketPoolEntityFactory {
    */
   public createNetworkNodeBalanceCheckpoint(
     id: string,
+    previousCheckpointId: string | null,
     minimumRPLNeededForNewMinipool: BigInt,
     maximumRPLNeededForNewMinipool: BigInt,
     newRplPriceInETH: BigInt,
@@ -304,6 +310,7 @@ class RocketPoolEntityFactory {
     if (id == null || newRplPriceInETH == BigInt.fromI32(0)) return null
 
     let checkpoint = new NetworkNodeBalanceCheckpoint(id)
+    checkpoint.previousCheckpointId = previousCheckpointId;
     checkpoint.nodesRegistered = BigInt.fromI32(0) // Will be calculated.
     checkpoint.rplStaked = BigInt.fromI32(0) // Will be calculated.
     checkpoint.effectiveRPLStaked = BigInt.fromI32(0) // Will be calculated.
@@ -315,15 +322,44 @@ class RocketPoolEntityFactory {
     checkpoint.maximumRPLNeededForQueuedOrStakingMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.rplPriceInETH = newRplPriceInETH // From the associated price update.
     checkpoint.queuedMinipools = BigInt.fromI32(0) // Will be calculated.
-    checkpoint.queuedMinipoolsTotalCapacity = BigInt.fromI32(0) // Will be calculated.
-    checkpoint.queuedMinipoolsEffectiveCapacity = BigInt.fromI32(0) // Will be calculated.
     checkpoint.stakingMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.stakingUnbondedMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.withdrawableMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.totalFinalizedMinipools = BigInt.fromI32(0) // Will be calculated.
-    checkpoint.averageMinipoolFee = BigInt.fromI32(0) // Will be calculated.
-    checkpoint.averageFeeForActivelyQueuedOrStakedMinipools = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.averageFeeForActiveMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.newMinipoolFee = newMinipoolFee
+    checkpoint.block = blockNumber
+    checkpoint.blockTime = blockTime
+
+    return checkpoint
+  }
+
+  /**
+   * Attempts to create a new Node Balance Checkpoint.
+   */
+   public createNodeBalanceCheckpoint(
+    id: string,
+    networkCheckpointId: string,
+    node: Node,
+    blockNumber: BigInt,
+    blockTime: BigInt,
+  ): NodeBalanceCheckpoint | null {
+    if (id == null) return null
+
+    let checkpoint = new NodeBalanceCheckpoint(id)
+    checkpoint.NetworkNodeBalanceCheckpoint = networkCheckpointId
+    checkpoint.rplStaked = node.rplStaked;
+    checkpoint.effectiveRPLStaked = node.effectiveRPLStaked;
+    checkpoint.totalRPLSlashed = node.totalRPLSlashed;
+    checkpoint.totalClaimedRPLRewards = node.totalClaimedRPLRewards;
+    checkpoint.minimumRPLNeededForMinipools = node.minimumRPLNeededForMinipools;
+    checkpoint.maximumRPLNeededForMinipools = node.maximumRPLNeededForMinipools;
+    checkpoint.queuedMinipools = node.queuedMinipools;
+    checkpoint.stakingMinipools = node.stakingMinipools;
+    checkpoint.stakingUnbondedMinipools = node.stakingUnbondedMinipools;
+    checkpoint.withdrawableMinipools = node.withdrawableMinipools;
+    checkpoint.totalFinalizedMinipools = node.totalFinalizedMinipools;
+    checkpoint.averageFeeForActiveMinipools = node.averageFeeForActiveMinipools;
     checkpoint.block = blockNumber
     checkpoint.blockTime = blockTime
 

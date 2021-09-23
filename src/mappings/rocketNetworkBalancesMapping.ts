@@ -56,6 +56,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let rETHExchangeRate = rETHContract.getExchangeRate()
   let checkpoint = rocketPoolEntityFactory.createNetworkStakerBalanceCheckpoint(
     generalUtilities.extractIdForEntity(event),
+    protocol.lastNetworkStakerBalanceCheckPoint,
     event,
     depositPoolBalance,
     stakerETHInRocketETHContract,
@@ -68,14 +69,16 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let previousTotalStakerETHRewards = BigInt.fromI32(0)
   let previousTotalStakersWithETHRewards = BigInt.fromI32(0)
   let previousRETHExchangeRate = BigInt.fromI32(1)
+  let previousCheckpoint: NetworkStakerBalanceCheckpoint | null = null;
   if (previousCheckpointId != null) {
-    let previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
+    previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
       <string>previousCheckpointId,
     )
     if (previousCheckpoint !== null) {
       previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
       previousTotalStakersWithETHRewards = previousCheckpoint.totalStakersWithETHRewards;
       previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate
+      previousCheckpoint.nextCheckpointId = checkpoint.id
     }
   }
 
@@ -111,6 +114,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
 
   // Index these changes.
   checkpoint.save()
+  if(previousCheckpoint !== null) previousCheckpoint.save();
   protocol.save()
 }
 
