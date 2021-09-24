@@ -139,19 +139,22 @@ function generateNodeBalanceCheckpoints(
     let node = Node.load(nodeId);
     if (node === null) continue;
 
+    // We'll need this to pass to the rocketnodestaking contract.
+    let nodeAddress = Address.fromString(node.id);
+
     /*
       Update the node state that is affected by the update in RPL/ETH price.
       We could calculate this with indexed/in-memory state but its more future-proof 
       to just let contracts do their magic and get the correct state from them.
     */
     node.effectiveRPLStaked = rocketNodeStakingContract.getNodeEffectiveRPLStake(
-      Address.fromString(node.id)
+      nodeAddress
     );
     node.minimumEffectiveRPL = rocketNodeStakingContract.getNodeMinimumRPLStake(
-      Address.fromString(node.id)
+      nodeAddress
     );
     node.maximumEffectiveRPL = rocketNodeStakingContract.getNodeMaximumRPLStake(
-      Address.fromString(node.id)
+      nodeAddress
     );
 
     // Update network balance(s) based on this node.
