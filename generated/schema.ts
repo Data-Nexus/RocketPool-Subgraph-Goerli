@@ -600,6 +600,23 @@ export class Node extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("timezone", Value.fromString(""));
+    this.set("rplStaked", Value.fromBigInt(BigInt.zero()));
+    this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
+    this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("minimumRPLNeededForMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("maximumRPLNeededForMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("withdrawableMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("totalFinalizedMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(BigInt.zero()));
+    this.set("minipools", Value.fromStringArray(new Array(0)));
+    this.set("block", Value.fromBigInt(BigInt.zero()));
+    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -758,6 +775,15 @@ export class Node extends Entity {
     } else {
       this.set("lastNodeBalanceCheckpoint", Value.fromString(value as string));
     }
+  }
+
+  get minipools(): Array<string> {
+    let value = this.get("minipools");
+    return value!.toStringArray();
+  }
+
+  set minipools(value: Array<string>) {
+    this.set("minipools", Value.fromStringArray(value));
   }
 
   get block(): BigInt {
@@ -1604,5 +1630,119 @@ export class NodeBalanceCheckpoint extends Entity {
 
   set blockTime(value: BigInt) {
     this.set("blockTime", Value.fromBigInt(value));
+  }
+}
+
+export class Minipool extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("node", Value.fromString(""));
+    this.set("fee", Value.fromBigInt(BigInt.zero()));
+    this.set("queuedBlockTime", Value.fromBigInt(BigInt.zero()));
+    this.set("dequeuedBlockTime", Value.fromBigInt(BigInt.zero()));
+    this.set("destroyedBlockTime", Value.fromBigInt(BigInt.zero()));
+    this.set("stakingBlockTime", Value.fromBigInt(BigInt.zero()));
+    this.set("withdrawableBlockTime", Value.fromBigInt(BigInt.zero()));
+    this.set("finalizedBlockTime", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Minipool entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Minipool entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Minipool", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Minipool | null {
+    return changetype<Minipool | null>(store.get("Minipool", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get node(): string {
+    let value = this.get("node");
+    return value!.toString();
+  }
+
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
+  }
+
+  get fee(): BigInt {
+    let value = this.get("fee");
+    return value!.toBigInt();
+  }
+
+  set fee(value: BigInt) {
+    this.set("fee", Value.fromBigInt(value));
+  }
+
+  get queuedBlockTime(): BigInt {
+    let value = this.get("queuedBlockTime");
+    return value!.toBigInt();
+  }
+
+  set queuedBlockTime(value: BigInt) {
+    this.set("queuedBlockTime", Value.fromBigInt(value));
+  }
+
+  get dequeuedBlockTime(): BigInt {
+    let value = this.get("dequeuedBlockTime");
+    return value!.toBigInt();
+  }
+
+  set dequeuedBlockTime(value: BigInt) {
+    this.set("dequeuedBlockTime", Value.fromBigInt(value));
+  }
+
+  get destroyedBlockTime(): BigInt {
+    let value = this.get("destroyedBlockTime");
+    return value!.toBigInt();
+  }
+
+  set destroyedBlockTime(value: BigInt) {
+    this.set("destroyedBlockTime", Value.fromBigInt(value));
+  }
+
+  get stakingBlockTime(): BigInt {
+    let value = this.get("stakingBlockTime");
+    return value!.toBigInt();
+  }
+
+  set stakingBlockTime(value: BigInt) {
+    this.set("stakingBlockTime", Value.fromBigInt(value));
+  }
+
+  get withdrawableBlockTime(): BigInt {
+    let value = this.get("withdrawableBlockTime");
+    return value!.toBigInt();
+  }
+
+  set withdrawableBlockTime(value: BigInt) {
+    this.set("withdrawableBlockTime", Value.fromBigInt(value));
+  }
+
+  get finalizedBlockTime(): BigInt {
+    let value = this.get("finalizedBlockTime");
+    return value!.toBigInt();
+  }
+
+  set finalizedBlockTime(value: BigInt) {
+    this.set("finalizedBlockTime", Value.fromBigInt(value));
   }
 }

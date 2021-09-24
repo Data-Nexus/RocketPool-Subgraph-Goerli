@@ -176,3 +176,89 @@ dataSources:
         - event: PricesUpdated(uint256,uint256,uint256,uint256)
           handler: handlePricesUpdated
       file: ./src/mappings/rocketNetworkPricesMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketMinipoolManager 
+    network: goerli
+    source:
+      address: "0x6cC6b7F1eA68548d008d0Ce60798132a4072B919"
+      abi: rocketMinipoolManager
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Minipool
+      abis:
+        - name: rocketMinipoolManager
+          file: ./abis/rocketMinipoolManager.json
+        - name: rocketNetworkFees
+          file: ./abis/rocketNetworkFees.json
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json     
+        - name: rocketNodeStaking
+          file: ./abis/rocketNodeStaking.json    
+      eventHandlers:
+        - event: MinipoolCreated(indexed address,indexed address,uint256)
+          handler: handleMinipoolCreated
+        - event: MinipoolDestroyed(indexed address,indexed address,uint256)
+          handler: handleMinipoolDestroyed
+      callHandlers:
+        - function: incrementNodeStakingMinipoolCount(address)
+          handler: handleIncrementNodeStakingMinipoolCount       
+        - function: decrementNodeStakingMinipoolCount(address)
+          handler: handleDecrementNodeStakingMinipoolCount
+        - function: incrementNodeFinalisedMinipoolCount(address)
+          handler: handleIncrementNodeFinalisedMinipoolCount
+      file: ./src/mappings/rocketMinipoolManagerMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketMinipoolqueue 
+    network: goerli
+    source:
+      address: "0xEF5EF45bf1CC08D5694f87F8c4023f00CCCB7237"
+      abi: rocketMinipoolqueue
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Minipool
+      abis:
+        - name: rocketMinipoolqueue
+          file: ./abis/rocketMinipoolqueue.json
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json   
+      eventHandlers:
+        - event: MinipoolEnqueued(indexed address,indexed bytes32,uint256)
+          handler: handleMinipoolEnqueued
+        - event: MinipoolDequeued(indexed address,indexed bytes32,uint256)
+          handler: handleMinipoolDequeued
+      file: ./src/mappings/rocketMinipoolqueueMapping.ts
+
+  - kind: ethereum/contract
+    name: rocketDAONodeTrusted  
+    network: goerli
+    source:
+      address: "0x8486d86481CCda0Bc3A148361Fd1E1582b0c30c7"
+      abi: rocketDAONodeTrusted
+      startBlock: 5200000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Minipool
+      abis:
+        - name: rocketDAONodeTrusted
+          file: ./abis/rocketDAONodeTrusted.json
+        - name: rocketStorage
+          file: ./abis/rocketStorage.json   
+      callHandlers:
+        - function: incrementMemberUnbondedValidatorCount(address)
+          handler: handleIncrementMemberUnbondedValidatorCount    
+        - function: decrementMemberUnbondedValidatorCount(address)
+          handler: handleDecrementMemberUnbondedValidatorCount      
+      file: ./src/mappings/rocketDAONodeTrustedMapping.ts

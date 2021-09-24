@@ -357,6 +357,28 @@ class RocketPoolEntityFactory {
 
     return checkpoint;
   }
+
+  /**
+   * Attempts to create a new minipool.
+   */
+  public createMinipool(
+    id: string,
+    node: Node,
+    fee: BigInt,
+    blockTime: BigInt) {
+
+      let minipool = new Minipool(id)
+      minipool.node = node.id
+      minipool.fee = fee;
+      minipool.queuedBlockTime = blockTime
+      minipool.dequeuedBlockTime = BigInt.fromI32(0)
+      minipool.destroyedBlockTime = BigInt.fromI32(0)
+      minipool.stakingBlockTime = BigInt.fromI32(0)
+      minipool.withdrawableBlockTime = BigInt.fromI32(0)
+      minipool.finalizedBlockTime = BigInt.fromI32(0)
+  
+      return minipool
+  }
 }
 
 export let rocketPoolEntityFactory = new RocketPoolEntityFactory();

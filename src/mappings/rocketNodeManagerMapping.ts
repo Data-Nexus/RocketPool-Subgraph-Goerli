@@ -41,7 +41,7 @@ export function handleNodeRegister(event: NodeRegistered): void {
 
   // Create the node for this timezone and index it.
   node = rocketPoolEntityFactory.createNode(
-    event.params.node.toHex(),
+    event.params.node.toHexString(),
     nodeTimezone.id,
     event.block.number,
     event.block.timestamp
@@ -75,8 +75,8 @@ export function handleNodeTimezoneChanged(
     return;
 
   // The node in question has to exist before we can change its timezone.
-  let node = Node.load(event.params.node.toHex());
-  if (node === null) return;
+  let node = Node.load(event.params.node.toHexString())
+  if (node === null) return
 
   let oldNodeTimezone: NetworkNodeTimezone | null = null;
 
