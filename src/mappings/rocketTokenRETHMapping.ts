@@ -2,11 +2,11 @@ import { ROCKET_STORAGE_ADDRESS, ROCKET_TOKEN_RETH_CONTRACT_NAME } from '../cons
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Transfer } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
+import { rocketStorage } from '../../generated/rocketTokenRETH/rocketStorage'
 import { Staker } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalutilities'
 import { stakerUtilities } from '../utilities/stakerUtilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { rocketStorage } from '../../generated/rocketNodeStaking/rocketStorage'
 import { ethereum } from '@graphprotocol/graph-ts'
 
 /**

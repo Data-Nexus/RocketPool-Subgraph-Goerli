@@ -168,11 +168,11 @@ type Node @entity {
   # Total claimed RPL rewards since this node was registered with RocketPool.
   totalClaimedRPLRewards: BigInt!
 
-  # Current minimum RPL needed to collateralize all the queued and staking minipools of this node by the bare minimum.
-  minimumRPLNeededForMinipools: BigInt!
+  # Current minimum RPL needed to collateralize all staking minipools of this node by the bare minimum.
+  minimumEffectiveRPL: BigInt!
 
-  # Current maximum RPL needed to collateralize all the queued and staking minipools of this node to the absolute maximum.
-  maximumRPLNeededForMinipools: BigInt!
+  # Current maximum RPL needed to collateralize all staking minipools of this node to the absolute maximum.
+  maximumEffectiveRPL: BigInt!
 
   # Current queueud minipools
   queuedMinipools: BigInt!
@@ -189,7 +189,7 @@ type Node @entity {
   # Finalized minipools since this node was registered with RocketPool.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee for this node operator.
+  # Average minipool fee for the active (queued, staking, withdrawable) minipools for this node operator.
   averageFeeForActiveMinipools: BigInt!
  
   # Last node balance checkpoint for this node.
@@ -341,23 +341,23 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Effective RPL staked accross all nodes at this checkpoint.
   effectiveRPLStaked: BigInt!
 
+  # Minimum RPL needed to collateralize the staking minipools by the absolute minimum at this checkpoint.
+  minimumEffectiveRPL: BigInt!
+
+  # maximum RPL needed to collateralize the staking minipools to the absolute maximum at this checkpoint.
+  maximumEffectiveRPL: BigInt!
+
+  # Minimum RPL needed to start a new minipool at this checkpoint.
+  minimumEffectiveRPLNewMinipool: BigInt!
+
+  # Maximum RPL needed to start a new minipool at this checkpoint.
+  maximumEffectiveRPLNewMinipool: BigInt!
+
   # Total RPL slashed from all previous checkpoints up to this checkpoint.
   totalRPLSlashed: BigInt!
 
   # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
-
-  # Minimum RPL needed to start a new minipool at this checkpoint.
-  minimumRPLNeededForNewMinipool: BigInt!
-
-  # Maximum RPL needed to start a new minipool at this checkpoint.
-  maximumRPLNeededForNewMinipool: BigInt!
-
-  # Minimum RPL needed to collateralize the entire protocol by the absolute minimum at this checkpoint.
-  minimumRPLNeededForQueuedOrStakingMinipools: BigInt!
-
-  # maximum RPL needed to collateralize the entire protocol to the absolute maximum at this checkpoint.
-  maximumRPLNeededForQueuedOrStakingMinipools: BigInt!
 
   # The RPL price in ETH at this checkpoint.
   rplPriceInETH: BigInt!
@@ -377,7 +377,7 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total finalized minipools accross all nodes up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee accross all nodes and the eligible (queued, staking, withdrawable) minipools at this checkpoint.
+  # Average minipool fee accross all nodes and the active (queued, staking, withdrawable) minipools at this checkpoint.
   averageFeeForActiveMinipools: BigInt!
 
   # Fee to start a new minipool at this checkpoint.
@@ -407,17 +407,17 @@ type NodeBalanceCheckpoint @entity {
   # Effective RPL staked at this checkpoint.
   effectiveRPLStaked: BigInt!
 
+  # Minimum RPL needed to collateralize all the staking minipools of the node by the bare minimum at this checkpoint.
+  minimumEffectiveRPL: BigInt!
+
+  # Maximum RPL needed to collateralize all the staking minipools of the node by the absolute maximum at this checkpoint.
+  maximumEffectiveRPL: BigInt!
+
   # Total RPL slashed from all previous checkpoints up to this checkpoint.
   totalRPLSlashed: BigInt!
 
   # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
-
-  # Minimum RPL needed to collateralize all the queued and staking minipools of the node by the bare minimum at this checkpoint.
-  minimumRPLNeededForMinipools: BigInt!
-
-  # Maximum RPL needed to collateralize all the queued and staking minipools of the node by the absolute maximum at this checkpoint.
-  maximumRPLNeededForMinipools: BigInt!
 
   # Queued minipools for this node at this checkpoint.
   queuedMinipools: BigInt!
@@ -434,7 +434,7 @@ type NodeBalanceCheckpoint @entity {
   # Total Finalized minipools for this node up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee for this node and the eligible (queued, staking, withdrawable) minipools at this checkpoint.
+  # Average minipool fee for this node and the active (queued, staking, withdrawable) minipools at this checkpoint.
   averageFeeForActiveMinipools: BigInt!
 
   # Block number that was associated with this checkpoint.

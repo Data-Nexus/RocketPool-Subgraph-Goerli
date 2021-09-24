@@ -1,7 +1,8 @@
 import { BalancesUpdated } from '../../generated/rocketNetworkBalances/rocketNetworkBalances'
-import { Staker, NetworkStakerBalanceCheckpoint } from '../../generated/schema'
 import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
+import { rocketStorage } from '../../generated/rocketNetworkBalances/rocketStorage'
+import { Staker, NetworkStakerBalanceCheckpoint } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalUtilities'
 import { stakerUtilities } from '../utilities/stakerutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
@@ -12,10 +13,9 @@ import {
   ROCKET_TOKEN_RETH_CONTRACT_NAME,
 } from './../constants/contractconstants'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { rocketStorage } from '../../generated/rocketRewardsPool/rocketStorage'
 
 /**
- * Occurs when enough ODAO members votes on a balance and a consensus threshold is reached.
+ * When enough ODAO members votes on a balance and a consensus threshold is reached, the staker beacon chain state is persisted to the smart contracts.
  */
 export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Preliminary check to ensure we haven't handled this before.

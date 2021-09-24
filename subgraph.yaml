@@ -100,6 +100,10 @@ dataSources:
           file: ./abis/rocketNetworkPrices.json    
         - name: rocketStorage
           file: ./abis/rocketStorage.json 
+        - name: rocketNodeManager
+          file: ./abis/rocketNodeManager.json
+        - name: rocketTokenRETH
+          file: ./abis/rocketTokenRETH.json
       eventHandlers:
         - event: RPLStaked(indexed address,uint256,uint256)
           handler: handleRPLStaked
@@ -132,6 +136,8 @@ dataSources:
           file: ./abis/rocketStorage.json 
         - name: rocketNetworkPrices
           file: ./abis/rocketNetworkPrices.json    
+        - name: rocketNodeManager
+          file: './abis/rocketNodeManager.json'
       eventHandlers:
         - event: RPLTokensClaimed(indexed address,indexed address,uint256,uint256)
           handler: handleRPLTokensClaimed
@@ -164,6 +170,8 @@ dataSources:
           file: ./abis/rocketDAOProtocolSettingsMinipool.json
         - name: rocketStorage
           file: ./abis/rocketStorage.json   
+        - name: rocketNodeStaking
+          file: ./abis/rocketNodeStaking.json
       eventHandlers:
         - event: PricesUpdated(uint256,uint256,uint256,uint256)
           handler: handlePricesUpdated

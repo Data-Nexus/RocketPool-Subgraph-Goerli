@@ -1,22 +1,22 @@
-import { BigInt, Address, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, Address } from '@graphprotocol/graph-ts'
 import {
   RPLStaked,
   RPLSlashed,
   RPLWithdrawn,
 } from '../../generated/rocketNodeStaking/rocketNodeStaking'
-import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
+import { rocketTokenRETH } from '../../generated/rocketNodeStaking/rocketTokenRETH'
 import { rocketNodeStaking } from '../../generated/rocketNodeStaking/rocketNodeStaking'
 import { rocketStorage } from '../../generated/rocketNodeStaking/rocketStorage'
 import { ONE_ETHER_IN_WEI } from './../constants/generalconstants'
 import {
   ROCKET_STORAGE_ADDRESS,
   ROCKET_TOKEN_RETH_CONTRACT_NAME,
-  ROCKET_NODE_STAKING_CONTRACT_NAME,
+  ROCKET_NODE_STAKING_CONTRACT_NAME
 } from './../constants/contractconstants'
 import {
   NODERPLSTAKETRANSACTIONTYPE_STAKED,
   NODERPLSTAKETRANSACTIONTYPE_WITHDRAWAL,
-  NODERPLSTAKETRANSACTIONTYPE_SLASHED,
+  NODERPLSTAKETRANSACTIONTYPE_SLASHED
 } from './../constants/enumconstants'
 import { Node } from '../../generated/schema'
 import { ethereum } from '@graphprotocol/graph-ts'
