@@ -600,23 +600,6 @@ export class Node extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("timezone", Value.fromString(""));
-    this.set("rplStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("minimumRPLNeededForMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("maximumRPLNeededForMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("withdrawableMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalFinalizedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("averageFeeForActiveMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("minipools", Value.fromStringArray(new Array(0)));
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -779,7 +762,7 @@ export class Node extends Entity {
 
   get minipools(): Array<string> {
     let value = this.get("minipools");
-    return value!.toStringArray();
+    return value.toStringArray();
   }
 
   set minipools(value: Array<string>) {
@@ -1637,37 +1620,26 @@ export class Minipool extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("node", Value.fromString(""));
-    this.set("fee", Value.fromBigInt(BigInt.zero()));
-    this.set("queuedBlockTime", Value.fromBigInt(BigInt.zero()));
-    this.set("dequeuedBlockTime", Value.fromBigInt(BigInt.zero()));
-    this.set("destroyedBlockTime", Value.fromBigInt(BigInt.zero()));
-    this.set("stakingBlockTime", Value.fromBigInt(BigInt.zero()));
-    this.set("withdrawableBlockTime", Value.fromBigInt(BigInt.zero()));
-    this.set("finalizedBlockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Minipool entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save Minipool entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("Minipool", id.toString(), this);
-    }
+    assert(id !== null, "Cannot save Minipool entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Minipool entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Minipool", id.toString(), this);
   }
 
   static load(id: string): Minipool | null {
-    return changetype<Minipool | null>(store.get("Minipool", id));
+    return store.get("Minipool", id) as Minipool | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -1676,7 +1648,7 @@ export class Minipool extends Entity {
 
   get node(): string {
     let value = this.get("node");
-    return value!.toString();
+    return value.toString();
   }
 
   set node(value: string) {
@@ -1685,7 +1657,7 @@ export class Minipool extends Entity {
 
   get fee(): BigInt {
     let value = this.get("fee");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set fee(value: BigInt) {
@@ -1694,7 +1666,7 @@ export class Minipool extends Entity {
 
   get queuedBlockTime(): BigInt {
     let value = this.get("queuedBlockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set queuedBlockTime(value: BigInt) {
@@ -1703,7 +1675,7 @@ export class Minipool extends Entity {
 
   get dequeuedBlockTime(): BigInt {
     let value = this.get("dequeuedBlockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set dequeuedBlockTime(value: BigInt) {
@@ -1712,7 +1684,7 @@ export class Minipool extends Entity {
 
   get destroyedBlockTime(): BigInt {
     let value = this.get("destroyedBlockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set destroyedBlockTime(value: BigInt) {
@@ -1721,7 +1693,7 @@ export class Minipool extends Entity {
 
   get stakingBlockTime(): BigInt {
     let value = this.get("stakingBlockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set stakingBlockTime(value: BigInt) {
@@ -1730,7 +1702,7 @@ export class Minipool extends Entity {
 
   get withdrawableBlockTime(): BigInt {
     let value = this.get("withdrawableBlockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set withdrawableBlockTime(value: BigInt) {
@@ -1739,7 +1711,7 @@ export class Minipool extends Entity {
 
   get finalizedBlockTime(): BigInt {
     let value = this.get("finalizedBlockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set finalizedBlockTime(value: BigInt) {

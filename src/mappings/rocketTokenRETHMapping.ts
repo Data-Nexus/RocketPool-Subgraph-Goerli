@@ -89,7 +89,7 @@ function saveTransaction(
   // Load the RocketTokenRETH contract.
   let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
   let rETHContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME) 
+    generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME)
   )
   let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
   if (rETHContract === null) return

@@ -39,17 +39,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     event.params === null ||
     event.params.claimingAddress === null ||
     event.params.claimingContract === null ||
-    event.block === null ||
-    event.params.amount == BigInt.fromI32(0)
-  )
-    return;
-
-  // Determine the ID for the new RPL reward claim based on the event.
-  // If this was null or the ID has already been indexed; stop.
-  let rplRewardClaimId = generalUtilities.extractIdForEntity(event);
-  if (
-    rplRewardClaimId == null ||
-    RPLRewardClaim.load(rplRewardClaimId) !== null
+    event.block === null
   )
     return;
 
@@ -58,6 +48,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol();
   }
+  if (protocol === null) return
 
   // We will need the rocketvault smart contract state to get specific addresses.
   let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS);
@@ -99,7 +90,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   if (
     activeIndexedRewardInterval === null ||
     activeIndexedRewardInterval.intervalStartTime !=
-      smartContractCurrentRewardIntervalStartTime
+    smartContractCurrentRewardIntervalStartTime
   ) {
     // If there was an indexed RPL Reward interval which has a different start time then the interval in the smart contracts.
     if (activeIndexedRewardInterval !== null) {
@@ -109,6 +100,9 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
       activeIndexedRewardInterval.intervalDurationActual = event.block.timestamp.minus(
         activeIndexedRewardInterval.intervalStartTime
       );
+      if (activeIndexedRewardInterval.intervalDurationActual < BigInt.fromI32(0)) {
+        activeIndexedRewardInterval.intervalDurationActual = activeIndexedRewardInterval.intervalDuration;
+      }
       previousActiveIndexedRewardInterval = activeIndexedRewardInterval;
       previousActiveIndexedRewardIntervalId =
         previousActiveIndexedRewardInterval.id;
@@ -117,7 +111,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     // Create a new RPL Reward interval so we can add this first claim to it.
     activeIndexedRewardInterval = rocketPoolEntityFactory.createRPLRewardInterval(
       ROCKETPOOL_RPL_REWARD_INTERVAL_ID_PREFIX +
-        generalUtilities.extractIdForEntity(event),
+      generalUtilities.extractIdForEntity(event),
       previousActiveIndexedRewardIntervalId,
       rocketRewardPoolContract.getClaimIntervalRewardsTotal(),
       smartContractCurrentRewardIntervalStartTime,
@@ -133,6 +127,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
         activeIndexedRewardInterval.id;
     }
   }
+  if (activeIndexedRewardInterval === null) return;
 
   // We need this to determine the current RPL/ETH price based on the smart contracts.
   // If for some reason this fails, something is horribly wrong and we need to stop indexing.
@@ -154,7 +149,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
 
   // Create a new reward claim.
   let rplRewardClaim = rocketPoolEntityFactory.createRPLRewardClaim(
-    rplRewardClaimId,
+    generalUtilities.extractIdForEntity(event),
     event.params.claimingAddress.toHexString(),
     <string>rplRewardClaimerType,
     event.params.amount,

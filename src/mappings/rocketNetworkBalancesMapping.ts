@@ -28,7 +28,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
   }
-  if(protocol === null) return;
+  if (protocol === null) return;
 
   // Load the RocketTokenRETH contract via the rocketstorage.
   // We will need the rocketvault smart contract state to get specific addresses.
@@ -36,9 +36,9 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let rETHContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME))
   let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
   if (rETHContract === null) return
-  
+
   // Load the rocketDepositPool contract
-  let rocketDepositPoolContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_DEPOSIT_POOL_CONTRACT_NAME)) 
+  let rocketDepositPoolContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_DEPOSIT_POOL_CONTRACT_NAME))
   let rocketDepositPoolContract = rocketDepositPool.bind(rocketDepositPoolContractAddress)
   if (rocketDepositPoolContract === null) return
 
@@ -85,7 +85,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   // Handle the staker impact.
   generateStakerBalanceCheckpoints(
     protocol.stakers,
-    checkpoint,
+    <NetworkStakerBalanceCheckpoint>checkpoint,
     previousRETHExchangeRate,
     event.block.number,
     event.block.timestamp,
@@ -108,13 +108,13 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
       checkpoint.totalStakersWithETHRewards,
     )
   }
-  
+
   // Update the link so the protocol points to the last network staker balance checkpoint.
   protocol.lastNetworkStakerBalanceCheckPoint = checkpoint.id
 
   // Index these changes.
   checkpoint.save()
-  if(previousCheckpoint !== null) previousCheckpoint.save();
+  if (previousCheckpoint !== null) previousCheckpoint.save();
   protocol.save()
 }
 
@@ -149,7 +149,7 @@ function generateStakerBalanceCheckpoints(
       // But their rewards are accounted for in the total(s) of the current network checkpoint.
       stakerUtilities.updateNetworkStakerBalanceCheckpoint(
         networkCheckpoint,
-        staker,
+        <Staker>staker,
       )
 
       // Only generate a staker balance checkpoint if the staker still has an rETH balance.
@@ -158,7 +158,7 @@ function generateStakerBalanceCheckpoints(
 
     // Get the current & previous balances for this staker and update the staker balance for the current exchange rate.
     let stakerBalance = stakerUtilities.getStakerBalance(
-      staker,
+      <Staker>staker,
       networkCheckpoint.rETHExchangeRate,
     )
     staker.ethBalance = stakerBalance.currentETHBalance
@@ -174,7 +174,7 @@ function generateStakerBalanceCheckpoints(
     )
     stakerUtilities.handleEthRewardsSincePreviousCheckpoint(
       ethRewardsSincePreviousCheckpoint,
-      staker,
+      <Staker>staker,
       networkCheckpoint,
     )
 
@@ -197,4 +197,3 @@ function generateStakerBalanceCheckpoints(
     staker.save()
   }
 }
-

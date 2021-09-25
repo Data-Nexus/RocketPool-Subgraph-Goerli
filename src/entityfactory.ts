@@ -11,7 +11,8 @@ import {
   RPLRewardInterval,
   RPLRewardClaim,
   NetworkNodeBalanceCheckpoint,
-  NodeBalanceCheckpoint
+  NodeBalanceCheckpoint,
+  Minipool
 } from "../generated/schema";
 import { BalancesUpdated } from "../generated/rocketNetworkBalances/rocketNetworkBalances";
 import { ROCKETPOOL_PROTOCOL_ROOT_ID } from "./constants/generalconstants";
@@ -191,6 +192,7 @@ class RocketPoolEntityFactory {
     node.totalFinalizedMinipools = BigInt.fromI32(0);
     node.averageFeeForActiveMinipools = BigInt.fromI32(0);
     node.lastNodeBalanceCheckpoint = null;
+    node.minipools = new Array<string>(0);
     node.block = blockNumber;
     node.blockTime = blockTime;
     return node;
@@ -364,20 +366,19 @@ class RocketPoolEntityFactory {
   public createMinipool(
     id: string,
     node: Node,
-    fee: BigInt,
-    blockTime: BigInt) {
+    fee: BigInt): Minipool {
 
-      let minipool = new Minipool(id)
-      minipool.node = node.id
-      minipool.fee = fee;
-      minipool.queuedBlockTime = blockTime
-      minipool.dequeuedBlockTime = BigInt.fromI32(0)
-      minipool.destroyedBlockTime = BigInt.fromI32(0)
-      minipool.stakingBlockTime = BigInt.fromI32(0)
-      minipool.withdrawableBlockTime = BigInt.fromI32(0)
-      minipool.finalizedBlockTime = BigInt.fromI32(0)
-  
-      return minipool
+    let minipool = new Minipool(id)
+    minipool.node = node.id
+    minipool.fee = fee;
+    minipool.queuedBlockTime = BigInt.fromI32(0)
+    minipool.dequeuedBlockTime = BigInt.fromI32(0)
+    minipool.destroyedBlockTime = BigInt.fromI32(0)
+    minipool.stakingBlockTime = BigInt.fromI32(0)
+    minipool.withdrawableBlockTime = BigInt.fromI32(0)
+    minipool.finalizedBlockTime = BigInt.fromI32(0)
+
+    return minipool
   }
 }
 

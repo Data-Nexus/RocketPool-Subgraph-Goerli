@@ -17,6 +17,9 @@ import {
  * Occurs when a node operator registers his address with the RocketPool protocol.
  */
 export function handleNodeRegister(event: NodeRegistered): void {
+  // Preliminary null checks.
+  if(event === null || event.params === null || event.params.node === null) return
+
   // We can only register an address as a node if it hasn't been registered yet.
   let node = Node.load(event.params.node.toHex());
   if (node !== null) return;

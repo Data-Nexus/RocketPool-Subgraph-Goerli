@@ -4,14 +4,14 @@ import {
   RPLSlashed,
   RPLWithdrawn,
 } from '../../generated/rocketNodeStaking/rocketNodeStaking'
-import { rocketTokenRETH } from '../../generated/rocketNodeStaking/rocketTokenRETH'
+import { rocketNetworkPrices } from '../../generated/rocketNodeStaking/rocketNetworkPrices'
 import { rocketNodeStaking } from '../../generated/rocketNodeStaking/rocketNodeStaking'
 import { rocketStorage } from '../../generated/rocketNodeStaking/rocketStorage'
 import { ONE_ETHER_IN_WEI } from './../constants/generalconstants'
 import {
   ROCKET_STORAGE_ADDRESS,
-  ROCKET_TOKEN_RETH_CONTRACT_NAME,
-  ROCKET_NODE_STAKING_CONTRACT_NAME
+  ROCKET_NODE_STAKING_CONTRACT_NAME,
+  ROCKET_NETWORK_PRICES_CONTRACT_NAME
 } from './../constants/contractconstants'
 import {
   NODERPLSTAKETRANSACTIONTYPE_STAKED,
@@ -23,11 +23,12 @@ import { ethereum } from '@graphprotocol/graph-ts'
 import { generalUtilities } from '../utilities/generalutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 
-
 /**
  * Occurs when a node operator stakes RPL on his node to collaterize his minipools.
  */
 export function handleRPLStaked(event: RPLStaked): void {
+  if (event === null || event.params === null || event.params.from === null) return;
+
   saveNodeRPLStakeTransaction(
     event,
     event.params.from.toHexString(),
@@ -40,6 +41,8 @@ export function handleRPLStaked(event: RPLStaked): void {
  * Occurs when RPL is slashed to cover staker losses.
  */
 export function handleRPLSlashed(event: RPLSlashed): void {
+  if (event === null || event.params === null || event.params.node === null) return;
+
   saveNodeRPLStakeTransaction(
     event,
     event.params.node.toHexString(),
@@ -52,6 +55,8 @@ export function handleRPLSlashed(event: RPLSlashed): void {
  * Occurs when a node operator withdraws RPL from his node.
  */
 export function handleRPLWithdrawn(event: RPLWithdrawn): void {
+  if (event === null || event.params === null || event.params.to === null) return;
+
   saveNodeRPLStakeTransaction(
     event,
     event.params.to.toHexString(),
@@ -85,16 +90,14 @@ function saveNodeRPLStakeTransaction(
 
   // Load the storage contract because we need to get the rETH contract address. (and some of its state)
   let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
-  let rETHContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME) 
+  let rocketNetworkPricesContractAddress = rocketStorageContract.getAddress(
+    generalUtilities.getRocketVaultContractAddressKey(ROCKET_NETWORK_PRICES_CONTRACT_NAME)
   )
-  let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
-  if (rETHContract === null) return
+  let rocketNetworkPricesContract = rocketNetworkPrices.bind(rocketNetworkPricesContractAddress)
 
-  // Update active balances for stakesr.
-  let exchangeRate = rETHContract.getExchangeRate()
-  if (exchangeRate <= BigInt.fromI32(0)) exchangeRate = BigInt.fromI32(1)
-  let ethAmount = amount.times(exchangeRate).div(ONE_ETHER_IN_WEI)
+  // Calculate the ETH amount at the time of the transaction.
+  let rplETHExchangeRate = rocketNetworkPricesContract.getRPLPrice()
+  let ethAmount = amount.times(rplETHExchangeRate).div(ONE_ETHER_IN_WEI)
 
   // Create a new transaction for the given values.
   let nodeRPLStakeTransaction = rocketPoolEntityFactory.createNodeRPLStakeTransaction(
@@ -106,23 +109,14 @@ function saveNodeRPLStakeTransaction(
     event.block.number,
     event.block.timestamp,
   )
-  if (nodeRPLStakeTransaction === null || nodeRPLStakeTransaction.id == null)
-    return
-
-  // We will need the rocket node staking contract to get some latest state for the associated node.
-  let rocketNodeStakingContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(ROCKET_NODE_STAKING_CONTRACT_NAME) 
-  )
-  let rocketNodeStakingContract = rocketNodeStaking.bind(
-    rocketNodeStakingContractAddress,
-  )
+  if (nodeRPLStakeTransaction === null) return
 
   // Update node RPL balances & index those changes.
   updateNodeRPLBalances(
-    node,
+    <Node>node,
     amount,
     transactionType,
-    rocketNodeStakingContract,
+    rocketStorageContract,
   )
 
   // Index
@@ -137,13 +131,22 @@ function updateNodeRPLBalances(
   node: Node,
   amount: BigInt,
   transactionType: string,
-  rocketNodeStakingContract: rocketNodeStaking,
-) : void {
+  rocketStorageContract: rocketStorage,
+): void {
+  // We will need the rocket node staking contract to get some latest state for the associated node.
+  let rocketNodeStakingContractAddress = rocketStorageContract.getAddress(
+    generalUtilities.getRocketVaultContractAddressKey(ROCKET_NODE_STAKING_CONTRACT_NAME)
+  )
+  let rocketNodeStakingContract = rocketNodeStaking.bind(
+    rocketNodeStakingContractAddress,
+  )
+
+  let nodeAddress = Address.fromString(node.id);
   node.rplStaked = rocketNodeStakingContract.getNodeRPLStake(
-    Address.fromString(node.id),
+    nodeAddress,
   )
   node.effectiveRPLStaked = rocketNodeStakingContract.getNodeEffectiveRPLStake(
-    Address.fromString(node.id),
+    nodeAddress,
   )
 
   // This isn't accessible via smart contracts, so we have to keep track manually.

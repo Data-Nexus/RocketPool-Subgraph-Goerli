@@ -20,7 +20,7 @@ class NodeUtilities {
   }
 
   /**
-   * Calculates and returns the minimum RPL a node operator needs to collaterize a minipool.
+   * Calculates and returns the minimum RPL a node operator needs as collateral for a minipool.
    */
   public getMinimumRPLForNewMinipool(
     nodeDepositAmount: BigInt,
@@ -37,7 +37,7 @@ class NodeUtilities {
   }
 
   /**
-   * Calculates and returns the maximum RPL a node operator needs to collaterize a minipool.
+   * Calculates and returns the maximum RPL a node operator needs as collateral for a minipool.
    */
   public getMaximumRPLForNewMinipool(
     nodeDepositAmount: BigInt,
@@ -108,7 +108,7 @@ class NodeUtilities {
   public updateMinipoolMetadataWithNode(
     minipoolMetadata: NetworkNodeBalanceMinipoolMetadata,
     node: Node
-  ) {
+  ) : void {
     // We need this to calculate the averages on the network level.
     if (node.averageFeeForActiveMinipools > BigInt.fromI32(0)) {
       minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools = minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools.plus(
@@ -121,9 +121,9 @@ class NodeUtilities {
 
     // Update thte total minimum/maximum effective RPL grand total for the current network node balance checkpoint.
     minipoolMetadata.totalMinimumEffectiveRPL =
-     minipoolMetadata.totalMinimumEffectiveRPL.plus(node.minimumEffectiveRPL);
+      minipoolMetadata.totalMinimumEffectiveRPL.plus(node.minimumEffectiveRPL);
     minipoolMetadata.totalMaximumEffectiveRPL =
-     minipoolMetadata.totalMaximumEffectiveRPL.plus(node.maximumEffectiveRPL);
+      minipoolMetadata.totalMaximumEffectiveRPL.plus(node.maximumEffectiveRPL);
   }
 
   /**
@@ -138,7 +138,7 @@ class NodeUtilities {
     if (
       minipoolMetadata.totalNodesWithActiveMinipools > BigInt.fromI32(0) &&
       minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools >
-        BigInt.fromI32(0)
+      BigInt.fromI32(0)
     ) {
       // Store this in WEI.
       checkpoint.averageFeeForActiveMinipools = minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools
@@ -157,7 +157,7 @@ class NodeUtilities {
   public coerceRunningTotalsBasedOnPreviousCheckpoint(
     checkpoint: NetworkNodeBalanceCheckpoint,
     previousCheckpoint: NetworkNodeBalanceCheckpoint | null
-  ) {
+  ) : void {
     if (previousCheckpoint === null) return;
 
     // If for some reason our total claimed RPL rewards up to this checkpoint was 0, then we try to set it based on the previous checkpoint.

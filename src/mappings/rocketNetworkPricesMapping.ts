@@ -3,16 +3,14 @@ import { rocketNetworkFees } from "../../generated/rocketNetworkPrices/rocketNet
 import { rocketStorage } from "../../generated/rocketNetworkPrices/rocketStorage";
 import { rocketDAOProtocolSettingsMinipool } from "../../generated/rocketNetworkPrices/rocketDAOProtocolSettingsMinipool";
 import { rocketDAOProtocolSettingsNode } from "../../generated/rocketNetworkPrices/rocketDAOProtocolSettingsNode";
-import { rocketMinipoolManager } from "../../generated/rocketNetworkPrices/rocketMinipoolManager";
 import { rocketNodeStaking } from "../../generated/rocketNetworkPrices/rocketNodeStaking";
 import { Node, NetworkNodeBalanceCheckpoint } from "../../generated/schema";
 import { generalUtilities } from "../utilities/generalUtilities";
 import { rocketPoolEntityFactory } from "../entityfactory";
-import { NetworkNodeBalanceMinipoolMetadata } from "../models/NetworkNodeBalanceMinipoolMetadata";
+import { NetworkNodeBalanceMinipoolMetadata } from "../models/networkNodeBalanceMinipoolMetadata";
 import {
   ROCKET_DAO_PROTOCOL_SETTINGS_MINIPOOL,
   ROCKET_DAO_PROTOCOL_SETTINGS_NODE,
-  ROCKET_MINIPOOL_MANAGER_CONTRACT_NAME,
   ROCKET_NETWORK_FEES_CONTRACT_NAME,
   ROCKET_STORAGE_ADDRESS,
   ROCKET_NODE_STAKING_CONTRACT_NAME
@@ -22,7 +20,7 @@ import { nodeUtilities } from "../utilities/nodeutilities";
 import { EffectiveMinipoolRPLBounds } from "../models/effectiveMinipoolRPLBounds";
 
 /**
- * When enough ODAO members submitted votes and a consensus threshold is reached, a new RPL price is comitted to the smart contracts.
+ * When enough ODAO members submitted their votes and a consensus threshold is reached, a new RPL price is comitted to the smart contracts.
  */
 export function handlePricesUpdated(event: PricesUpdated): void {
   // Preliminary check to ensure we haven't handled this before.
@@ -52,9 +50,9 @@ export function handlePricesUpdated(event: PricesUpdated): void {
   let checkpoint = rocketPoolEntityFactory.createNetworkNodeBalanceCheckpoint(
     generalUtilities.extractIdForEntity(event),
     protocol.lastNetworkNodeBalanceCheckPoint,
-    event.params.rplPrice,
     effectiveRPLBoundsNewMinipool.minimum,
     effectiveRPLBoundsNewMinipool.maximum,
+    event.params.rplPrice,
     nodeFeeForNewMinipool,
     event.block.number,
     event.block.timestamp
@@ -76,7 +74,7 @@ export function handlePricesUpdated(event: PricesUpdated): void {
   // Handle the node impact.
   let minipoolMetadata = generateNodeBalanceCheckpoints(
     protocol.nodes,
-    checkpoint,
+    <NetworkNodeBalanceCheckpoint>checkpoint,
     rocketStorageContract,
     event.block.number,
     event.block.timestamp
@@ -84,13 +82,13 @@ export function handlePricesUpdated(event: PricesUpdated): void {
 
   // Some of the running totals should be set to the ones from the previous checkpoint if they are 0 after generating the individual node balance checkpoints.
   nodeUtilities.coerceRunningTotalsBasedOnPreviousCheckpoint(
-    checkpoint,
+    <NetworkNodeBalanceCheckpoint>checkpoint,
     previousCheckpoint
   );
 
   // Update certain totals/averages based on minipool metadata.
   nodeUtilities.updateNetworkNodeBalanceCheckpointForMinipoolMetadata(
-    checkpoint,
+    <NetworkNodeBalanceCheckpoint>checkpoint,
     minipoolMetadata
   );
 
@@ -117,7 +115,7 @@ function generateNodeBalanceCheckpoints(
   let minipoolMetadata = new NetworkNodeBalanceMinipoolMetadata();
 
   // If we don't have any registered nodes at this time, stop.
-  if (nodeIds.length === 0) return;
+  if (nodeIds.length === 0) return minipoolMetadata;
 
   // We will need the rocket node staking contract to get some latest state for the associated node.
   let rocketNodeStakingContractAddress = rocketStorageContract.getAddress(
@@ -142,11 +140,7 @@ function generateNodeBalanceCheckpoints(
     // We'll need this to pass to the rocketnodestaking contract.
     let nodeAddress = Address.fromString(node.id);
 
-    /*
-      Update the node state that is affected by the update in RPL/ETH price.
-      We could calculate this with indexed/in-memory state but its more future-proof 
-      to just let contracts do their magic and get the correct state from them.
-    */
+    // Update the node state that is affected by the update in RPL/ETH price.
     node.effectiveRPLStaked = rocketNodeStakingContract.getNodeEffectiveRPLStake(
       nodeAddress
     );
@@ -160,17 +154,17 @@ function generateNodeBalanceCheckpoints(
     // Update network balance(s) based on this node.
     nodeUtilities.updateNetworkNodeBalanceCheckpointForNode(
       networkCheckpoint,
-      node
+      <Node>node
     );
 
     // We need this to calculate the min/max effective RPL needed for the network.
-    nodeUtilities.updateMinipoolMetadataWithNode(minipoolMetadata, node);
+    nodeUtilities.updateMinipoolMetadataWithNode(minipoolMetadata, <Node>node);
 
     // Create a new node balance checkpoint
     let nodeBalanceCheckpoint = rocketPoolEntityFactory.createNodeBalanceCheckpoint(
       networkCheckpoint.id + " - " + node.id,
       networkCheckpoint.id,
-      node,
+      <Node>node,
       blockNumber,
       blockTime
     );
@@ -181,6 +175,8 @@ function generateNodeBalanceCheckpoints(
     nodeBalanceCheckpoint.save();
     node.save();
   }
+
+  return minipoolMetadata;
 }
 
 /**
@@ -201,8 +197,6 @@ function getEffectiveMinipoolRPLBounds(
   let rocketDAOProtocolSettingsMinipoolContract = rocketDAOProtocolSettingsMinipool.bind(
     rocketDAOProtocolSettingsMinipoolContractAddress
   );
-  if (rocketDAOProtocolSettingsMinipoolContract === null)
-    return effectiveRPLBounds;
 
   // Get the DAO Protocol settings node contract instance.
   let rocketDAOProtocolSettingsNodeAddress = rocketStorageContract.getAddress(
@@ -213,18 +207,6 @@ function getEffectiveMinipoolRPLBounds(
   let rocketDAOProtocolSettingsNodeContract = rocketDAOProtocolSettingsNode.bind(
     rocketDAOProtocolSettingsNodeAddress
   );
-  if (rocketDAOProtocolSettingsNodeContract === null) return effectiveRPLBounds;
-
-  // Get the Rocket Minipool manager contract instance.
-  let rocketMinipoolManagerAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(
-      ROCKET_MINIPOOL_MANAGER_CONTRACT_NAME
-    )
-  );
-  let rocketMinipoolManagerContract = rocketMinipoolManager.bind(
-    rocketMinipoolManagerAddress
-  );
-  if (rocketMinipoolManagerContract === null) return effectiveRPLBounds;
 
   // What is the current deposit amount a node operator has to deposit to start a minipool?
   let halfDepositAmount = rocketDAOProtocolSettingsMinipoolContract.getHalfDepositNodeAmount();
@@ -255,7 +237,6 @@ function getNewMinipoolFee(rocketStorageContract: rocketStorage): BigInt {
     )
   );
   let networkFeesContract = rocketNetworkFees.bind(networkFeesContractAddress);
-  if (networkFeesContract === null) return BigInt.fromI32(0);
 
   return networkFeesContract.getNodeFee();
 }
