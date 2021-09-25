@@ -184,6 +184,15 @@ export class Staker extends Entity {
     this.set("totalETHRewards", Value.fromBigInt(value));
   }
 
+  get totalETHRewardsRank(): BigInt {
+    let value = this.get("totalETHRewardsRank");
+    return value.toBigInt();
+  }
+
+  set totalETHRewardsRank(value: BigInt) {
+    this.set("totalETHRewardsRank", Value.fromBigInt(value));
+  }
+
   get hasAccruedETHRewardsDuringLifecycle(): boolean {
     let value = this.get("hasAccruedETHRewardsDuringLifecycle");
     return value.toBoolean();
@@ -450,6 +459,26 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
     this.set("averageStakerETHRewards", Value.fromBigInt(value));
   }
 
+  get checkpointWithHighestRewardsRank(): string | null {
+    let value = this.get("checkpointWithHighestRewardsRank");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set checkpointWithHighestRewardsRank(value: string | null) {
+    if (value === null) {
+      this.unset("checkpointWithHighestRewardsRank");
+    } else {
+      this.set(
+        "checkpointWithHighestRewardsRank",
+        Value.fromString(value as string)
+      );
+    }
+  }
+
   get stakersWithAnRETHBalance(): BigInt {
     let value = this.get("stakersWithAnRETHBalance");
     return value.toBigInt();
@@ -577,6 +606,15 @@ export class StakerBalanceCheckpoint extends Entity {
     this.set("totalETHRewards", Value.fromBigInt(value));
   }
 
+  get totalETHRewardsRank(): BigInt {
+    let value = this.get("totalETHRewardsRank");
+    return value.toBigInt();
+  }
+
+  set totalETHRewardsRank(value: BigInt) {
+    this.set("totalETHRewardsRank", Value.fromBigInt(value));
+  }
+
   get block(): BigInt {
     let value = this.get("block");
     return value.toBigInt();
@@ -669,6 +707,15 @@ export class Node extends Entity {
 
   set totalClaimedRPLRewards(value: BigInt) {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get totalRPLClaimedRewardsRank(): BigInt {
+    let value = this.get("totalRPLClaimedRewardsRank");
+    return value.toBigInt();
+  }
+
+  set totalRPLClaimedRewardsRank(value: BigInt) {
+    this.set("totalRPLClaimedRewardsRank", Value.fromBigInt(value));
   }
 
   get minimumEffectiveRPL(): BigInt {
@@ -959,6 +1006,15 @@ export class RPLRewardInterval extends Entity {
 
   set totalRPLClaimed(value: BigInt) {
     this.set("totalRPLClaimed", Value.fromBigInt(value));
+  }
+
+  get averageRPLClaimed(): BigInt {
+    let value = this.get("averageRPLClaimed");
+    return value.toBigInt();
+  }
+
+  set averageRPLClaimed(value: BigInt) {
+    this.set("averageRPLClaimed", Value.fromBigInt(value));
   }
 
   get rplRewardClaims(): Array<string> {
@@ -1344,6 +1400,26 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
   }
 
+  get checkpointWithHighestRPLRewardsRank(): string | null {
+    let value = this.get("checkpointWithHighestRPLRewardsRank");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set checkpointWithHighestRPLRewardsRank(value: string | null) {
+    if (value === null) {
+      this.unset("checkpointWithHighestRPLRewardsRank");
+    } else {
+      this.set(
+        "checkpointWithHighestRPLRewardsRank",
+        Value.fromString(value as string)
+      );
+    }
+  }
+
   get rplPriceInETH(): BigInt {
     let value = this.get("rplPriceInETH");
     return value.toBigInt();
@@ -1541,6 +1617,15 @@ export class NodeBalanceCheckpoint extends Entity {
 
   set totalClaimedRPLRewards(value: BigInt) {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get totalRPLClaimedRewardsRank(): BigInt {
+    let value = this.get("totalRPLClaimedRewardsRank");
+    return value.toBigInt();
+  }
+
+  set totalRPLClaimedRewardsRank(value: BigInt) {
+    this.set("totalRPLClaimedRewardsRank", Value.fromBigInt(value));
   }
 
   get queuedMinipools(): BigInt {

@@ -54,6 +54,9 @@ export function handleMinipoolCreated(event: MinipoolCreated): void {
   // Creating a minipool requires the node operator to put up a certain amount of RPL in order to receive rewards.
   setEffectiveRPLStaked(<Node>node);
 
+  // A destroyed minipool changes the average minipool fee for a node.
+  setAverageFeeForActiveMinipools(<Node>node);
+
   // Index the minipool and the associated node.
   minipool.save()
   node.save();
@@ -83,6 +86,9 @@ export function handleMinipoolDestroyed(event: MinipoolDestroyed): void {
 
   // Destroying a minipool lowers the requirements for the node operator to put up collateral in order to receive RPL rewards.
   setEffectiveRPLStaked(<Node>node);
+
+  // A destroyed minipool changes the average minipool fee for a node.
+  setAverageFeeForActiveMinipools(<Node>node);
 
   // Update the minipool so it will contain its destroyed state.
   minipool.destroyedBlockTime = event.block.timestamp;
@@ -170,6 +176,9 @@ export function handleIncrementNodeFinalisedMinipoolCount(call: IncrementNodeFin
   // A finalized minipool lowers the requirements for a node to put up collateral to receive rewards.
   setEffectiveRPLStaked(<Node>node);
 
+  // A finalized minipool changes the average minipool fee for a node.
+  setAverageFeeForActiveMinipools(<Node>node);
+
   // Index the minipool and the associated node.
   minipool.save()
   node.save();
@@ -195,7 +204,7 @@ function getNewMinipoolFee(): BigInt {
 /**
  * Sets the effective RPl staked states for a node based on the smart contract state.
  */
-function setEffectiveRPLStaked(node: Node) : void {
+function setEffectiveRPLStaked(node: Node): void {
   // We need this to get the new (minimum/maximum) effective RPL staked for the node.
   let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS);
   let rocketNodeStakingAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_NODE_STAKING_CONTRACT_NAME))
@@ -213,4 +222,60 @@ function setEffectiveRPLStaked(node: Node) : void {
   node.maximumEffectiveRPL = rocketNodeStakingContract.getNodeMaximumRPLStake(
     nodeAddress
   );
+}
+
+/**
+ * Loops through all minipools of a node and sets the average fee for the active minipools.
+ */
+function setAverageFeeForActiveMinipools(node: Node): void {
+  // Start off with an average fee of 0.
+  node.averageFeeForActiveMinipools = BigInt.fromI32(0);
+
+  // If there were no minipools, then the average fee is currently 0. 
+  let minipoolIds = node.minipools;
+  if (minipoolIds === null || minipoolIds.length == 0) return
+
+  // We'll need these to calculate the average fee accross all minipools for the given node.
+  let totalMinipoolFeeForActiveMinipools = BigInt.fromI32(0);
+  let totalActiveMinipools = BigInt.fromI32(0);
+
+  // Loop through all the minipool ids of the node.
+  for (let index = 0; index < minipoolIds.length; index++) {
+    // Get the current minipool ID for this iteration.
+    let minipoolId = <string>minipoolIds[index];
+    if (minipoolId == null) continue;
+
+    // Load the indexed minipool.
+    let minipool = Minipool.load(minipoolId);
+
+    /* 
+     If the minipool:
+     - Wasn't indexed.
+     - Is in a finalized state.
+     - Is in a destroyed state.
+     Then we can't use its fee to calculate the average for the node.
+    */
+    if (minipool === null ||
+      minipool.finalizedBlockTime != BigInt.fromI32(0) ||
+      minipool.destroyedBlockTime != BigInt.fromI32(0))
+      continue;
+
+    // Increment total active minipools.
+    totalActiveMinipools = totalActiveMinipools.plus(BigInt.fromI32(1));
+
+    // Increment total fee accross all minipools.
+    totalMinipoolFeeForActiveMinipools = totalMinipoolFeeForActiveMinipools.plus(minipool.fee);
+  }
+
+  /*
+   If the total active minipools for this node is greater than 0.
+   And the total fee for the active minipools is greater than 0.
+   We can calculate the average fee for active minipools for this node.
+  */
+  if (totalActiveMinipools > BigInt.fromI32(0) &&
+    totalMinipoolFeeForActiveMinipools > BigInt.fromI32(0)) {
+
+    node.averageFeeForActiveMinipools =
+      totalMinipoolFeeForActiveMinipools.div(totalActiveMinipools);
+  }
 }

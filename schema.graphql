@@ -36,6 +36,9 @@ type Staker @entity {
   # Total ETH rewards (in WEI) accrued during the lifecycle of the staker. 
   totalETHRewards: BigInt!
 
+  # Current ETH reward rank of the staker based on his current total ETH rewards in comparison to the other stakers on the protocol.
+  totalETHRewardsRank: BigInt!
+
   # Indicates if this staker has accrued ETH rewards at some point in time during its lifetime.
   hasAccruedETHRewardsDuringLifecycle: Boolean!
 
@@ -105,6 +108,9 @@ type NetworkStakerBalanceCheckpoint @entity {
   # Average staker ETH rewards (+/-) (in WEI) up to this checkpoint.
   averageStakerETHRewards: BigInt!
 
+  # Staker checkpoint that had the highest total ETH reward rank at this checkpoint.
+  checkpointWithHighestRewardsRank: StakerBalanceCheckpoint
+
   # Total unique stakers that have an rETH balance (in WEI) greater than 0 at this checkpoint.
   stakersWithAnRETHBalance: BigInt!
 
@@ -141,6 +147,9 @@ type StakerBalanceCheckpoint @entity {
   # Total ETH rewards (in WEI) up to this checkpoint.
   totalETHRewards: BigInt!
 
+  # ETH reward rank of the staker based on his total ETH rewards at this checkpoint in comparison to the other stakers on the protocol.
+  totalETHRewardsRank: BigInt!
+
   # Block Number of this checkpoint.
   block: BigInt!
 
@@ -168,6 +177,9 @@ type Node @entity {
   # Total claimed RPL rewards since this node was registered with RocketPool.
   totalClaimedRPLRewards: BigInt!
 
+  # Current RPL reward rank of the node based on his total RPL rewards in comparison to the other nodes on the protocol.
+  totalRPLClaimedRewardsRank: BigInt!
+
   # Current minimum RPL needed to collateralize all staking minipools of this node by the bare minimum.
   minimumEffectiveRPL: BigInt!
 
@@ -189,7 +201,7 @@ type Node @entity {
   # Finalized minipools since this node was registered with RocketPool.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee for the active (queued, staking, withdrawable) minipools for this node operator.
+  # Average minipool fee for the active (NOT finalized or destroyed) minipools for this node operator.
   averageFeeForActiveMinipools: BigInt!
  
   # Last node balance checkpoint for this node.
@@ -252,6 +264,9 @@ type RPLRewardInterval @entity {
 
   # The total RPL rewards claimed during this interval.
   totalRPLClaimed: BigInt!
+
+  # Average RPL Rewards during this interval.
+  averageRPLClaimed: BigInt!
 
   # The total RPL rewards that were given out in this interval.
   rplRewardClaims: [RPLRewardClaim!]!
@@ -362,6 +377,9 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
 
+  # Node balance checkpoint that had the highest total RPL reward rank at this checkpoint.
+  checkpointWithHighestRPLRewardsRank: NodeBalanceCheckpoint
+
   # The RPL price in ETH at this checkpoint.
   rplPriceInETH: BigInt!
 
@@ -380,7 +398,7 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total finalized minipools accross all nodes up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee accross all nodes and the active (queued, staking, withdrawable) minipools at this checkpoint.
+  # Average minipool fee accross all nodes and the active (NOT finalized or destroyed) minipools at this checkpoint.
   averageFeeForActiveMinipools: BigInt!
 
   # Fee to start a new minipool at this checkpoint.
@@ -422,6 +440,9 @@ type NodeBalanceCheckpoint @entity {
   # Total Claimed RPL rewards up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
 
+  # RPL reward rank of the node based on his total RPL rewards at this checkpoint in comparison to the other nodes on the protocol.
+  totalRPLClaimedRewardsRank: BigInt!
+
   # Queued minipools for this node at this checkpoint.
   queuedMinipools: BigInt!
 
@@ -437,7 +458,7 @@ type NodeBalanceCheckpoint @entity {
   # Total Finalized minipools for this node up to this checkpoint.
   totalFinalizedMinipools: BigInt!
 
-  # Average minipool fee for this node and the active (queued, staking, withdrawable) minipools at this checkpoint.
+  # Average minipool fee for this node and the active (NOT finalized or destroyed) minipools at this checkpoint.
   averageFeeForActiveMinipools: BigInt!
 
   # Block number that was associated with this checkpoint.

@@ -108,10 +108,10 @@ class NodeUtilities {
   public updateMinipoolMetadataWithNode(
     minipoolMetadata: NetworkNodeBalanceMinipoolMetadata,
     node: Node
-  ) : void {
+  ): void {
     // We need this to calculate the averages on the network level.
     if (node.averageFeeForActiveMinipools > BigInt.fromI32(0)) {
-      minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools = minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools.plus(
+      minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools = minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools.plus(
         node.averageFeeForActiveMinipools.div(ONE_ETHER_IN_WEI)
       );
       minipoolMetadata.totalNodesWithActiveMinipools = minipoolMetadata.totalNodesWithActiveMinipools.plus(
@@ -137,11 +137,11 @@ class NodeUtilities {
     // Calculate the network fee average for active minipools if possible.
     if (
       minipoolMetadata.totalNodesWithActiveMinipools > BigInt.fromI32(0) &&
-      minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools >
+      minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools >
       BigInt.fromI32(0)
     ) {
       // Store this in WEI.
-      checkpoint.averageFeeForActiveMinipools = minipoolMetadata.totalFeeInEtherAccrossAllActiveMinipools
+      checkpoint.averageFeeForActiveMinipools = minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools
         .div(minipoolMetadata.totalNodesWithActiveMinipools)
         .times(ONE_ETHER_IN_WEI);
     }
@@ -157,7 +157,7 @@ class NodeUtilities {
   public coerceRunningTotalsBasedOnPreviousCheckpoint(
     checkpoint: NetworkNodeBalanceCheckpoint,
     previousCheckpoint: NetworkNodeBalanceCheckpoint | null
-  ) : void {
+  ): void {
     if (previousCheckpoint === null) return;
 
     // If for some reason our total claimed RPL rewards up to this checkpoint was 0, then we try to set it based on the previous checkpoint.

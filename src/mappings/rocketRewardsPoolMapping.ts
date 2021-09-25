@@ -172,17 +172,30 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     rplRewardClaim.amount
   );
 
+  // Update the average claimed of the current interval.
+  if (activeIndexedRewardInterval.totalRPLClaimed > BigInt.fromI32(0) &&
+    activeIndexedRewardInterval.rplRewardClaims !== null &&
+    activeIndexedRewardInterval.rplRewardClaims.length > 0) {
+
+    activeIndexedRewardInterval.averageRPLClaimed =
+      activeIndexedRewardInterval.totalRPLClaimed.div(
+        BigInt.fromI32(activeIndexedRewardInterval.rplRewardClaims.length));
+  }
+
   // Add this reward claim to the current interval
   let currentRPLRewardClaims = activeIndexedRewardInterval.rplRewardClaims;
   currentRPLRewardClaims.push(rplRewardClaim.id);
   activeIndexedRewardInterval.rplRewardClaims = currentRPLRewardClaims;
 
-  // Index changes to the (new) interval and protocol.
+  // Index changes to the (new/previous) interval and claim.
   rplRewardClaim.save();
   if (associatedNode !== null) associatedNode.save();
   if (previousActiveIndexedRewardInterval !== null)
     previousActiveIndexedRewardInterval.save();
   activeIndexedRewardInterval.save();
+
+  // Update the RPL Rank for the protocol nodes and index the protocol changes.
+  updateRPLClaimedRewardRank(protocol.nodes);
   protocol.save();
 }
 
@@ -262,4 +275,51 @@ function getRplRewardClaimerType(
   }
 
   return rplRewardClaimerType;
+}
+
+/**
+ * Update the RPL Claimed Rewark rank for every given node.
+ */
+function updateRPLClaimedRewardRank(nodeIds: Array<string>): void {
+  if (nodeIds === null || nodeIds.length === 0) return;
+
+  let allNodes = new Array<Node>();
+
+  // Loop through all node ids.
+  for (let index = 0; index < nodeIds.length; index++) {
+    // Determine current node ID.
+    let nodeId = <string>nodeIds[index];
+    if (nodeId == null) continue;
+
+    // Load the indexed node.
+    let node = Node.load(nodeId);
+    if (node === null) continue;
+
+    // Keep track of it.
+    allNodes.push(<Node>node);
+  }
+
+  // If we found any indexed nodes
+  if (allNodes.length > 0) {
+    // Sort the nodes by the total RPL rewards claimed DESC, time registered ASC.
+    let sortedNodesByRPLRewardsClaimedRankAndTimeRegistered = allNodes.sort(function (a, b) {
+      if(b.totalClaimedRPLRewards == a.totalClaimedRPLRewards) return a.block.minus(b.block).toI32();
+      return b.totalClaimedRPLRewards.minus(a.totalClaimedRPLRewards).toI32();
+    });
+
+    // Set the rank of each node based on how much RPL rewards they've claimed.
+    let rankIndex = 1;
+    for (let index = 0; index < sortedNodesByRPLRewardsClaimedRankAndTimeRegistered.length; index++) {
+      // Get the current node for this iteration.
+      let currentNode = sortedNodesByRPLRewardsClaimedRankAndTimeRegistered[index];
+      if (currentNode === null) continue;
+
+      // The rank of the node in this checkpoint is the current rank index.
+      currentNode.totalRPLClaimedRewardsRank = BigInt.fromI32(rankIndex);
+      currentNode.save();
+
+      // Increment rank index for next node.
+      rankIndex = rankIndex + 1;
+    }
+  }
 }
