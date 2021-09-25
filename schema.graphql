@@ -1,6 +1,6 @@
-# Entity that represents the RocketPool protocol and its various child entities. (Will eventually also hold Node related entities)
+# Entity that represents the RocketPool protocol.
 type RocketPoolProtocol @entity {
-  # The name of the RocketPOOL protocol.
+  # The name of the RocketPool protocol.
   id: ID! 
 
   # All stakers (addresses holding rETH) associated with the RocketPool protocol.
@@ -22,7 +22,7 @@ type RocketPoolProtocol @entity {
   lastNetworkNodeBalanceCheckPoint: NetworkNodeBalanceCheckpoint
 }
 
-# A Staker on RocketPool is an address that is/was associated with an rETH balance.
+# An address that is/was associated with an rETH balance.
 type Staker @entity {
   # Address that holds rETH.
   id: ID! 
@@ -49,7 +49,7 @@ type Staker @entity {
   blockTime: BigInt!
 }
 
-# Entity tracking the mint, burn and transfers of rETH. Minting and burning will occur to/from the rETH contract address.
+# Tracks the mint, burn and transfers of rETH. 
 type RocketETHTransaction @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
@@ -73,7 +73,7 @@ type RocketETHTransaction @entity {
   transactionHash: Bytes!
 }
 
-# Represents a checkpoint at which the RocketPool protocol kept track of all staker related balances.
+# Summarizes staker related balances at a specific block and timestamp.
 type NetworkStakerBalanceCheckpoint @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
@@ -121,7 +121,7 @@ type NetworkStakerBalanceCheckpoint @entity {
   blockTime: BigInt!
 }
 
-# Represents a checkpoint at which the RocketPool protocol kept track of a balance for a specific staker.
+# Summarizes balances for a staker at a specific block and timestamp.
 type StakerBalanceCheckpoint @entity {
   # Composite key consisting of the NetworkBalanceCheckpoint ID and the Staker ID.
   id: ID!
@@ -148,7 +148,7 @@ type StakerBalanceCheckpoint @entity {
   blockTime: BigInt!
 }
 
-# Entity representing a node on RocketPool.
+# A node address that was registered by a node operator.
 type Node @entity {
   # Address that is associated with a node on RocketPool.
   id: ID! 
@@ -205,14 +205,14 @@ type Node @entity {
   blockTime: BigInt!
 }
 
-# Represents what kind of RPL Stake transactions can occur.
+# The type of RPL Stake transactions.
 enum NodeRPLStakeTransactionType {
   Staked
   Withdrawal
   Slashed
 }
 
-# Entity representing an RPL stake transactions that has occured.
+# Keeps track of the RPL staking transactions for a node.
 type NodeRPLStakeTransaction @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
@@ -229,14 +229,14 @@ type NodeRPLStakeTransaction @entity {
   # The type of RPL stake transaction.
   type: NodeRPLStakeTransactionType!
 
-  # Block Number - On what block number did this transaction occur.
+  # On what block number did this transaction occur.
   block: BigInt!
 
-  # Block Timestamp - At what time did this transaction occur.
+  # At what time did this transaction occur.
   blockTime: BigInt!
 }
 
-# Entity representing an RPL Reward interval on the protocol.
+# Represents an reward interval during which RPL can be claimed by different types of claimers.
 type RPLRewardInterval @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
@@ -247,34 +247,34 @@ type RPLRewardInterval @entity {
   # ID to the next interval.
   nextIntervalId: String
 
-  # The total rewards that are claimable for this interval. This is the total from minted inflation and unclaimed from previous interval(s).
+  # The total RPL rewards that are claimable for this interval.
   claimableRewards: BigInt!
 
-  # The total rewards claimed during this interval.
+  # The total RPL rewards claimed during this interval.
   totalRPLClaimed: BigInt!
 
-  # The total RPL reward that were given out in this interval.
+  # The total RPL rewards that were given out in this interval.
   rplRewardClaims: [RPLRewardClaim!]!
 
   # Indicates if this interval is still active.
   isClosed: Boolean!
 
-  # When did this interval start?
+  # Indicates when this interval started.
   intervalStartTime: BigInt!
 
-  # When did this interval end?
+  # Indicates when this interval ended.
   intervalClosedTime: BigInt
 
-  # How long is/was this interval meant to last?
+  # Indicates how long the interval was supposed to last.
   intervalDuration: BigInt!
 
-  # What was the actual interval length?
+  # Indicates how long the interval actually lasted.
   intervalDurationActual: BigInt
 
-  # On what block number was this entity created.
+  # On what block number was this interval created.
   block: BigInt!
 
-  # At what time was this entity created.
+  # At what time was this interval created.
   blockTime: BigInt!
 }
 
@@ -285,46 +285,46 @@ enum RPLRewardClaimerType {
   Node
 }
 
-# Entity representing an RPL reward that has been handed out by the protocol.
+# Represents an RPL reward that has been claimed by an address.
 type RPLRewardClaim @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
 
-  # The claimer of this reward.
+  # The claiming address.
   claimer: String!
 
   # The type of the claimer.
   claimerType: RPLRewardClaimerType!
 
-  # The total RPL amount of this reward.
+  # The total RPL amount of this claim.
   amount: BigInt!
   
   # The total ETH equivalent (in WEI) at the time of this reward.
   ethAmount: BigInt!
 
-  # Block Number - On what block number was this reward claimed.
+  # The block number associated with this claim.
   block: BigInt!
 
-  # Block Timestamp - At what time was this reward claimed.
+  # The block timestamp associated with this claim.
   blockTime: BigInt!
 }
 
-# Entity representing the network timezones and the associated registered node(s).
+# Represents the network timezones and the registered node(s).
 type NetworkNodeTimezone @entity {
-  # Timezone name (string)
+  # Timezone name.
   id: ID!
 
-  # Total number of nodes registered with this timezone.
+  # Total nodes registered with this timezone.
   totalRegisteredNodes: BigInt!
 
-  # Block Number - On what block number was this timezone first registered.
+  # Block Number on which this timezone was created.
   block: BigInt!
 
-  # Block Timestamp - At what time was this timezone first registered.
+  # Block Timestamp on which this timezone was created.
   blockTime: BigInt!
 }
 
-# Entity representing the network balance checkpoint for all nodes.
+# Represents a network balance checkpoint for all nodes.
 type NetworkNodeBalanceCheckpoint @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID! 
@@ -393,12 +393,12 @@ type NetworkNodeBalanceCheckpoint @entity {
   blockTime: BigInt!
 }
 
-# Entity representing a balance checkpoint for a node.
+# Represents a balance checkpoint for a node.
 type NodeBalanceCheckpoint @entity {
   # Composite key consisting of the NetworkNodeBalanceCheckpoint ID and the Node ID.
   id: ID! 
 
-  # Node that is associated with this balance checkpoint.
+  # Node that is associated with this checkpoint.
   Node: Node! 
 
   # Network node balance checkpoint associated with this checkpoint.
@@ -410,16 +410,16 @@ type NodeBalanceCheckpoint @entity {
   # Effective RPL staked at this checkpoint.
   effectiveRPLStaked: BigInt!
 
-  # Minimum RPL needed to collateralize all the staking minipools of the node by the bare minimum at this checkpoint.
+  # Minimum RPL needed to collateralize the staking minipools by the bare minimum at this checkpoint.
   minimumEffectiveRPL: BigInt!
 
-  # Maximum RPL needed to collateralize all the staking minipools of the node by the absolute maximum at this checkpoint.
+  # Maximum RPL needed to collateralize the staking minipools by the absolute maximum at this checkpoint.
   maximumEffectiveRPL: BigInt!
 
-  # Total RPL slashed from all previous checkpoints up to this checkpoint.
+  # Total RPL slashed up to this checkpoint.
   totalRPLSlashed: BigInt!
 
-  # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
+  # Total Claimed RPL rewards up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
 
   # Queued minipools for this node at this checkpoint.
@@ -447,32 +447,32 @@ type NodeBalanceCheckpoint @entity {
   blockTime: BigInt!
 }
 
-# Entity representing a minipool for a node.
+# Represents a minipool for a node.
 type Minipool @entity {
-  # Address of the minipool
+  # Address of the minipool.
   id: ID! 
 
-  # Node that is associated with this minipool
+  # Node that is associated with this minipool.
   node: Node!
 
-  # Fee that is associated with this minipool
+  # Fee that was assigned to this minipool when it was created.
   fee: BigInt! 
 
-  # Block timestamp that was associated with the creation of this minipool.
+  # Block timestamp at which this minipool was queued.
   queuedBlockTime: BigInt!
 
-  # Block timestamp that was associated with the dequeue of the minipool that will (most of the time) lead to staking.
+  # Block timestamp at which this minipool was dequeued.
   dequeuedBlockTime: BigInt!
 
-  # Block timestamp that was associated with the destruction of this minipool.
+  # Block timestamp at which this minipool was destroyed.
   destroyedBlockTime: BigInt!
 
-  # Block number that was associated with this minipool transitioning to the staking state.
+  # Block number at which this minipool transitioned to the staking state.
   stakingBlockTime: BigInt!
 
-  # Block timestamp that was associated with this minipool being marked as withdrawable.
+  # Block timestamp at which this minipool was marked as withdrawable.
   withdrawableBlockTime: BigInt!
 
-  # Block timestamp that was associated with this minipool being marked as finalized.
+  # Block timestamp at which this minipool was marked as finalized.
   finalizedBlockTime: BigInt!
 }
