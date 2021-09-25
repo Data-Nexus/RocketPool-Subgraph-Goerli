@@ -16,32 +16,26 @@ export class RocketPoolProtocol extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("stakers", Value.fromStringArray(new Array(0)));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save RocketPoolProtocol entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save RocketPoolProtocol entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("RocketPoolProtocol", id.toString(), this);
-    }
+    assert(id !== null, "Cannot save RocketPoolProtocol entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RocketPoolProtocol entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RocketPoolProtocol", id.toString(), this);
   }
 
   static load(id: string): RocketPoolProtocol | null {
-    return changetype<RocketPoolProtocol | null>(
-      store.get("RocketPoolProtocol", id)
-    );
+    return store.get("RocketPoolProtocol", id) as RocketPoolProtocol | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -50,7 +44,7 @@ export class RocketPoolProtocol extends Entity {
 
   get stakers(): Array<string> {
     let value = this.get("stakers");
-    return value!.toStringArray();
+    return value.toStringArray();
   }
 
   set stakers(value: Array<string>) {
@@ -59,7 +53,7 @@ export class RocketPoolProtocol extends Entity {
 
   get lastNetworkStakerBalanceCheckPoint(): string | null {
     let value = this.get("lastNetworkStakerBalanceCheckPoint");
-    if (!value || value.kind == ValueKind.NULL) {
+    if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
       return value.toString();
@@ -67,12 +61,67 @@ export class RocketPoolProtocol extends Entity {
   }
 
   set lastNetworkStakerBalanceCheckPoint(value: string | null) {
-    if (!value) {
+    if (value === null) {
       this.unset("lastNetworkStakerBalanceCheckPoint");
     } else {
       this.set(
         "lastNetworkStakerBalanceCheckPoint",
-        Value.fromString(<string>value)
+        Value.fromString(value as string)
+      );
+    }
+  }
+
+  get nodes(): Array<string> {
+    let value = this.get("nodes");
+    return value.toStringArray();
+  }
+
+  set nodes(value: Array<string>) {
+    this.set("nodes", Value.fromStringArray(value));
+  }
+
+  get nodeTimezones(): Array<string> {
+    let value = this.get("nodeTimezones");
+    return value.toStringArray();
+  }
+
+  set nodeTimezones(value: Array<string>) {
+    this.set("nodeTimezones", Value.fromStringArray(value));
+  }
+
+  get lastRPLRewardInterval(): string | null {
+    let value = this.get("lastRPLRewardInterval");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lastRPLRewardInterval(value: string | null) {
+    if (value === null) {
+      this.unset("lastRPLRewardInterval");
+    } else {
+      this.set("lastRPLRewardInterval", Value.fromString(value as string));
+    }
+  }
+
+  get lastNetworkNodeBalanceCheckPoint(): string | null {
+    let value = this.get("lastNetworkNodeBalanceCheckPoint");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lastNetworkNodeBalanceCheckPoint(value: string | null) {
+    if (value === null) {
+      this.unset("lastNetworkNodeBalanceCheckPoint");
+    } else {
+      this.set(
+        "lastNetworkNodeBalanceCheckPoint",
+        Value.fromString(value as string)
       );
     }
   }
@@ -82,35 +131,26 @@ export class Staker extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("rETHBalance", Value.fromBigInt(BigInt.zero()));
-    this.set("ethBalance", Value.fromBigInt(BigInt.zero()));
-    this.set("totalETHRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("hasAccruedETHRewardsDuringLifecycle", Value.fromBoolean(false));
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Staker entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save Staker entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("Staker", id.toString(), this);
-    }
+    assert(id !== null, "Cannot save Staker entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Staker entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Staker", id.toString(), this);
   }
 
   static load(id: string): Staker | null {
-    return changetype<Staker | null>(store.get("Staker", id));
+    return store.get("Staker", id) as Staker | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -119,7 +159,7 @@ export class Staker extends Entity {
 
   get rETHBalance(): BigInt {
     let value = this.get("rETHBalance");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set rETHBalance(value: BigInt) {
@@ -128,7 +168,7 @@ export class Staker extends Entity {
 
   get ethBalance(): BigInt {
     let value = this.get("ethBalance");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set ethBalance(value: BigInt) {
@@ -137,16 +177,25 @@ export class Staker extends Entity {
 
   get totalETHRewards(): BigInt {
     let value = this.get("totalETHRewards");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set totalETHRewards(value: BigInt) {
     this.set("totalETHRewards", Value.fromBigInt(value));
   }
 
+  get totalETHRewardsRank(): BigInt {
+    let value = this.get("totalETHRewardsRank");
+    return value.toBigInt();
+  }
+
+  set totalETHRewardsRank(value: BigInt) {
+    this.set("totalETHRewardsRank", Value.fromBigInt(value));
+  }
+
   get hasAccruedETHRewardsDuringLifecycle(): boolean {
     let value = this.get("hasAccruedETHRewardsDuringLifecycle");
-    return value!.toBoolean();
+    return value.toBoolean();
   }
 
   set hasAccruedETHRewardsDuringLifecycle(value: boolean) {
@@ -155,7 +204,7 @@ export class Staker extends Entity {
 
   get lastBalanceCheckpoint(): string | null {
     let value = this.get("lastBalanceCheckpoint");
-    if (!value || value.kind == ValueKind.NULL) {
+    if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
       return value.toString();
@@ -163,16 +212,16 @@ export class Staker extends Entity {
   }
 
   set lastBalanceCheckpoint(value: string | null) {
-    if (!value) {
+    if (value === null) {
       this.unset("lastBalanceCheckpoint");
     } else {
-      this.set("lastBalanceCheckpoint", Value.fromString(<string>value));
+      this.set("lastBalanceCheckpoint", Value.fromString(value as string));
     }
   }
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -181,7 +230,7 @@ export class Staker extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
@@ -193,37 +242,29 @@ export class RocketETHTransaction extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("from", Value.fromString(""));
-    this.set("amount", Value.fromBigInt(BigInt.zero()));
-    this.set("to", Value.fromString(""));
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
-    this.set("transactionHash", Value.fromBytes(Bytes.empty()));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save RocketETHTransaction entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save RocketETHTransaction entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("RocketETHTransaction", id.toString(), this);
-    }
+    assert(
+      id !== null,
+      "Cannot save RocketETHTransaction entity without an ID"
+    );
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RocketETHTransaction entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RocketETHTransaction", id.toString(), this);
   }
 
   static load(id: string): RocketETHTransaction | null {
-    return changetype<RocketETHTransaction | null>(
-      store.get("RocketETHTransaction", id)
-    );
+    return store.get("RocketETHTransaction", id) as RocketETHTransaction | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -232,7 +273,7 @@ export class RocketETHTransaction extends Entity {
 
   get from(): string {
     let value = this.get("from");
-    return value!.toString();
+    return value.toString();
   }
 
   set from(value: string) {
@@ -241,7 +282,7 @@ export class RocketETHTransaction extends Entity {
 
   get amount(): BigInt {
     let value = this.get("amount");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set amount(value: BigInt) {
@@ -250,7 +291,7 @@ export class RocketETHTransaction extends Entity {
 
   get to(): string {
     let value = this.get("to");
-    return value!.toString();
+    return value.toString();
   }
 
   set to(value: string) {
@@ -259,7 +300,7 @@ export class RocketETHTransaction extends Entity {
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -268,7 +309,7 @@ export class RocketETHTransaction extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
@@ -277,7 +318,7 @@ export class RocketETHTransaction extends Entity {
 
   get transactionHash(): Bytes {
     let value = this.get("transactionHash");
-    return value!.toBytes();
+    return value.toBytes();
   }
 
   set transactionHash(value: Bytes) {
@@ -289,275 +330,167 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("totalStakerETHActivelyStaking", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalStakerETHWaitingInDepositPool",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set(
-      "totalStakerETHInRocketEthContract",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set(
-      "totalStakerETHInPendingOrExitedMinipools",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("totalStakerETHInProtocol", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalStakerETHRewardsSincePreviousCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set(
-      "totalStakerETHRewardsUpToThisCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("totalStakersWithAnRETHBalance", Value.fromBigInt(BigInt.zero()));
-    this.set("totalRETHSupply", Value.fromBigInt(BigInt.zero()));
-    this.set("rETHExchangeRate", Value.fromBigInt(BigInt.zero()));
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
     assert(
-      id != null,
+      id !== null,
       "Cannot save NetworkStakerBalanceCheckpoint entity without an ID"
     );
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save NetworkStakerBalanceCheckpoint entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("NetworkStakerBalanceCheckpoint", id.toString(), this);
-    }
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save NetworkStakerBalanceCheckpoint entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("NetworkStakerBalanceCheckpoint", id.toString(), this);
   }
 
   static load(id: string): NetworkStakerBalanceCheckpoint | null {
-    return changetype<NetworkStakerBalanceCheckpoint | null>(
-      store.get("NetworkStakerBalanceCheckpoint", id)
-    );
+    return store.get(
+      "NetworkStakerBalanceCheckpoint",
+      id
+    ) as NetworkStakerBalanceCheckpoint | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
 
-  get totalStakerETHActivelyStaking(): BigInt {
-    let value = this.get("totalStakerETHActivelyStaking");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHActivelyStaking(value: BigInt) {
-    this.set("totalStakerETHActivelyStaking", Value.fromBigInt(value));
-  }
-
-  get totalStakerETHWaitingInDepositPool(): BigInt {
-    let value = this.get("totalStakerETHWaitingInDepositPool");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHWaitingInDepositPool(value: BigInt) {
-    this.set("totalStakerETHWaitingInDepositPool", Value.fromBigInt(value));
-  }
-
-  get totalStakerETHInRocketEthContract(): BigInt {
-    let value = this.get("totalStakerETHInRocketEthContract");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHInRocketEthContract(value: BigInt) {
-    this.set("totalStakerETHInRocketEthContract", Value.fromBigInt(value));
-  }
-
-  get totalStakerETHInPendingOrExitedMinipools(): BigInt {
-    let value = this.get("totalStakerETHInPendingOrExitedMinipools");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHInPendingOrExitedMinipools(value: BigInt) {
-    this.set(
-      "totalStakerETHInPendingOrExitedMinipools",
-      Value.fromBigInt(value)
-    );
-  }
-
-  get totalStakerETHInProtocol(): BigInt {
-    let value = this.get("totalStakerETHInProtocol");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHInProtocol(value: BigInt) {
-    this.set("totalStakerETHInProtocol", Value.fromBigInt(value));
-  }
-
-  get totalStakerETHRewardsSincePreviousCheckpoint(): BigInt {
-    let value = this.get("totalStakerETHRewardsSincePreviousCheckpoint");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHRewardsSincePreviousCheckpoint(value: BigInt) {
-    this.set(
-      "totalStakerETHRewardsSincePreviousCheckpoint",
-      Value.fromBigInt(value)
-    );
-  }
-
-  get totalStakersWithETHRewardsSincePreviousCheckpoint(): BigInt | null {
-    let value = this.get("totalStakersWithETHRewardsSincePreviousCheckpoint");
-    if (!value || value.kind == ValueKind.NULL) {
+  get previousCheckpointId(): string | null {
+    let value = this.get("previousCheckpointId");
+    if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set totalStakersWithETHRewardsSincePreviousCheckpoint(value: BigInt | null) {
-    if (!value) {
-      this.unset("totalStakersWithETHRewardsSincePreviousCheckpoint");
+  set previousCheckpointId(value: string | null) {
+    if (value === null) {
+      this.unset("previousCheckpointId");
+    } else {
+      this.set("previousCheckpointId", Value.fromString(value as string));
+    }
+  }
+
+  get nextCheckpointId(): string | null {
+    let value = this.get("nextCheckpointId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nextCheckpointId(value: string | null) {
+    if (value === null) {
+      this.unset("nextCheckpointId");
+    } else {
+      this.set("nextCheckpointId", Value.fromString(value as string));
+    }
+  }
+
+  get stakerETHActivelyStaking(): BigInt {
+    let value = this.get("stakerETHActivelyStaking");
+    return value.toBigInt();
+  }
+
+  set stakerETHActivelyStaking(value: BigInt) {
+    this.set("stakerETHActivelyStaking", Value.fromBigInt(value));
+  }
+
+  get stakerETHWaitingInDepositPool(): BigInt {
+    let value = this.get("stakerETHWaitingInDepositPool");
+    return value.toBigInt();
+  }
+
+  set stakerETHWaitingInDepositPool(value: BigInt) {
+    this.set("stakerETHWaitingInDepositPool", Value.fromBigInt(value));
+  }
+
+  get stakerETHInRocketETHContract(): BigInt {
+    let value = this.get("stakerETHInRocketETHContract");
+    return value.toBigInt();
+  }
+
+  set stakerETHInRocketETHContract(value: BigInt) {
+    this.set("stakerETHInRocketETHContract", Value.fromBigInt(value));
+  }
+
+  get stakerETHInProtocol(): BigInt {
+    let value = this.get("stakerETHInProtocol");
+    return value.toBigInt();
+  }
+
+  set stakerETHInProtocol(value: BigInt) {
+    this.set("stakerETHInProtocol", Value.fromBigInt(value));
+  }
+
+  get totalStakerETHRewards(): BigInt {
+    let value = this.get("totalStakerETHRewards");
+    return value.toBigInt();
+  }
+
+  set totalStakerETHRewards(value: BigInt) {
+    this.set("totalStakerETHRewards", Value.fromBigInt(value));
+  }
+
+  get totalStakersWithETHRewards(): BigInt {
+    let value = this.get("totalStakersWithETHRewards");
+    return value.toBigInt();
+  }
+
+  set totalStakersWithETHRewards(value: BigInt) {
+    this.set("totalStakersWithETHRewards", Value.fromBigInt(value));
+  }
+
+  get averageStakerETHRewards(): BigInt {
+    let value = this.get("averageStakerETHRewards");
+    return value.toBigInt();
+  }
+
+  set averageStakerETHRewards(value: BigInt) {
+    this.set("averageStakerETHRewards", Value.fromBigInt(value));
+  }
+
+  get checkpointWithHighestRewardsRank(): string | null {
+    let value = this.get("checkpointWithHighestRewardsRank");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set checkpointWithHighestRewardsRank(value: string | null) {
+    if (value === null) {
+      this.unset("checkpointWithHighestRewardsRank");
     } else {
       this.set(
-        "totalStakersWithETHRewardsSincePreviousCheckpoint",
-        Value.fromBigInt(<BigInt>value)
+        "checkpointWithHighestRewardsRank",
+        Value.fromString(value as string)
       );
     }
   }
 
-  get averageStakerETHRewardsSincePreviousCheckpoint(): BigInt | null {
-    let value = this.get("averageStakerETHRewardsSincePreviousCheckpoint");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+  get stakersWithAnRETHBalance(): BigInt {
+    let value = this.get("stakersWithAnRETHBalance");
+    return value.toBigInt();
   }
 
-  set averageStakerETHRewardsSincePreviousCheckpoint(value: BigInt | null) {
-    if (!value) {
-      this.unset("averageStakerETHRewardsSincePreviousCheckpoint");
-    } else {
-      this.set(
-        "averageStakerETHRewardsSincePreviousCheckpoint",
-        Value.fromBigInt(<BigInt>value)
-      );
-    }
-  }
-
-  get totalStakerETHRewardsUpToThisCheckpoint(): BigInt {
-    let value = this.get("totalStakerETHRewardsUpToThisCheckpoint");
-    return value!.toBigInt();
-  }
-
-  set totalStakerETHRewardsUpToThisCheckpoint(value: BigInt) {
-    this.set(
-      "totalStakerETHRewardsUpToThisCheckpoint",
-      Value.fromBigInt(value)
-    );
-  }
-
-  get totalStakersWithETHRewardsUpToThisCheckpoint(): BigInt | null {
-    let value = this.get("totalStakersWithETHRewardsUpToThisCheckpoint");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalStakersWithETHRewardsUpToThisCheckpoint(value: BigInt | null) {
-    if (!value) {
-      this.unset("totalStakersWithETHRewardsUpToThisCheckpoint");
-    } else {
-      this.set(
-        "totalStakersWithETHRewardsUpToThisCheckpoint",
-        Value.fromBigInt(<BigInt>value)
-      );
-    }
-  }
-
-  get totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint(): BigInt | null {
-    let value = this.get(
-      "totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint"
-    );
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint(
-    value: BigInt | null
-  ) {
-    if (!value) {
-      this.unset("totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint");
-    } else {
-      this.set(
-        "totalStakerCheckpointsWithETHRewardsUpToThisCheckpoint",
-        Value.fromBigInt(<BigInt>value)
-      );
-    }
-  }
-
-  get averageCheckpointsWithETHRewardsPerStaker(): BigInt | null {
-    let value = this.get("averageCheckpointsWithETHRewardsPerStaker");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set averageCheckpointsWithETHRewardsPerStaker(value: BigInt | null) {
-    if (!value) {
-      this.unset("averageCheckpointsWithETHRewardsPerStaker");
-    } else {
-      this.set(
-        "averageCheckpointsWithETHRewardsPerStaker",
-        Value.fromBigInt(<BigInt>value)
-      );
-    }
-  }
-
-  get averageStakerETHRewardsPerCheckpointWithETHRewards(): BigInt | null {
-    let value = this.get("averageStakerETHRewardsPerCheckpointWithETHRewards");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set averageStakerETHRewardsPerCheckpointWithETHRewards(value: BigInt | null) {
-    if (!value) {
-      this.unset("averageStakerETHRewardsPerCheckpointWithETHRewards");
-    } else {
-      this.set(
-        "averageStakerETHRewardsPerCheckpointWithETHRewards",
-        Value.fromBigInt(<BigInt>value)
-      );
-    }
-  }
-
-  get totalStakersWithAnRETHBalance(): BigInt {
-    let value = this.get("totalStakersWithAnRETHBalance");
-    return value!.toBigInt();
-  }
-
-  set totalStakersWithAnRETHBalance(value: BigInt) {
-    this.set("totalStakersWithAnRETHBalance", Value.fromBigInt(value));
+  set stakersWithAnRETHBalance(value: BigInt) {
+    this.set("stakersWithAnRETHBalance", Value.fromBigInt(value));
   }
 
   get totalRETHSupply(): BigInt {
     let value = this.get("totalRETHSupply");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set totalRETHSupply(value: BigInt) {
@@ -566,7 +499,7 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
 
   get rETHExchangeRate(): BigInt {
     let value = this.get("rETHExchangeRate");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set rETHExchangeRate(value: BigInt) {
@@ -575,7 +508,7 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -584,7 +517,7 @@ export class NetworkStakerBalanceCheckpoint extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
@@ -596,48 +529,32 @@ export class StakerBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("stakerId", Value.fromString(""));
-    this.set("networkStakerBalanceCheckpointId", Value.fromString(""));
-    this.set("ethBalance", Value.fromBigInt(BigInt.zero()));
-    this.set("rETHBalance", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "ethRewardsSincePreviousCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set(
-      "totalETHRewardsUpToThisCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
     assert(
-      id != null,
+      id !== null,
       "Cannot save StakerBalanceCheckpoint entity without an ID"
     );
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save StakerBalanceCheckpoint entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("StakerBalanceCheckpoint", id.toString(), this);
-    }
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save StakerBalanceCheckpoint entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("StakerBalanceCheckpoint", id.toString(), this);
   }
 
   static load(id: string): StakerBalanceCheckpoint | null {
-    return changetype<StakerBalanceCheckpoint | null>(
-      store.get("StakerBalanceCheckpoint", id)
-    );
+    return store.get(
+      "StakerBalanceCheckpoint",
+      id
+    ) as StakerBalanceCheckpoint | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -646,7 +563,7 @@ export class StakerBalanceCheckpoint extends Entity {
 
   get stakerId(): string {
     let value = this.get("stakerId");
-    return value!.toString();
+    return value.toString();
   }
 
   set stakerId(value: string) {
@@ -655,7 +572,7 @@ export class StakerBalanceCheckpoint extends Entity {
 
   get networkStakerBalanceCheckpointId(): string {
     let value = this.get("networkStakerBalanceCheckpointId");
-    return value!.toString();
+    return value.toString();
   }
 
   set networkStakerBalanceCheckpointId(value: string) {
@@ -664,7 +581,7 @@ export class StakerBalanceCheckpoint extends Entity {
 
   get ethBalance(): BigInt {
     let value = this.get("ethBalance");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set ethBalance(value: BigInt) {
@@ -673,34 +590,34 @@ export class StakerBalanceCheckpoint extends Entity {
 
   get rETHBalance(): BigInt {
     let value = this.get("rETHBalance");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set rETHBalance(value: BigInt) {
     this.set("rETHBalance", Value.fromBigInt(value));
   }
 
-  get ethRewardsSincePreviousCheckpoint(): BigInt {
-    let value = this.get("ethRewardsSincePreviousCheckpoint");
-    return value!.toBigInt();
+  get totalETHRewards(): BigInt {
+    let value = this.get("totalETHRewards");
+    return value.toBigInt();
   }
 
-  set ethRewardsSincePreviousCheckpoint(value: BigInt) {
-    this.set("ethRewardsSincePreviousCheckpoint", Value.fromBigInt(value));
+  set totalETHRewards(value: BigInt) {
+    this.set("totalETHRewards", Value.fromBigInt(value));
   }
 
-  get totalETHRewardsUpToThisCheckpoint(): BigInt {
-    let value = this.get("totalETHRewardsUpToThisCheckpoint");
-    return value!.toBigInt();
+  get totalETHRewardsRank(): BigInt {
+    let value = this.get("totalETHRewardsRank");
+    return value.toBigInt();
   }
 
-  set totalETHRewardsUpToThisCheckpoint(value: BigInt) {
-    this.set("totalETHRewardsUpToThisCheckpoint", Value.fromBigInt(value));
+  set totalETHRewardsRank(value: BigInt) {
+    this.set("totalETHRewardsRank", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -709,73 +626,7 @@ export class StakerBalanceCheckpoint extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
-  }
-
-  set blockTime(value: BigInt) {
-    this.set("blockTime", Value.fromBigInt(value));
-  }
-}
-
-export class NetworkNodeTimezone extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-
-    this.set("totalNodes", Value.fromBigInt(BigInt.zero()));
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save NetworkNodeTimezone entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save NetworkNodeTimezone entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("NetworkNodeTimezone", id.toString(), this);
-    }
-  }
-
-  static load(id: string): NetworkNodeTimezone | null {
-    return changetype<NetworkNodeTimezone | null>(
-      store.get("NetworkNodeTimezone", id)
-    );
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get totalNodes(): BigInt {
-    let value = this.get("totalNodes");
-    return value!.toBigInt();
-  }
-
-  set totalNodes(value: BigInt) {
-    this.set("totalNodes", Value.fromBigInt(value));
-  }
-
-  get block(): BigInt {
-    let value = this.get("block");
-    return value!.toBigInt();
-  }
-
-  set block(value: BigInt) {
-    this.set("block", Value.fromBigInt(value));
-  }
-
-  get blockTime(): BigInt {
-    let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
@@ -787,50 +638,26 @@ export class Node extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("timezone", Value.fromString(""));
-    this.set("totalRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("totalEffectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "claimedRPLRewardsSinceLastCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("minimumRPLStake", Value.fromBigInt(BigInt.zero()));
-    this.set("maximumRPLStake", Value.fromBigInt(BigInt.zero()));
-    this.set("totalQueuedBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalQueuedUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalStakingBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalStakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalFinalizedBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalFinalizedUnbondedMinipools",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Node entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save Node entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("Node", id.toString(), this);
-    }
+    assert(id !== null, "Cannot save Node entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Node entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Node", id.toString(), this);
   }
 
   static load(id: string): Node | null {
-    return changetype<Node | null>(store.get("Node", id));
+    return store.get("Node", id) as Node | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -839,141 +666,133 @@ export class Node extends Entity {
 
   get timezone(): string {
     let value = this.get("timezone");
-    return value!.toString();
+    return value.toString();
   }
 
   set timezone(value: string) {
     this.set("timezone", Value.fromString(value));
   }
 
-  get totalRPLStaked(): BigInt {
-    let value = this.get("totalRPLStaked");
-    return value!.toBigInt();
+  get rplStaked(): BigInt {
+    let value = this.get("rplStaked");
+    return value.toBigInt();
   }
 
-  set totalRPLStaked(value: BigInt) {
-    this.set("totalRPLStaked", Value.fromBigInt(value));
+  set rplStaked(value: BigInt) {
+    this.set("rplStaked", Value.fromBigInt(value));
   }
 
-  get totalEffectiveRPLStaked(): BigInt {
-    let value = this.get("totalEffectiveRPLStaked");
-    return value!.toBigInt();
+  get effectiveRPLStaked(): BigInt {
+    let value = this.get("effectiveRPLStaked");
+    return value.toBigInt();
   }
 
-  set totalEffectiveRPLStaked(value: BigInt) {
-    this.set("totalEffectiveRPLStaked", Value.fromBigInt(value));
+  set effectiveRPLStaked(value: BigInt) {
+    this.set("effectiveRPLStaked", Value.fromBigInt(value));
+  }
+
+  get totalRPLSlashed(): BigInt {
+    let value = this.get("totalRPLSlashed");
+    return value.toBigInt();
+  }
+
+  set totalRPLSlashed(value: BigInt) {
+    this.set("totalRPLSlashed", Value.fromBigInt(value));
   }
 
   get totalClaimedRPLRewards(): BigInt {
     let value = this.get("totalClaimedRPLRewards");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set totalClaimedRPLRewards(value: BigInt) {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
   }
 
-  get claimedRPLRewardsSinceLastCheckpoint(): BigInt {
-    let value = this.get("claimedRPLRewardsSinceLastCheckpoint");
-    return value!.toBigInt();
+  get totalRPLClaimedRewardsRank(): BigInt {
+    let value = this.get("totalRPLClaimedRewardsRank");
+    return value.toBigInt();
   }
 
-  set claimedRPLRewardsSinceLastCheckpoint(value: BigInt) {
-    this.set("claimedRPLRewardsSinceLastCheckpoint", Value.fromBigInt(value));
+  set totalRPLClaimedRewardsRank(value: BigInt) {
+    this.set("totalRPLClaimedRewardsRank", Value.fromBigInt(value));
   }
 
-  get minimumRPLStake(): BigInt {
-    let value = this.get("minimumRPLStake");
-    return value!.toBigInt();
+  get minimumEffectiveRPL(): BigInt {
+    let value = this.get("minimumEffectiveRPL");
+    return value.toBigInt();
   }
 
-  set minimumRPLStake(value: BigInt) {
-    this.set("minimumRPLStake", Value.fromBigInt(value));
+  set minimumEffectiveRPL(value: BigInt) {
+    this.set("minimumEffectiveRPL", Value.fromBigInt(value));
   }
 
-  get maximumRPLStake(): BigInt {
-    let value = this.get("maximumRPLStake");
-    return value!.toBigInt();
+  get maximumEffectiveRPL(): BigInt {
+    let value = this.get("maximumEffectiveRPL");
+    return value.toBigInt();
   }
 
-  set maximumRPLStake(value: BigInt) {
-    this.set("maximumRPLStake", Value.fromBigInt(value));
+  set maximumEffectiveRPL(value: BigInt) {
+    this.set("maximumEffectiveRPL", Value.fromBigInt(value));
   }
 
-  get totalQueuedBondedMinipools(): BigInt {
-    let value = this.get("totalQueuedBondedMinipools");
-    return value!.toBigInt();
+  get queuedMinipools(): BigInt {
+    let value = this.get("queuedMinipools");
+    return value.toBigInt();
   }
 
-  set totalQueuedBondedMinipools(value: BigInt) {
-    this.set("totalQueuedBondedMinipools", Value.fromBigInt(value));
+  set queuedMinipools(value: BigInt) {
+    this.set("queuedMinipools", Value.fromBigInt(value));
   }
 
-  get totalQueuedUnbondedMinipools(): BigInt {
-    let value = this.get("totalQueuedUnbondedMinipools");
-    return value!.toBigInt();
+  get stakingMinipools(): BigInt {
+    let value = this.get("stakingMinipools");
+    return value.toBigInt();
   }
 
-  set totalQueuedUnbondedMinipools(value: BigInt) {
-    this.set("totalQueuedUnbondedMinipools", Value.fromBigInt(value));
+  set stakingMinipools(value: BigInt) {
+    this.set("stakingMinipools", Value.fromBigInt(value));
   }
 
-  get totalStakingBondedMinipools(): BigInt {
-    let value = this.get("totalStakingBondedMinipools");
-    return value!.toBigInt();
+  get stakingUnbondedMinipools(): BigInt {
+    let value = this.get("stakingUnbondedMinipools");
+    return value.toBigInt();
   }
 
-  set totalStakingBondedMinipools(value: BigInt) {
-    this.set("totalStakingBondedMinipools", Value.fromBigInt(value));
+  set stakingUnbondedMinipools(value: BigInt) {
+    this.set("stakingUnbondedMinipools", Value.fromBigInt(value));
   }
 
-  get totalStakingUnbondedMinipools(): BigInt {
-    let value = this.get("totalStakingUnbondedMinipools");
-    return value!.toBigInt();
+  get withdrawableMinipools(): BigInt {
+    let value = this.get("withdrawableMinipools");
+    return value.toBigInt();
   }
 
-  set totalStakingUnbondedMinipools(value: BigInt) {
-    this.set("totalStakingUnbondedMinipools", Value.fromBigInt(value));
+  set withdrawableMinipools(value: BigInt) {
+    this.set("withdrawableMinipools", Value.fromBigInt(value));
   }
 
-  get totalFinalizedBondedMinipools(): BigInt {
-    let value = this.get("totalFinalizedBondedMinipools");
-    return value!.toBigInt();
+  get totalFinalizedMinipools(): BigInt {
+    let value = this.get("totalFinalizedMinipools");
+    return value.toBigInt();
   }
 
-  set totalFinalizedBondedMinipools(value: BigInt) {
-    this.set("totalFinalizedBondedMinipools", Value.fromBigInt(value));
+  set totalFinalizedMinipools(value: BigInt) {
+    this.set("totalFinalizedMinipools", Value.fromBigInt(value));
   }
 
-  get totalFinalizedUnbondedMinipools(): BigInt {
-    let value = this.get("totalFinalizedUnbondedMinipools");
-    return value!.toBigInt();
+  get averageFeeForActiveMinipools(): BigInt {
+    let value = this.get("averageFeeForActiveMinipools");
+    return value.toBigInt();
   }
 
-  set totalFinalizedUnbondedMinipools(value: BigInt) {
-    this.set("totalFinalizedUnbondedMinipools", Value.fromBigInt(value));
-  }
-
-  get averageMinipoolFee(): BigInt | null {
-    let value = this.get("averageMinipoolFee");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set averageMinipoolFee(value: BigInt | null) {
-    if (!value) {
-      this.unset("averageMinipoolFee");
-    } else {
-      this.set("averageMinipoolFee", Value.fromBigInt(<BigInt>value));
-    }
+  set averageFeeForActiveMinipools(value: BigInt) {
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(value));
   }
 
   get lastNodeBalanceCheckpoint(): string | null {
     let value = this.get("lastNodeBalanceCheckpoint");
-    if (!value || value.kind == ValueKind.NULL) {
+    if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
       return value.toString();
@@ -981,16 +800,25 @@ export class Node extends Entity {
   }
 
   set lastNodeBalanceCheckpoint(value: string | null) {
-    if (!value) {
+    if (value === null) {
       this.unset("lastNodeBalanceCheckpoint");
     } else {
-      this.set("lastNodeBalanceCheckpoint", Value.fromString(<string>value));
+      this.set("lastNodeBalanceCheckpoint", Value.fromString(value as string));
     }
+  }
+
+  get minipools(): Array<string> {
+    let value = this.get("minipools");
+    return value.toStringArray();
+  }
+
+  set minipools(value: Array<string>) {
+    this.set("minipools", Value.fromStringArray(value));
   }
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -999,7 +827,421 @@ export class Node extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
+  }
+
+  set blockTime(value: BigInt) {
+    this.set("blockTime", Value.fromBigInt(value));
+  }
+}
+
+export class NodeRPLStakeTransaction extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id !== null,
+      "Cannot save NodeRPLStakeTransaction entity without an ID"
+    );
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save NodeRPLStakeTransaction entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("NodeRPLStakeTransaction", id.toString(), this);
+  }
+
+  static load(id: string): NodeRPLStakeTransaction | null {
+    return store.get(
+      "NodeRPLStakeTransaction",
+      id
+    ) as NodeRPLStakeTransaction | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get node(): string {
+    let value = this.get("node");
+    return value.toString();
+  }
+
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get ethAmount(): BigInt {
+    let value = this.get("ethAmount");
+    return value.toBigInt();
+  }
+
+  set ethAmount(value: BigInt) {
+    this.set("ethAmount", Value.fromBigInt(value));
+  }
+
+  get type(): string {
+    let value = this.get("type");
+    return value.toString();
+  }
+
+  set type(value: string) {
+    this.set("type", Value.fromString(value));
+  }
+
+  get block(): BigInt {
+    let value = this.get("block");
+    return value.toBigInt();
+  }
+
+  set block(value: BigInt) {
+    this.set("block", Value.fromBigInt(value));
+  }
+
+  get blockTime(): BigInt {
+    let value = this.get("blockTime");
+    return value.toBigInt();
+  }
+
+  set blockTime(value: BigInt) {
+    this.set("blockTime", Value.fromBigInt(value));
+  }
+}
+
+export class RPLRewardInterval extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save RPLRewardInterval entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RPLRewardInterval entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RPLRewardInterval", id.toString(), this);
+  }
+
+  static load(id: string): RPLRewardInterval | null {
+    return store.get("RPLRewardInterval", id) as RPLRewardInterval | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get previousIntervalId(): string | null {
+    let value = this.get("previousIntervalId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set previousIntervalId(value: string | null) {
+    if (value === null) {
+      this.unset("previousIntervalId");
+    } else {
+      this.set("previousIntervalId", Value.fromString(value as string));
+    }
+  }
+
+  get nextIntervalId(): string | null {
+    let value = this.get("nextIntervalId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nextIntervalId(value: string | null) {
+    if (value === null) {
+      this.unset("nextIntervalId");
+    } else {
+      this.set("nextIntervalId", Value.fromString(value as string));
+    }
+  }
+
+  get claimableRewards(): BigInt {
+    let value = this.get("claimableRewards");
+    return value.toBigInt();
+  }
+
+  set claimableRewards(value: BigInt) {
+    this.set("claimableRewards", Value.fromBigInt(value));
+  }
+
+  get totalRPLClaimed(): BigInt {
+    let value = this.get("totalRPLClaimed");
+    return value.toBigInt();
+  }
+
+  set totalRPLClaimed(value: BigInt) {
+    this.set("totalRPLClaimed", Value.fromBigInt(value));
+  }
+
+  get averageRPLClaimed(): BigInt {
+    let value = this.get("averageRPLClaimed");
+    return value.toBigInt();
+  }
+
+  set averageRPLClaimed(value: BigInt) {
+    this.set("averageRPLClaimed", Value.fromBigInt(value));
+  }
+
+  get rplRewardClaims(): Array<string> {
+    let value = this.get("rplRewardClaims");
+    return value.toStringArray();
+  }
+
+  set rplRewardClaims(value: Array<string>) {
+    this.set("rplRewardClaims", Value.fromStringArray(value));
+  }
+
+  get isClosed(): boolean {
+    let value = this.get("isClosed");
+    return value.toBoolean();
+  }
+
+  set isClosed(value: boolean) {
+    this.set("isClosed", Value.fromBoolean(value));
+  }
+
+  get intervalStartTime(): BigInt {
+    let value = this.get("intervalStartTime");
+    return value.toBigInt();
+  }
+
+  set intervalStartTime(value: BigInt) {
+    this.set("intervalStartTime", Value.fromBigInt(value));
+  }
+
+  get intervalClosedTime(): BigInt | null {
+    let value = this.get("intervalClosedTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set intervalClosedTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("intervalClosedTime");
+    } else {
+      this.set("intervalClosedTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get intervalDuration(): BigInt {
+    let value = this.get("intervalDuration");
+    return value.toBigInt();
+  }
+
+  set intervalDuration(value: BigInt) {
+    this.set("intervalDuration", Value.fromBigInt(value));
+  }
+
+  get intervalDurationActual(): BigInt | null {
+    let value = this.get("intervalDurationActual");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set intervalDurationActual(value: BigInt | null) {
+    if (value === null) {
+      this.unset("intervalDurationActual");
+    } else {
+      this.set("intervalDurationActual", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get block(): BigInt {
+    let value = this.get("block");
+    return value.toBigInt();
+  }
+
+  set block(value: BigInt) {
+    this.set("block", Value.fromBigInt(value));
+  }
+
+  get blockTime(): BigInt {
+    let value = this.get("blockTime");
+    return value.toBigInt();
+  }
+
+  set blockTime(value: BigInt) {
+    this.set("blockTime", Value.fromBigInt(value));
+  }
+}
+
+export class RPLRewardClaim extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save RPLRewardClaim entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RPLRewardClaim entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RPLRewardClaim", id.toString(), this);
+  }
+
+  static load(id: string): RPLRewardClaim | null {
+    return store.get("RPLRewardClaim", id) as RPLRewardClaim | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get claimer(): string {
+    let value = this.get("claimer");
+    return value.toString();
+  }
+
+  set claimer(value: string) {
+    this.set("claimer", Value.fromString(value));
+  }
+
+  get claimerType(): string {
+    let value = this.get("claimerType");
+    return value.toString();
+  }
+
+  set claimerType(value: string) {
+    this.set("claimerType", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get ethAmount(): BigInt {
+    let value = this.get("ethAmount");
+    return value.toBigInt();
+  }
+
+  set ethAmount(value: BigInt) {
+    this.set("ethAmount", Value.fromBigInt(value));
+  }
+
+  get block(): BigInt {
+    let value = this.get("block");
+    return value.toBigInt();
+  }
+
+  set block(value: BigInt) {
+    this.set("block", Value.fromBigInt(value));
+  }
+
+  get blockTime(): BigInt {
+    let value = this.get("blockTime");
+    return value.toBigInt();
+  }
+
+  set blockTime(value: BigInt) {
+    this.set("blockTime", Value.fromBigInt(value));
+  }
+}
+
+export class NetworkNodeTimezone extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save NetworkNodeTimezone entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save NetworkNodeTimezone entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("NetworkNodeTimezone", id.toString(), this);
+  }
+
+  static load(id: string): NetworkNodeTimezone | null {
+    return store.get("NetworkNodeTimezone", id) as NetworkNodeTimezone | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get totalRegisteredNodes(): BigInt {
+    let value = this.get("totalRegisteredNodes");
+    return value.toBigInt();
+  }
+
+  set totalRegisteredNodes(value: BigInt) {
+    this.set("totalRegisteredNodes", Value.fromBigInt(value));
+  }
+
+  get block(): BigInt {
+    let value = this.get("block");
+    return value.toBigInt();
+  }
+
+  set block(value: BigInt) {
+    this.set("block", Value.fromBigInt(value));
+  }
+
+  get blockTime(): BigInt {
+    let value = this.get("blockTime");
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
@@ -1011,194 +1253,248 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("totalNodes", Value.fromBigInt(BigInt.zero()));
-    this.set("totalRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("totalEffectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalClaimedRPLRewardsUpToThisCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set(
-      "claimedRPLRewardsSinceLastCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("rplPriceInETH", Value.fromBigInt(BigInt.zero()));
-    this.set("totalQueuedBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalQueuedUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalStakingBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalStakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalFinalizedBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalFinalizedUnbondedMinipools",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
     assert(
-      id != null,
+      id !== null,
       "Cannot save NetworkNodeBalanceCheckpoint entity without an ID"
     );
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save NetworkNodeBalanceCheckpoint entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("NetworkNodeBalanceCheckpoint", id.toString(), this);
-    }
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save NetworkNodeBalanceCheckpoint entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("NetworkNodeBalanceCheckpoint", id.toString(), this);
   }
 
   static load(id: string): NetworkNodeBalanceCheckpoint | null {
-    return changetype<NetworkNodeBalanceCheckpoint | null>(
-      store.get("NetworkNodeBalanceCheckpoint", id)
-    );
+    return store.get(
+      "NetworkNodeBalanceCheckpoint",
+      id
+    ) as NetworkNodeBalanceCheckpoint | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
 
-  get totalNodes(): BigInt {
-    let value = this.get("totalNodes");
-    return value!.toBigInt();
+  get previousCheckpointId(): string | null {
+    let value = this.get("previousCheckpointId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set totalNodes(value: BigInt) {
-    this.set("totalNodes", Value.fromBigInt(value));
+  set previousCheckpointId(value: string | null) {
+    if (value === null) {
+      this.unset("previousCheckpointId");
+    } else {
+      this.set("previousCheckpointId", Value.fromString(value as string));
+    }
   }
 
-  get totalRPLStaked(): BigInt {
-    let value = this.get("totalRPLStaked");
-    return value!.toBigInt();
+  get nextCheckpointId(): string | null {
+    let value = this.get("nextCheckpointId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set totalRPLStaked(value: BigInt) {
-    this.set("totalRPLStaked", Value.fromBigInt(value));
+  set nextCheckpointId(value: string | null) {
+    if (value === null) {
+      this.unset("nextCheckpointId");
+    } else {
+      this.set("nextCheckpointId", Value.fromString(value as string));
+    }
   }
 
-  get totalEffectiveRPLStaked(): BigInt {
-    let value = this.get("totalEffectiveRPLStaked");
-    return value!.toBigInt();
+  get nodesRegistered(): BigInt {
+    let value = this.get("nodesRegistered");
+    return value.toBigInt();
   }
 
-  set totalEffectiveRPLStaked(value: BigInt) {
-    this.set("totalEffectiveRPLStaked", Value.fromBigInt(value));
+  set nodesRegistered(value: BigInt) {
+    this.set("nodesRegistered", Value.fromBigInt(value));
   }
 
-  get totalClaimedRPLRewardsUpToThisCheckpoint(): BigInt {
-    let value = this.get("totalClaimedRPLRewardsUpToThisCheckpoint");
-    return value!.toBigInt();
+  get rplStaked(): BigInt {
+    let value = this.get("rplStaked");
+    return value.toBigInt();
   }
 
-  set totalClaimedRPLRewardsUpToThisCheckpoint(value: BigInt) {
-    this.set(
-      "totalClaimedRPLRewardsUpToThisCheckpoint",
-      Value.fromBigInt(value)
-    );
+  set rplStaked(value: BigInt) {
+    this.set("rplStaked", Value.fromBigInt(value));
   }
 
-  get claimedRPLRewardsSinceLastCheckpoint(): BigInt {
-    let value = this.get("claimedRPLRewardsSinceLastCheckpoint");
-    return value!.toBigInt();
+  get effectiveRPLStaked(): BigInt {
+    let value = this.get("effectiveRPLStaked");
+    return value.toBigInt();
   }
 
-  set claimedRPLRewardsSinceLastCheckpoint(value: BigInt) {
-    this.set("claimedRPLRewardsSinceLastCheckpoint", Value.fromBigInt(value));
+  set effectiveRPLStaked(value: BigInt) {
+    this.set("effectiveRPLStaked", Value.fromBigInt(value));
+  }
+
+  get minimumEffectiveRPL(): BigInt {
+    let value = this.get("minimumEffectiveRPL");
+    return value.toBigInt();
+  }
+
+  set minimumEffectiveRPL(value: BigInt) {
+    this.set("minimumEffectiveRPL", Value.fromBigInt(value));
+  }
+
+  get maximumEffectiveRPL(): BigInt {
+    let value = this.get("maximumEffectiveRPL");
+    return value.toBigInt();
+  }
+
+  set maximumEffectiveRPL(value: BigInt) {
+    this.set("maximumEffectiveRPL", Value.fromBigInt(value));
+  }
+
+  get minimumEffectiveRPLNewMinipool(): BigInt {
+    let value = this.get("minimumEffectiveRPLNewMinipool");
+    return value.toBigInt();
+  }
+
+  set minimumEffectiveRPLNewMinipool(value: BigInt) {
+    this.set("minimumEffectiveRPLNewMinipool", Value.fromBigInt(value));
+  }
+
+  get maximumEffectiveRPLNewMinipool(): BigInt {
+    let value = this.get("maximumEffectiveRPLNewMinipool");
+    return value.toBigInt();
+  }
+
+  set maximumEffectiveRPLNewMinipool(value: BigInt) {
+    this.set("maximumEffectiveRPLNewMinipool", Value.fromBigInt(value));
+  }
+
+  get totalRPLSlashed(): BigInt {
+    let value = this.get("totalRPLSlashed");
+    return value.toBigInt();
+  }
+
+  set totalRPLSlashed(value: BigInt) {
+    this.set("totalRPLSlashed", Value.fromBigInt(value));
+  }
+
+  get totalClaimedRPLRewards(): BigInt {
+    let value = this.get("totalClaimedRPLRewards");
+    return value.toBigInt();
+  }
+
+  set totalClaimedRPLRewards(value: BigInt) {
+    this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get checkpointWithHighestRPLRewardsRank(): string | null {
+    let value = this.get("checkpointWithHighestRPLRewardsRank");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set checkpointWithHighestRPLRewardsRank(value: string | null) {
+    if (value === null) {
+      this.unset("checkpointWithHighestRPLRewardsRank");
+    } else {
+      this.set(
+        "checkpointWithHighestRPLRewardsRank",
+        Value.fromString(value as string)
+      );
+    }
   }
 
   get rplPriceInETH(): BigInt {
     let value = this.get("rplPriceInETH");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set rplPriceInETH(value: BigInt) {
     this.set("rplPriceInETH", Value.fromBigInt(value));
   }
 
-  get totalQueuedBondedMinipools(): BigInt {
-    let value = this.get("totalQueuedBondedMinipools");
-    return value!.toBigInt();
+  get queuedMinipools(): BigInt {
+    let value = this.get("queuedMinipools");
+    return value.toBigInt();
   }
 
-  set totalQueuedBondedMinipools(value: BigInt) {
-    this.set("totalQueuedBondedMinipools", Value.fromBigInt(value));
+  set queuedMinipools(value: BigInt) {
+    this.set("queuedMinipools", Value.fromBigInt(value));
   }
 
-  get totalQueuedUnbondedMinipools(): BigInt {
-    let value = this.get("totalQueuedUnbondedMinipools");
-    return value!.toBigInt();
+  get stakingMinipools(): BigInt {
+    let value = this.get("stakingMinipools");
+    return value.toBigInt();
   }
 
-  set totalQueuedUnbondedMinipools(value: BigInt) {
-    this.set("totalQueuedUnbondedMinipools", Value.fromBigInt(value));
+  set stakingMinipools(value: BigInt) {
+    this.set("stakingMinipools", Value.fromBigInt(value));
   }
 
-  get totalStakingBondedMinipools(): BigInt {
-    let value = this.get("totalStakingBondedMinipools");
-    return value!.toBigInt();
+  get stakingUnbondedMinipools(): BigInt {
+    let value = this.get("stakingUnbondedMinipools");
+    return value.toBigInt();
   }
 
-  set totalStakingBondedMinipools(value: BigInt) {
-    this.set("totalStakingBondedMinipools", Value.fromBigInt(value));
+  set stakingUnbondedMinipools(value: BigInt) {
+    this.set("stakingUnbondedMinipools", Value.fromBigInt(value));
   }
 
-  get totalStakingUnbondedMinipools(): BigInt {
-    let value = this.get("totalStakingUnbondedMinipools");
-    return value!.toBigInt();
+  get withdrawableMinipools(): BigInt {
+    let value = this.get("withdrawableMinipools");
+    return value.toBigInt();
   }
 
-  set totalStakingUnbondedMinipools(value: BigInt) {
-    this.set("totalStakingUnbondedMinipools", Value.fromBigInt(value));
+  set withdrawableMinipools(value: BigInt) {
+    this.set("withdrawableMinipools", Value.fromBigInt(value));
   }
 
-  get totalFinalizedBondedMinipools(): BigInt {
-    let value = this.get("totalFinalizedBondedMinipools");
-    return value!.toBigInt();
+  get totalFinalizedMinipools(): BigInt {
+    let value = this.get("totalFinalizedMinipools");
+    return value.toBigInt();
   }
 
-  set totalFinalizedBondedMinipools(value: BigInt) {
-    this.set("totalFinalizedBondedMinipools", Value.fromBigInt(value));
+  set totalFinalizedMinipools(value: BigInt) {
+    this.set("totalFinalizedMinipools", Value.fromBigInt(value));
   }
 
-  get totalFinalizedUnbondedMinipools(): BigInt {
-    let value = this.get("totalFinalizedUnbondedMinipools");
-    return value!.toBigInt();
+  get averageFeeForActiveMinipools(): BigInt {
+    let value = this.get("averageFeeForActiveMinipools");
+    return value.toBigInt();
   }
 
-  set totalFinalizedUnbondedMinipools(value: BigInt) {
-    this.set("totalFinalizedUnbondedMinipools", Value.fromBigInt(value));
+  set averageFeeForActiveMinipools(value: BigInt) {
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(value));
   }
 
-  get averageMinipoolFee(): BigInt | null {
-    let value = this.get("averageMinipoolFee");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+  get newMinipoolFee(): BigInt {
+    let value = this.get("newMinipoolFee");
+    return value.toBigInt();
   }
 
-  set averageMinipoolFee(value: BigInt | null) {
-    if (!value) {
-      this.unset("averageMinipoolFee");
-    } else {
-      this.set("averageMinipoolFee", Value.fromBigInt(<BigInt>value));
-    }
+  set newMinipoolFee(value: BigInt) {
+    this.set("newMinipoolFee", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -1207,7 +1503,7 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
@@ -1219,60 +1515,32 @@ export class NodeBalanceCheckpoint extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("Node", Value.fromString(""));
-    this.set("NetworkNodeBalanceCheckpoint", Value.fromString(""));
-    this.set("totalRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("totalEffectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalClaimedRPLRewardsUpToThisCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set(
-      "claimedRPLRewardsSinceLastCheckpoint",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("minimumRPLStake", Value.fromBigInt(BigInt.zero()));
-    this.set("maximumRPLStake", Value.fromBigInt(BigInt.zero()));
-    this.set("totalQueuedBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalQueuedUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalStakingBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalStakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set("totalFinalizedBondedMinipools", Value.fromBigInt(BigInt.zero()));
-    this.set(
-      "totalFinalizedUnbondedMinipools",
-      Value.fromBigInt(BigInt.zero())
-    );
-    this.set("block", Value.fromBigInt(BigInt.zero()));
-    this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
     let id = this.get("id");
     assert(
-      id != null,
+      id !== null,
       "Cannot save NodeBalanceCheckpoint entity without an ID"
     );
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save NodeBalanceCheckpoint entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("NodeBalanceCheckpoint", id.toString(), this);
-    }
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save NodeBalanceCheckpoint entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("NodeBalanceCheckpoint", id.toString(), this);
   }
 
   static load(id: string): NodeBalanceCheckpoint | null {
-    return changetype<NodeBalanceCheckpoint | null>(
-      store.get("NodeBalanceCheckpoint", id)
-    );
+    return store.get(
+      "NodeBalanceCheckpoint",
+      id
+    ) as NodeBalanceCheckpoint | null;
   }
 
   get id(): string {
     let value = this.get("id");
-    return value!.toString();
+    return value.toString();
   }
 
   set id(value: string) {
@@ -1281,7 +1549,7 @@ export class NodeBalanceCheckpoint extends Entity {
 
   get Node(): string {
     let value = this.get("Node");
-    return value!.toString();
+    return value.toString();
   }
 
   set Node(value: string) {
@@ -1290,153 +1558,133 @@ export class NodeBalanceCheckpoint extends Entity {
 
   get NetworkNodeBalanceCheckpoint(): string {
     let value = this.get("NetworkNodeBalanceCheckpoint");
-    return value!.toString();
+    return value.toString();
   }
 
   set NetworkNodeBalanceCheckpoint(value: string) {
     this.set("NetworkNodeBalanceCheckpoint", Value.fromString(value));
   }
 
-  get totalRPLStaked(): BigInt {
-    let value = this.get("totalRPLStaked");
-    return value!.toBigInt();
+  get rplStaked(): BigInt {
+    let value = this.get("rplStaked");
+    return value.toBigInt();
   }
 
-  set totalRPLStaked(value: BigInt) {
-    this.set("totalRPLStaked", Value.fromBigInt(value));
+  set rplStaked(value: BigInt) {
+    this.set("rplStaked", Value.fromBigInt(value));
   }
 
-  get totalEffectiveRPLStaked(): BigInt {
-    let value = this.get("totalEffectiveRPLStaked");
-    return value!.toBigInt();
+  get effectiveRPLStaked(): BigInt {
+    let value = this.get("effectiveRPLStaked");
+    return value.toBigInt();
   }
 
-  set totalEffectiveRPLStaked(value: BigInt) {
-    this.set("totalEffectiveRPLStaked", Value.fromBigInt(value));
+  set effectiveRPLStaked(value: BigInt) {
+    this.set("effectiveRPLStaked", Value.fromBigInt(value));
+  }
+
+  get minimumEffectiveRPL(): BigInt {
+    let value = this.get("minimumEffectiveRPL");
+    return value.toBigInt();
+  }
+
+  set minimumEffectiveRPL(value: BigInt) {
+    this.set("minimumEffectiveRPL", Value.fromBigInt(value));
+  }
+
+  get maximumEffectiveRPL(): BigInt {
+    let value = this.get("maximumEffectiveRPL");
+    return value.toBigInt();
+  }
+
+  set maximumEffectiveRPL(value: BigInt) {
+    this.set("maximumEffectiveRPL", Value.fromBigInt(value));
+  }
+
+  get totalRPLSlashed(): BigInt {
+    let value = this.get("totalRPLSlashed");
+    return value.toBigInt();
+  }
+
+  set totalRPLSlashed(value: BigInt) {
+    this.set("totalRPLSlashed", Value.fromBigInt(value));
   }
 
   get totalClaimedRPLRewards(): BigInt {
     let value = this.get("totalClaimedRPLRewards");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set totalClaimedRPLRewards(value: BigInt) {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
   }
 
-  get totalClaimedRPLRewardsUpToThisCheckpoint(): BigInt {
-    let value = this.get("totalClaimedRPLRewardsUpToThisCheckpoint");
-    return value!.toBigInt();
+  get totalRPLClaimedRewardsRank(): BigInt {
+    let value = this.get("totalRPLClaimedRewardsRank");
+    return value.toBigInt();
   }
 
-  set totalClaimedRPLRewardsUpToThisCheckpoint(value: BigInt) {
-    this.set(
-      "totalClaimedRPLRewardsUpToThisCheckpoint",
-      Value.fromBigInt(value)
-    );
+  set totalRPLClaimedRewardsRank(value: BigInt) {
+    this.set("totalRPLClaimedRewardsRank", Value.fromBigInt(value));
   }
 
-  get claimedRPLRewardsSinceLastCheckpoint(): BigInt {
-    let value = this.get("claimedRPLRewardsSinceLastCheckpoint");
-    return value!.toBigInt();
+  get queuedMinipools(): BigInt {
+    let value = this.get("queuedMinipools");
+    return value.toBigInt();
   }
 
-  set claimedRPLRewardsSinceLastCheckpoint(value: BigInt) {
-    this.set("claimedRPLRewardsSinceLastCheckpoint", Value.fromBigInt(value));
+  set queuedMinipools(value: BigInt) {
+    this.set("queuedMinipools", Value.fromBigInt(value));
   }
 
-  get minimumRPLStake(): BigInt {
-    let value = this.get("minimumRPLStake");
-    return value!.toBigInt();
+  get stakingMinipools(): BigInt {
+    let value = this.get("stakingMinipools");
+    return value.toBigInt();
   }
 
-  set minimumRPLStake(value: BigInt) {
-    this.set("minimumRPLStake", Value.fromBigInt(value));
+  set stakingMinipools(value: BigInt) {
+    this.set("stakingMinipools", Value.fromBigInt(value));
   }
 
-  get maximumRPLStake(): BigInt {
-    let value = this.get("maximumRPLStake");
-    return value!.toBigInt();
+  get stakingUnbondedMinipools(): BigInt {
+    let value = this.get("stakingUnbondedMinipools");
+    return value.toBigInt();
   }
 
-  set maximumRPLStake(value: BigInt) {
-    this.set("maximumRPLStake", Value.fromBigInt(value));
+  set stakingUnbondedMinipools(value: BigInt) {
+    this.set("stakingUnbondedMinipools", Value.fromBigInt(value));
   }
 
-  get totalQueuedBondedMinipools(): BigInt {
-    let value = this.get("totalQueuedBondedMinipools");
-    return value!.toBigInt();
+  get withdrawableMinipools(): BigInt {
+    let value = this.get("withdrawableMinipools");
+    return value.toBigInt();
   }
 
-  set totalQueuedBondedMinipools(value: BigInt) {
-    this.set("totalQueuedBondedMinipools", Value.fromBigInt(value));
+  set withdrawableMinipools(value: BigInt) {
+    this.set("withdrawableMinipools", Value.fromBigInt(value));
   }
 
-  get totalQueuedUnbondedMinipools(): BigInt {
-    let value = this.get("totalQueuedUnbondedMinipools");
-    return value!.toBigInt();
+  get totalFinalizedMinipools(): BigInt {
+    let value = this.get("totalFinalizedMinipools");
+    return value.toBigInt();
   }
 
-  set totalQueuedUnbondedMinipools(value: BigInt) {
-    this.set("totalQueuedUnbondedMinipools", Value.fromBigInt(value));
+  set totalFinalizedMinipools(value: BigInt) {
+    this.set("totalFinalizedMinipools", Value.fromBigInt(value));
   }
 
-  get totalStakingBondedMinipools(): BigInt {
-    let value = this.get("totalStakingBondedMinipools");
-    return value!.toBigInt();
+  get averageFeeForActiveMinipools(): BigInt {
+    let value = this.get("averageFeeForActiveMinipools");
+    return value.toBigInt();
   }
 
-  set totalStakingBondedMinipools(value: BigInt) {
-    this.set("totalStakingBondedMinipools", Value.fromBigInt(value));
-  }
-
-  get totalStakingUnbondedMinipools(): BigInt {
-    let value = this.get("totalStakingUnbondedMinipools");
-    return value!.toBigInt();
-  }
-
-  set totalStakingUnbondedMinipools(value: BigInt) {
-    this.set("totalStakingUnbondedMinipools", Value.fromBigInt(value));
-  }
-
-  get totalFinalizedBondedMinipools(): BigInt {
-    let value = this.get("totalFinalizedBondedMinipools");
-    return value!.toBigInt();
-  }
-
-  set totalFinalizedBondedMinipools(value: BigInt) {
-    this.set("totalFinalizedBondedMinipools", Value.fromBigInt(value));
-  }
-
-  get totalFinalizedUnbondedMinipools(): BigInt {
-    let value = this.get("totalFinalizedUnbondedMinipools");
-    return value!.toBigInt();
-  }
-
-  set totalFinalizedUnbondedMinipools(value: BigInt) {
-    this.set("totalFinalizedUnbondedMinipools", Value.fromBigInt(value));
-  }
-
-  get averageMinipoolFee(): BigInt | null {
-    let value = this.get("averageMinipoolFee");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set averageMinipoolFee(value: BigInt | null) {
-    if (!value) {
-      this.unset("averageMinipoolFee");
-    } else {
-      this.set("averageMinipoolFee", Value.fromBigInt(<BigInt>value));
-    }
+  set averageFeeForActiveMinipools(value: BigInt) {
+    this.set("averageFeeForActiveMinipools", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
     let value = this.get("block");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set block(value: BigInt) {
@@ -1445,10 +1693,113 @@ export class NodeBalanceCheckpoint extends Entity {
 
   get blockTime(): BigInt {
     let value = this.get("blockTime");
-    return value!.toBigInt();
+    return value.toBigInt();
   }
 
   set blockTime(value: BigInt) {
     this.set("blockTime", Value.fromBigInt(value));
+  }
+}
+
+export class Minipool extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Minipool entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Minipool entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Minipool", id.toString(), this);
+  }
+
+  static load(id: string): Minipool | null {
+    return store.get("Minipool", id) as Minipool | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get node(): string {
+    let value = this.get("node");
+    return value.toString();
+  }
+
+  set node(value: string) {
+    this.set("node", Value.fromString(value));
+  }
+
+  get fee(): BigInt {
+    let value = this.get("fee");
+    return value.toBigInt();
+  }
+
+  set fee(value: BigInt) {
+    this.set("fee", Value.fromBigInt(value));
+  }
+
+  get queuedBlockTime(): BigInt {
+    let value = this.get("queuedBlockTime");
+    return value.toBigInt();
+  }
+
+  set queuedBlockTime(value: BigInt) {
+    this.set("queuedBlockTime", Value.fromBigInt(value));
+  }
+
+  get dequeuedBlockTime(): BigInt {
+    let value = this.get("dequeuedBlockTime");
+    return value.toBigInt();
+  }
+
+  set dequeuedBlockTime(value: BigInt) {
+    this.set("dequeuedBlockTime", Value.fromBigInt(value));
+  }
+
+  get destroyedBlockTime(): BigInt {
+    let value = this.get("destroyedBlockTime");
+    return value.toBigInt();
+  }
+
+  set destroyedBlockTime(value: BigInt) {
+    this.set("destroyedBlockTime", Value.fromBigInt(value));
+  }
+
+  get stakingBlockTime(): BigInt {
+    let value = this.get("stakingBlockTime");
+    return value.toBigInt();
+  }
+
+  set stakingBlockTime(value: BigInt) {
+    this.set("stakingBlockTime", Value.fromBigInt(value));
+  }
+
+  get withdrawableBlockTime(): BigInt {
+    let value = this.get("withdrawableBlockTime");
+    return value.toBigInt();
+  }
+
+  set withdrawableBlockTime(value: BigInt) {
+    this.set("withdrawableBlockTime", Value.fromBigInt(value));
+  }
+
+  get finalizedBlockTime(): BigInt {
+    let value = this.get("finalizedBlockTime");
+    return value.toBigInt();
+  }
+
+  set finalizedBlockTime(value: BigInt) {
+    this.set("finalizedBlockTime", Value.fromBigInt(value));
   }
 }
