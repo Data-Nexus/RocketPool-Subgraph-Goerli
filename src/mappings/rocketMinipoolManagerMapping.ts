@@ -35,7 +35,7 @@ export function handleMinipoolCreated(event: MinipoolCreated): void {
 
   // Create a new minipool.
   minipool = rocketPoolEntityFactory.createMinipool(
-    minipool.id,
+    event.params.minipool.toHexString(),
     <Node>node,
     /**
      * This will be called immediately after this event was emitted and before this minipool is queued.
