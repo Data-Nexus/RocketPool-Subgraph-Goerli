@@ -9,7 +9,7 @@ import {
   MINIPOOLSTATUS_STAKING,
   MINIPOOLSTATUS_WITHDRAWABLE,
 } from '../constants/enumconstants'
-import { ROCKET_NODE_DEPOSIT_CONTRACT_NAME, ROCKET_NODE_STAKING_CONTRACT_NAME, ROCKET_STORAGE_ADDRESS } from '../constants/contractconstants'
+import { ROCKET_NODE_DEPOSIT_CONTRACT_NAME, ROCKET_STORAGE_ADDRESS } from '../constants/contractconstants'
 import { generalUtilities } from '../utilities/generalUtilities'
 
 /**
