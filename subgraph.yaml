@@ -21,6 +21,8 @@ dataSources:
           file: ./abis/rocketTokenRETH.json
         - name: rocketStorage
           file: ./abis/rocketStorage.json 
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
@@ -49,6 +51,8 @@ dataSources:
           file: ./abis/rocketDepositPool.json
         - name: rocketStorage
           file: ./abis/rocketStorage.json 
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: BalancesUpdated(uint256,uint256,uint256,uint256,uint256)
           handler: handleBalancesUpdated
@@ -73,6 +77,8 @@ dataSources:
           file: ./abis/rocketNodeManager.json    
         - name: rocketStorage
           file: ./abis/rocketStorage.json 
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: NodeRegistered(indexed address,uint256)
           handler: handleNodeRegister
@@ -104,6 +110,8 @@ dataSources:
           file: ./abis/rocketNodeManager.json
         - name: rocketTokenRETH
           file: ./abis/rocketTokenRETH.json
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: RPLStaked(indexed address,uint256,uint256)
           handler: handleRPLStaked
@@ -138,6 +146,8 @@ dataSources:
           file: ./abis/rocketNetworkPrices.json    
         - name: rocketNodeManager
           file: './abis/rocketNodeManager.json'
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: RPLTokensClaimed(indexed address,indexed address,uint256,uint256)
           handler: handleRPLTokensClaimed
@@ -172,6 +182,8 @@ dataSources:
           file: ./abis/rocketStorage.json   
         - name: rocketNodeStaking
           file: ./abis/rocketNodeStaking.json
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: PricesUpdated(uint256,uint256,uint256,uint256)
           handler: handlePricesUpdated
@@ -198,13 +210,15 @@ dataSources:
         - name: rocketStorage
           file: ./abis/rocketStorage.json     
         - name: rocketNodeStaking
-          file: ./abis/rocketNodeStaking.json    
+          file: ./abis/rocketNodeStaking.json   
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json 
       eventHandlers:
         - event: MinipoolCreated(indexed address,indexed address,uint256)
           handler: handleMinipoolCreated
         - event: MinipoolDestroyed(indexed address,indexed address,uint256)
           handler: handleMinipoolDestroyed
-      # TODO Use when call handlers are usable, not on goerli ATM. (no way of knowing if a minipool is finalized via events)
+      # TODO: Use when call handlers are usable, on mainnet. (Goerli doesn't support) (no way of knowing if a minipool is finalized via events)
       # callHandlers:
       #   - function: incrementNodeFinalisedMinipoolCount(address)
       #     handler: handleIncrementNodeFinalisedMinipoolCount
@@ -228,6 +242,8 @@ dataSources:
           file: ./abis/rocketMinipoolqueue.json
         - name: rocketStorage
           file: ./abis/rocketStorage.json   
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: MinipoolEnqueued(indexed address,indexed bytes32,uint256)
           handler: handleMinipoolEnqueued
@@ -235,7 +251,7 @@ dataSources:
           handler: handleMinipoolDequeued
       file: ./src/mappings/rocketMinipoolqueueMapping.ts
 
-  # TODO: Use when call handlers are usable, not on goerli ATM.
+  # TODO: Use when call handlers are usable, on mainnet. (Goerli doesn't support)
   # - kind: ethereum/contract 
   #   name: rocketDAONodeTrusted  
   #   network: goerli
@@ -278,7 +294,8 @@ templates:
       abis:
         - name: rocketMinipoolDelegateV1  
           file: ./abis/rocketMinipoolDelegateV1.json 
-
+        - name: rocketPoolTheGraphHelper
+          file: ./abis/rocketPoolTheGraphHelper.json
       eventHandlers:
         - event: StatusUpdated(indexed uint8,uint256)
           handler: handleStatusUpdated
