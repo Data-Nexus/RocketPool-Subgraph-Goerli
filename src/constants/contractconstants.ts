@@ -18,6 +18,7 @@ export let ROCKET_DEPOSIT_POOL_CONTRACT_NAME = "rocketDepositPool";
 export let ROCKET_MINIPOOL_MANAGER_CONTRACT_NAME = 'rocketMinipoolManager';
 export let ROCKET_NODE_MANAGER_CONTRACT_NAME = "rocketNodeManager";
 export let ROCKET_NODE_STAKING_CONTRACT_NAME = 'rocketNodeStaking';
+export let ROCKET_NODE_DEPOSIT_CONTRACT_NAME = 'rocketNodeDeposit';
 export let ROCKET_REWARDS_POOL_CONTRACT_NAME= 'rocketRewardsPool';
 export let ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_NAME= 'rocketClaimDAO';
 export let ROCKET_DAO_NODE_TRUSTED_CONTRACT_NAME= 'rocketDAONodeTrusted';
