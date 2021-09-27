@@ -1,15 +1,10 @@
-import { BigInt } from '@graphprotocol/graph-ts'
-import { rocketStorage } from '../../generated/rocketDAONodeTrusted/rocketStorage'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
   DecrementMemberUnbondedValidatorCountCall,
   IncrementMemberUnbondedValidatorCountCall,
 } from '../../generated/rocketDAONodeTrusted/rocketDAONodeTrusted'
 import { Minipool, Node } from '../../generated/schema'
-import {
-  ROCKET_MINIPOOL_MANAGER_CONTRACT_NAME,
-  ROCKET_STORAGE_ADDRESS,
-} from '../constants/contractconstants'
-import { generalUtilities } from '../utilities/generalUtilities'
+import { ROCKET_MINIPOOL_MANAGER_CONTRACT_ADDRESS } from '../constants/contractconstants'
 
 /**
  * TODO: Use on mainnet; call handlers don't work on goerli
@@ -27,16 +22,13 @@ export function handleIncrementMemberUnbondedValidatorCount(
   )
     return
 
-  // Calling address should be the rocketMinipoolManager!
-  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
-  let rocketMinipoolManagerContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(
-      ROCKET_MINIPOOL_MANAGER_CONTRACT_NAME,
-    ),
+  // Calling address should be the rocketMinipoolManager
+  let rocketMinipoolManagerContractAddress = Address.fromString(
+    ROCKET_MINIPOOL_MANAGER_CONTRACT_ADDRESS,
   )
   if (
-    rocketMinipoolManagerContractAddress === null ||
-    rocketMinipoolManagerContractAddress.toHexString() != call.from.toHexString()
+    rocketMinipoolManagerContractAddress.toHexString() !=
+    call.from.toHexString()
   )
     return
 

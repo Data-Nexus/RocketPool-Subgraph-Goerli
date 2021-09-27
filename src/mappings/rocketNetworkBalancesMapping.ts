@@ -1,18 +1,20 @@
 import { BalancesUpdated } from '../../generated/rocketNetworkBalances/rocketNetworkBalances'
 import { rocketTokenRETH } from '../../generated/rocketNetworkBalances/rocketTokenRETH'
 import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketDepositPool'
-import { rocketStorage } from '../../generated/rocketNetworkBalances/rocketStorage'
-import { Staker, NetworkStakerBalanceCheckpoint, StakerBalanceCheckpoint } from '../../generated/schema'
+import {
+  Staker,
+  NetworkStakerBalanceCheckpoint,
+  StakerBalanceCheckpoint,
+} from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalUtilities'
 import { stakerUtilities } from '../utilities/stakerutilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import {
   ZERO_ADDRESS_STRING,
-  ROCKET_STORAGE_ADDRESS,
-  ROCKET_DEPOSIT_POOL_CONTRACT_NAME,
-  ROCKET_TOKEN_RETH_CONTRACT_NAME,
+  ROCKET_DEPOSIT_POOL_CONTRACT_ADDRESS,
+  ROCKET_TOKEN_RETH_CONTRACT_ADDRESS,
 } from './../constants/contractconstants'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 
 /**
  * When enough ODAO members votes on a balance and a consensus threshold is reached, the staker beacon chain state is persisted to the smart contracts.
@@ -22,24 +24,24 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   if (stakerUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event))
     return
 
-
   // Protocol entity should exist, if not, then we attempt to create it.
   let protocol = generalUtilities.getRocketPoolProtocolEntity()
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
   }
-  if (protocol === null) return;
+  if (protocol === null) return
 
-  // Load the RocketTokenRETH contract via the rocketstorage.
+  // Load the RocketTokenRETH contract
   // We will need the rocketvault smart contract state to get specific addresses.
-  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS);
-  let rETHContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME))
-  let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
+  let rETHContract = rocketTokenRETH.bind(
+    Address.fromString(ROCKET_TOKEN_RETH_CONTRACT_ADDRESS),
+  )
   if (rETHContract === null) return
 
   // Load the rocketDepositPool contract
-  let rocketDepositPoolContractAddress = rocketStorageContract.getAddress(generalUtilities.getRocketVaultContractAddressKey(ROCKET_DEPOSIT_POOL_CONTRACT_NAME))
-  let rocketDepositPoolContract = rocketDepositPool.bind(rocketDepositPoolContractAddress)
+  let rocketDepositPoolContract = rocketDepositPool.bind(
+    Address.fromString(ROCKET_DEPOSIT_POOL_CONTRACT_ADDRESS),
+  )
   if (rocketDepositPoolContract === null) return
 
   // How much is the total staker ETH balance in the deposit pool?
@@ -47,7 +49,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let depositPoolExcessBalance = rocketDepositPoolContract.getExcessBalance()
 
   // The RocketEth contract balance is equal to the total collateral - the excess deposit pool balance.
-  let stakerETHInRocketETHContract = generalUtilities.getRocketETHBalance(
+  let stakerETHInRocketETHContract = getRocketETHBalance(
     depositPoolExcessBalance,
     rETHContract.getTotalCollateral(),
   )
@@ -69,14 +71,15 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   let previousTotalStakerETHRewards = BigInt.fromI32(0)
   let previousTotalStakersWithETHRewards = BigInt.fromI32(0)
   let previousRETHExchangeRate = BigInt.fromI32(1)
-  let previousCheckpoint: NetworkStakerBalanceCheckpoint | null = null;
+  let previousCheckpoint: NetworkStakerBalanceCheckpoint | null = null
   if (previousCheckpointId != null) {
     previousCheckpoint = NetworkStakerBalanceCheckpoint.load(
       <string>previousCheckpointId,
     )
     if (previousCheckpoint !== null) {
       previousTotalStakerETHRewards = previousCheckpoint.totalStakerETHRewards
-      previousTotalStakersWithETHRewards = previousCheckpoint.totalStakersWithETHRewards;
+      previousTotalStakersWithETHRewards =
+        previousCheckpoint.totalStakersWithETHRewards
       previousRETHExchangeRate = previousCheckpoint.rETHExchangeRate
       previousCheckpoint.nextCheckpointId = checkpoint.id
     }
@@ -96,7 +99,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
     checkpoint.totalStakerETHRewards = previousTotalStakerETHRewards
   }
   if (checkpoint.totalStakersWithETHRewards == BigInt.fromI32(0)) {
-    checkpoint.totalStakersWithETHRewards = previousTotalStakersWithETHRewards;
+    checkpoint.totalStakersWithETHRewards = previousTotalStakersWithETHRewards
   }
 
   // Calculate average staker reward up to this checkpoint.
@@ -114,7 +117,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
 
   // Index these changes.
   checkpoint.save()
-  if (previousCheckpoint !== null) previousCheckpoint.save();
+  if (previousCheckpoint !== null) previousCheckpoint.save()
   protocol.save()
 }
 
@@ -135,8 +138,8 @@ function generateStakerBalanceCheckpoints(
     return
   }
 
-  let generatedStakerBalanceCheckpoints = new Array<StakerBalanceCheckpoint>();
-  let stakerBalanceCheckpointToStakerMap = new Map<string,Staker>();
+  let generatedStakerBalanceCheckpoints = new Array<StakerBalanceCheckpoint>()
+  let stakerBalanceCheckpointToStakerMap = new Map<string, Staker>()
 
   // Loop through all the staker id's in the protocol.
   for (let index = 0; index < stakerIds.length; index++) {
@@ -195,48 +198,91 @@ function generateStakerBalanceCheckpoints(
     if (stakerBalanceCheckpoint == null) continue
     staker.lastBalanceCheckpoint = stakerBalanceCheckpoint.id
 
-    // Index both the updated staker & the new staker balance checkpoint.   
+    // Index both the updated staker & the new staker balance checkpoint.
     stakerBalanceCheckpoint.save()
     staker.save()
 
     // Keep track of all generated staker balance checkpoints.
-    generatedStakerBalanceCheckpoints.push(<StakerBalanceCheckpoint>stakerBalanceCheckpoint);
+    generatedStakerBalanceCheckpoints.push(
+      <StakerBalanceCheckpoint>stakerBalanceCheckpoint,
+    )
 
     // Keep track of the staker object that belongs to the node.
-    stakerBalanceCheckpointToStakerMap.set(stakerBalanceCheckpoint.id, <Staker>staker);
+    stakerBalanceCheckpointToStakerMap.set(
+      stakerBalanceCheckpoint.id,
+      <Staker>staker,
+    )
   }
 
   // If there were any staker balance checkpoints generated..
   if (generatedStakerBalanceCheckpoints.length > 0) {
-    let sortedStakerBalanceCheckpointsByRank = generatedStakerBalanceCheckpoints.sort(function (a, b) {
-      return b.totalETHRewards.minus(a.totalETHRewards).toI32();
-    });
+    let sortedStakerBalanceCheckpointsByRank = generatedStakerBalanceCheckpoints.sort(
+      function (a, b) {
+        return b.totalETHRewards.minus(a.totalETHRewards).toI32()
+      },
+    )
 
     // Set the rank of each staker balance checkpoint & store the checkpoint with the highest rank on the network checkpoint.
-    let rankIndex = 1;
-    for (let index = 0; index < sortedStakerBalanceCheckpointsByRank.length; index++) {
+    let rankIndex = 1
+    for (
+      let index = 0;
+      index < sortedStakerBalanceCheckpointsByRank.length;
+      index++
+    ) {
       // Get the current staker balance checkpoint for this iteration.
-      let currentStakerBalanceCheckpoint = sortedStakerBalanceCheckpointsByRank[index];
-      if (currentStakerBalanceCheckpoint === null && stakerBalanceCheckpointToStakerMap.has(currentStakerBalanceCheckpoint.id)) continue;
+      let currentStakerBalanceCheckpoint =
+        sortedStakerBalanceCheckpointsByRank[index]
+      if (
+        currentStakerBalanceCheckpoint === null &&
+        stakerBalanceCheckpointToStakerMap.has(
+          currentStakerBalanceCheckpoint.id,
+        )
+      )
+        continue
 
       // The rank of the staker in this checkpoint is the current index.
-      currentStakerBalanceCheckpoint.totalETHRewardsRank = BigInt.fromI32(rankIndex);
-      currentStakerBalanceCheckpoint.save();
+      currentStakerBalanceCheckpoint.totalETHRewardsRank = BigInt.fromI32(
+        rankIndex,
+      )
+      currentStakerBalanceCheckpoint.save()
 
       // Determine the associated staker
-      let associatedStaker = <Staker>stakerBalanceCheckpointToStakerMap.get(currentStakerBalanceCheckpoint.id)
+      let associatedStaker = <Staker>(
+        stakerBalanceCheckpointToStakerMap.get(
+          currentStakerBalanceCheckpoint.id,
+        )
+      )
       if (associatedStaker !== null) {
-        associatedStaker.totalETHRewardsRank = currentStakerBalanceCheckpoint.totalETHRewardsRank;
-        associatedStaker.save();
+        associatedStaker.totalETHRewardsRank =
+          currentStakerBalanceCheckpoint.totalETHRewardsRank
+        associatedStaker.save()
       }
 
       // If this was the first staker checkpoint, it has the highest rank and should be stored that way on the network staker balance checkpoint.
       if (rankIndex === 1) {
-        networkCheckpoint.checkpointWithHighestRewardsRank = currentStakerBalanceCheckpoint.id;
+        networkCheckpoint.checkpointWithHighestRewardsRank =
+          currentStakerBalanceCheckpoint.id
       }
 
       // Update the rank index for the next staker(balance checkpoint).
-      rankIndex = rankIndex + 1;
+      rankIndex = rankIndex + 1
     }
   }
+}
+
+/**
+ * The RocketETH contract balance is equal to the total collateral - the excess deposit pool balance.
+ */
+function getRocketETHBalance(
+  depositPoolExcess: BigInt,
+  rocketETHTotalCollateral: BigInt,
+): BigInt {
+  let totalStakerETHInRocketEthContract = rocketETHTotalCollateral.minus(
+    depositPoolExcess,
+  )
+
+  if (totalStakerETHInRocketEthContract < BigInt.fromI32(0))
+    totalStakerETHInRocketEthContract = BigInt.fromI32(0)
+
+  return totalStakerETHInRocketEthContract
 }

@@ -5,17 +5,14 @@ import {
   MinipoolDestroyed,
 } from '../../generated/rocketMinipoolManager/rocketMinipoolManager'
 import { rocketNetworkFees } from '../../generated/rocketMinipoolManager/rocketNetworkFees'
-import { rocketStorage } from '../../generated/rocketMinipoolManager/rocketStorage'
 import { rocketNodeStaking } from '../../generated/rocketMinipoolManager/rocketNodeStaking'
 import {
-  ROCKET_STORAGE_ADDRESS,
-  ROCKET_NETWORK_FEES_CONTRACT_NAME,
-  ROCKET_NODE_STAKING_CONTRACT_NAME,
+  ROCKET_NETWORK_FEES_CONTRACT_ADDRESS,
+  ROCKET_NODE_STAKING_CONTRACT_ADDRESS,
 } from './../constants/contractconstants'
 import { Minipool, Node } from '../../generated/schema'
 import { rocketMinipoolDelegateV1 } from '../../generated/templates'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { generalUtilities } from '../utilities/generalUtilities'
 
 /**
  * Occurs when a node operator makes an ETH deposit on his node to create a minipool.
@@ -67,7 +64,7 @@ export function handleMinipoolCreated(event: MinipoolCreated): void {
   node.save()
 
   // Create the tracked contract based on the template.
-  rocketMinipoolDelegateV1.create(Address.fromString(minipool.id));
+  rocketMinipoolDelegateV1.create(Address.fromString(minipool.id))
 }
 
 /**
@@ -153,13 +150,9 @@ export function handleIncrementNodeFinalisedMinipoolCount(
  */
 function getNewMinipoolFee(): BigInt {
   // Get the network fees contract instance.
-  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
-  let networkFeesContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(
-      ROCKET_NETWORK_FEES_CONTRACT_NAME,
-    ),
+  let networkFeesContract = rocketNetworkFees.bind(
+    Address.fromString(ROCKET_NETWORK_FEES_CONTRACT_ADDRESS),
   )
-  let networkFeesContract = rocketNetworkFees.bind(networkFeesContractAddress)
   if (networkFeesContract === null) return BigInt.fromI32(0)
 
   return networkFeesContract.getNodeFee()
@@ -170,14 +163,8 @@ function getNewMinipoolFee(): BigInt {
  */
 function setEffectiveRPLStaked(node: Node): void {
   // We need this to get the new (minimum/maximum) effective RPL staked for the node.
-  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
-  let rocketNodeStakingAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(
-      ROCKET_NODE_STAKING_CONTRACT_NAME,
-    ),
-  )
   let rocketNodeStakingContract = rocketNodeStaking.bind(
-    rocketNodeStakingAddress,
+    Address.fromString(ROCKET_NODE_STAKING_CONTRACT_ADDRESS),
   )
   if (rocketNodeStakingContract === null) return
 
