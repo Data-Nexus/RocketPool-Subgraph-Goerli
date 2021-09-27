@@ -1,28 +1,21 @@
-import { BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
   EtherDeposited,
   StatusUpdated,
 } from '../../generated/templates/rocketMinipoolDelegateV1/rocketMinipoolDelegateV1'
-import { rocketStorage } from '../../generated/rocketMinipoolManager/rocketStorage'
 import { Minipool, Node } from '../../generated/schema'
 import {
   MINIPOOLSTATUS_STAKING,
   MINIPOOLSTATUS_WITHDRAWABLE,
 } from '../constants/enumconstants'
-import { ROCKET_NODE_DEPOSIT_CONTRACT_NAME, ROCKET_STORAGE_ADDRESS } from '../constants/contractconstants'
-import { generalUtilities } from '../utilities/generalUtilities'
+import { ROCKET_NODE_DEPOSIT_CONTRACT_ADDRESS } from '../constants/contractconstants'
 
 /**
  * Occurs when a node operator makes an ETH deposit on his node to create a minipool.
  */
 export function handleStatusUpdated(event: StatusUpdated): void {
   // Preliminary null checks.
-  if (
-    event === null ||
-    event.address === null ||
-    event.block === null
-  )
-    return
+  if (event === null || event.address === null || event.block === null) return
 
   // There must be an existing minipool with the same address.
   let minipool = Minipool.load(event.address.toHexString())
@@ -50,7 +43,7 @@ export function handleEtherDeposited(event: EtherDeposited): void {
   // Preliminary null checks.
   if (
     event === null ||
-    event.params === null || 
+    event.params === null ||
     event.address === null ||
     event.block === null
   )
@@ -61,15 +54,14 @@ export function handleEtherDeposited(event: EtherDeposited): void {
   if (minipool === null) return
 
   // Get the address of the rocket node deposit contract.
-  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
-  let rocketNodeDepositContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(
-      ROCKET_NODE_DEPOSIT_CONTRACT_NAME,
-    ),
+  let rocketNodeDepositContractAddress = Address.fromString(
+    ROCKET_NODE_DEPOSIT_CONTRACT_ADDRESS,
   )
-
   // Check if the deposit came from a node.
-  if (rocketNodeDepositContractAddress !== null && rocketNodeDepositContractAddress.toHexString() == event.params.from.toHexString()) {
+  if (
+    rocketNodeDepositContractAddress.toHexString() ==
+    event.params.from.toHexString()
+  ) {
     // The deposit came from a node and is a 'node' deposit.
     minipool.nodeDepositBlockTime = event.block.timestamp
     minipool.nodeDepositETHAmount = event.params.amount

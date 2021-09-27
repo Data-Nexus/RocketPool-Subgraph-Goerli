@@ -1,8 +1,7 @@
-import { ROCKET_STORAGE_ADDRESS, ROCKET_TOKEN_RETH_CONTRACT_NAME } from '../constants/contractconstants'
+import { ROCKET_TOKEN_RETH_CONTRACT_ADDRESS } from '../constants/contractconstants'
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Transfer } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
-import { rocketStorage } from '../../generated/rocketTokenRETH/rocketStorage'
 import { Staker } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalutilities'
 import { stakerUtilities } from '../utilities/stakerUtilities'
@@ -87,11 +86,7 @@ function saveTransaction(
   }
 
   // Load the RocketTokenRETH contract.
-  let rocketStorageContract = rocketStorage.bind(ROCKET_STORAGE_ADDRESS)
-  let rETHContractAddress = rocketStorageContract.getAddress(
-    generalUtilities.getRocketVaultContractAddressKey(ROCKET_TOKEN_RETH_CONTRACT_NAME)
-  )
-  let rETHContract = rocketTokenRETH.bind(rETHContractAddress)
+  let rETHContract = rocketTokenRETH.bind(Address.fromString(ROCKET_TOKEN_RETH_CONTRACT_ADDRESS))
   if (rETHContract === null) return
 
   // Update active balances for stakesr.
