@@ -479,6 +479,18 @@ type Minipool @entity {
   # Fee that was assigned to this minipool when it was created.
   fee: BigInt! 
 
+  # Node deposit ETH amount (in WEI) that was assigned to this minipool when it was created.
+  nodeDepositETHAmount: BigInt! 
+
+  # Block timestamp at which this minipool received a node deposit.
+  nodeDepositBlockTime: BigInt! 
+
+  # User deposit ETH amount (in WEI) that was assigned to this minipool.
+  userDepositETHAmount: BigInt! 
+
+  # Block timestamp at which this minipool received a user deposit.
+  userDepositBlockTime: BigInt! 
+
   # Block timestamp at which this minipool was queued.
   queuedBlockTime: BigInt!
 

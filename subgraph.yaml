@@ -204,13 +204,10 @@ dataSources:
           handler: handleMinipoolCreated
         - event: MinipoolDestroyed(indexed address,indexed address,uint256)
           handler: handleMinipoolDestroyed
-      callHandlers:
-        - function: incrementNodeStakingMinipoolCount(address)
-          handler: handleIncrementNodeStakingMinipoolCount       
-        - function: decrementNodeStakingMinipoolCount(address)
-          handler: handleDecrementNodeStakingMinipoolCount
-        - function: incrementNodeFinalisedMinipoolCount(address)
-          handler: handleIncrementNodeFinalisedMinipoolCount
+      # TODO Use when call handlers are usable, not on goerli ATM. (no way of knowing if a minipool is finalized via events)
+      # callHandlers:
+      #   - function: incrementNodeFinalisedMinipoolCount(address)
+      #     handler: handleIncrementNodeFinalisedMinipoolCount
       file: ./src/mappings/rocketMinipoolManagerMapping.ts
 
   - kind: ethereum/contract
@@ -238,27 +235,52 @@ dataSources:
           handler: handleMinipoolDequeued
       file: ./src/mappings/rocketMinipoolqueueMapping.ts
 
-  - kind: ethereum/contract
-    name: rocketDAONodeTrusted  
+  # TODO: Use when call handlers are usable, not on goerli ATM.
+  # - kind: ethereum/contract 
+  #   name: rocketDAONodeTrusted  
+  #   network: goerli
+  #   source:
+  #     address: "0x8486d86481CCda0Bc3A148361Fd1E1582b0c30c7"
+  #     abi: rocketDAONodeTrusted
+  #     startBlock: 5240688
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.5
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Minipool
+  #     abis:
+  #       - name: rocketDAONodeTrusted
+  #         file: ./abis/rocketDAONodeTrusted.json
+  #       - name: rocketStorage
+  #         file: ./abis/rocketStorage.json   
+  #     callHandlers:
+  #       - function: incrementMemberUnbondedValidatorCount(address)
+  #         handler: handleIncrementMemberUnbondedValidatorCount    
+  #       - function: decrementMemberUnbondedValidatorCount(address)
+  #         handler: handleDecrementMemberUnbondedValidatorCount      
+  #     file: ./src/mappings/rocketDAONodeTrustedMapping.ts
+
+templates:
+  - name: rocketMinipoolDelegateV1
+    kind: ethereum/contract
     network: goerli
     source:
-      address: "0x8486d86481CCda0Bc3A148361Fd1E1582b0c30c7"
-      abi: rocketDAONodeTrusted
-      startBlock: 5240688
+      abi: rocketMinipoolDelegateV1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
+      file: ./src/mappings/rocketMinipoolDelegateV1Mappings.ts
       entities:
         - Minipool
+        - Node
       abis:
-        - name: rocketDAONodeTrusted
-          file: ./abis/rocketDAONodeTrusted.json
-        - name: rocketStorage
-          file: ./abis/rocketStorage.json   
-      callHandlers:
-        - function: incrementMemberUnbondedValidatorCount(address)
-          handler: handleIncrementMemberUnbondedValidatorCount    
-        - function: decrementMemberUnbondedValidatorCount(address)
-          handler: handleDecrementMemberUnbondedValidatorCount      
-      file: ./src/mappings/rocketDAONodeTrustedMapping.ts
+        - name: rocketMinipoolDelegateV1  
+          file: ./abis/rocketMinipoolDelegateV1.json 
+
+      eventHandlers:
+        - event: StatusUpdated(indexed uint8,uint256)
+          handler: handleStatusUpdated
+        - event: EtherDeposited(indexed address,uint256,uint256)
+          handler: handleEtherDeposited

@@ -383,6 +383,10 @@ class RocketPoolEntityFactory {
     let minipool = new Minipool(id)
     minipool.node = node.id
     minipool.fee = fee;
+    minipool.nodeDepositETHAmount = BigInt.fromI32(0);
+    minipool.nodeDepositBlockTime = BigInt.fromI32(0);
+    minipool.userDepositETHAmount = BigInt.fromI32(0);
+    minipool.userDepositBlockTime = BigInt.fromI32(0);
     minipool.queuedBlockTime = BigInt.fromI32(0)
     minipool.dequeuedBlockTime = BigInt.fromI32(0)
     minipool.destroyedBlockTime = BigInt.fromI32(0)
