@@ -218,7 +218,9 @@ function generateStakerBalanceCheckpoints(
   if (generatedStakerBalanceCheckpoints.length > 0) {
     let sortedStakerBalanceCheckpointsByRank = generatedStakerBalanceCheckpoints.sort(
       function (a, b) {
-        return b.totalETHRewards.minus(a.totalETHRewards).toI32()
+        if(b.totalETHRewards > a.totalETHRewards) return 1;
+        else if(b.totalETHRewards < a.totalETHRewards) return -1;
+        else return 0;
       },
     )
 

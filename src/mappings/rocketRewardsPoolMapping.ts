@@ -266,9 +266,13 @@ function updateRPLClaimedRewardRank(nodeIds: Array<string>): void {
     // Sort the nodes by the total RPL rewards claimed DESC, time registered ASC.
     let sortedNodesByRPLRewardsClaimedRankAndTimeRegistered = allNodes.sort(
       function (a, b) {
-        if (b.totalClaimedRPLRewards == a.totalClaimedRPLRewards)
-          return a.block.minus(b.block).toI32()
-        return b.totalClaimedRPLRewards.minus(a.totalClaimedRPLRewards).toI32()
+        if(b.totalClaimedRPLRewards > a.totalClaimedRPLRewards) return 1;
+        else if(b.totalClaimedRPLRewards < a.totalClaimedRPLRewards) return -1;
+        else {
+          if(a.block > b.block) return 1;
+          else if(a.block < b.block) return -1;
+          else return 0;
+        };
       },
     )
 
