@@ -138,9 +138,6 @@ function generateStakerBalanceCheckpoints(
     return
   }
 
-  let generatedStakerBalanceCheckpoints = new Array<StakerBalanceCheckpoint>()
-  let stakerBalanceCheckpointToStakerMap = new Map<string, Staker>()
-
   // Loop through all the staker id's in the protocol.
   for (let index = 0; index < stakerIds.length; index++) {
     // Determine current staker ID.
@@ -201,74 +198,6 @@ function generateStakerBalanceCheckpoints(
     // Index both the updated staker & the new staker balance checkpoint.
     stakerBalanceCheckpoint.save()
     staker.save()
-
-    // Keep track of all generated staker balance checkpoints.
-    generatedStakerBalanceCheckpoints.push(
-      <StakerBalanceCheckpoint>stakerBalanceCheckpoint,
-    )
-
-    // Keep track of the staker object that belongs to the node.
-    stakerBalanceCheckpointToStakerMap.set(
-      stakerBalanceCheckpoint.id,
-      <Staker>staker,
-    )
-  }
-
-  // If there were any staker balance checkpoints generated..
-  if (generatedStakerBalanceCheckpoints.length > 0) {
-    let sortedStakerBalanceCheckpointsByRank = generatedStakerBalanceCheckpoints.sort(
-      function (a, b) {
-        if(b.totalETHRewards > a.totalETHRewards) return 1;
-        else if(b.totalETHRewards < a.totalETHRewards) return -1;
-        else return 0;
-      },
-    )
-
-    // Set the rank of each staker balance checkpoint & store the checkpoint with the highest rank on the network checkpoint.
-    let rankIndex = 1
-    for (
-      let index = 0;
-      index < sortedStakerBalanceCheckpointsByRank.length;
-      index++
-    ) {
-      // Get the current staker balance checkpoint for this iteration.
-      let currentStakerBalanceCheckpoint =
-        sortedStakerBalanceCheckpointsByRank[index]
-      if (
-        currentStakerBalanceCheckpoint === null &&
-        stakerBalanceCheckpointToStakerMap.has(
-          currentStakerBalanceCheckpoint.id,
-        )
-      )
-        continue
-
-      // The rank of the staker in this checkpoint is the current index.
-      currentStakerBalanceCheckpoint.totalETHRewardsRank = BigInt.fromI32(
-        rankIndex,
-      )
-      currentStakerBalanceCheckpoint.save()
-
-      // Determine the associated staker
-      let associatedStaker = <Staker>(
-        stakerBalanceCheckpointToStakerMap.get(
-          currentStakerBalanceCheckpoint.id,
-        )
-      )
-      if (associatedStaker !== null) {
-        associatedStaker.totalETHRewardsRank =
-          currentStakerBalanceCheckpoint.totalETHRewardsRank
-        associatedStaker.save()
-      }
-
-      // If this was the first staker checkpoint, it has the highest rank and should be stored that way on the network staker balance checkpoint.
-      if (rankIndex === 1) {
-        networkCheckpoint.checkpointWithHighestRewardsRank =
-          currentStakerBalanceCheckpoint.id
-      }
-
-      // Update the rank index for the next staker(balance checkpoint).
-      rankIndex = rankIndex + 1
-    }
   }
 }
 

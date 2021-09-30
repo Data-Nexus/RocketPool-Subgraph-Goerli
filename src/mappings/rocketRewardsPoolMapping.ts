@@ -180,8 +180,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     previousActiveIndexedRewardInterval.save()
   activeIndexedRewardInterval.save()
 
-  // Update the RPL Rank for the protocol nodes and index the protocol changes.
-  updateRPLClaimedRewardRank(protocol.nodes)
+  // Index the protocol changes.
   protocol.save()
 }
 
@@ -237,63 +236,4 @@ function getRplRewardClaimerType(
   }
 
   return rplRewardClaimerType
-}
-
-/**
- * Update the RPL Claimed Rewark rank for every given node.
- */
-function updateRPLClaimedRewardRank(nodeIds: Array<string>): void {
-  if (nodeIds === null || nodeIds.length === 0) return
-
-  let allNodes = new Array<Node>()
-
-  // Loop through all node ids.
-  for (let index = 0; index < nodeIds.length; index++) {
-    // Determine current node ID.
-    let nodeId = <string>nodeIds[index]
-    if (nodeId == null) continue
-
-    // Load the indexed node.
-    let node = Node.load(nodeId)
-    if (node === null) continue
-
-    // Keep track of it.
-    allNodes.push(<Node>node)
-  }
-
-  // If we found any indexed nodes
-  if (allNodes.length > 0) {
-    // Sort the nodes by the total RPL rewards claimed DESC, time registered ASC.
-    let sortedNodesByRPLRewardsClaimedRankAndTimeRegistered = allNodes.sort(
-      function (a, b) {
-        if(b.totalClaimedRPLRewards > a.totalClaimedRPLRewards) return 1;
-        else if(b.totalClaimedRPLRewards < a.totalClaimedRPLRewards) return -1;
-        else {
-          if(a.block > b.block) return 1;
-          else if(a.block < b.block) return -1;
-          else return 0;
-        };
-      },
-    )
-
-    // Set the rank of each node based on how much RPL rewards they've claimed.
-    let rankIndex = 1
-    for (
-      let index = 0;
-      index < sortedNodesByRPLRewardsClaimedRankAndTimeRegistered.length;
-      index++
-    ) {
-      // Get the current node for this iteration.
-      let currentNode =
-        sortedNodesByRPLRewardsClaimedRankAndTimeRegistered[index]
-      if (currentNode === null) continue
-
-      // The rank of the node in this checkpoint is the current rank index.
-      currentNode.totalRPLClaimedRewardsRank = BigInt.fromI32(rankIndex)
-      currentNode.save()
-
-      // Increment rank index for next node.
-      rankIndex = rankIndex + 1
-    }
-  }
 }
