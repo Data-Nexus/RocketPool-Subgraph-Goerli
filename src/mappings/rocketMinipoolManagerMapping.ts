@@ -53,14 +53,16 @@ export function handleMinipoolCreated(event: MinipoolCreated): void {
   if (nodeMinipools.indexOf(minipool.id) == -1) nodeMinipools.push(minipool.id)
   node.minipools = nodeMinipools
 
+  // Index the minipool.
+  minipool.save()
+
   // Creating a minipool requires the node operator to put up a certain amount of RPL in order to receive rewards.
   setEffectiveRPLStaked(<Node>node)
 
   // A destroyed minipool changes the average minipool fee for a node.
   setAverageFeeForActiveMinipools(<Node>node)
 
-  // Index the minipool and the associated node.
-  minipool.save()
+  // Index the changes to the associated node.
   node.save()
 
   // Create the tracked contract based on the template.
@@ -89,17 +91,19 @@ export function handleMinipoolDestroyed(event: MinipoolDestroyed): void {
   let node = Node.load(event.params.node.toHexString())
   if (node === null) return
 
+  // Update the minipool so it will contain its destroyed state.
+  minipool.destroyedBlockTime = event.block.timestamp
+
+  // Index minipool changes.
+  minipool.save()
+
   // Destroying a minipool lowers the requirements for the node operator to put up collateral in order to receive RPL rewards.
   setEffectiveRPLStaked(<Node>node)
 
   // A destroyed minipool changes the average minipool fee for a node.
   setAverageFeeForActiveMinipools(<Node>node)
 
-  // Update the minipool so it will contain its destroyed state.
-  minipool.destroyedBlockTime = event.block.timestamp
-
-  // Index changes.
-  minipool.save()
+  // Index change to the associated node.
   node.save()
 }
 
@@ -123,6 +127,11 @@ export function handleIncrementNodeFinalisedMinipoolCount(
 
   // Update the finalized block time for this minipool and the number of total finalized minipools for the node.
   minipool.finalizedBlockTime = call.block.timestamp
+
+  // Index the minipool changes.
+  minipool.save()
+
+  // Update node state.
   node.totalFinalizedMinipools = node.totalFinalizedMinipools.plus(
     BigInt.fromI32(1),
   )
@@ -140,8 +149,7 @@ export function handleIncrementNodeFinalisedMinipoolCount(
   // A finalized minipool changes the average minipool fee for a node.
   setAverageFeeForActiveMinipools(<Node>node)
 
-  // Index the minipool and the associated node.
-  minipool.save()
+  // Index the associated node.
   node.save()
 }
 
