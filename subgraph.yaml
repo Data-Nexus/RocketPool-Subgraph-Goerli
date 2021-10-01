@@ -219,30 +219,6 @@ dataSources:
           handler: handleMinipoolDequeued
       file: ./src/mappings/rocketMinipoolqueueMapping.ts
 
-  # TODO: Use when call handlers are usable, on mainnet. (Goerli doesn't support)
-  # - kind: ethereum/contract 
-  #   name: rocketDAONodeTrusted  
-  #   network: goerli
-  #   source:
-  #     address: "0x8486d86481CCda0Bc3A148361Fd1E1582b0c30c7"
-  #     abi: rocketDAONodeTrusted
-  #     startBlock: 5240688
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.5
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Minipool
-  #     abis:
-  #       - name: rocketDAONodeTrusted
-  #         file: ./abis/rocketDAONodeTrusted.json   
-  #     callHandlers:
-  #       - function: incrementMemberUnbondedValidatorCount(address)
-  #         handler: handleIncrementMemberUnbondedValidatorCount    
-  #       - function: decrementMemberUnbondedValidatorCount(address)
-  #         handler: handleDecrementMemberUnbondedValidatorCount      
-  #     file: ./src/mappings/rocketDAONodeTrustedMapping.ts
-
 templates:
   - name: rocketMinipoolDelegateV1
     kind: ethereum/contract

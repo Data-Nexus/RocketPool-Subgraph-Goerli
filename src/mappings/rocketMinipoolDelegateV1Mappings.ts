@@ -86,6 +86,12 @@ export function handleMinipoolStakingStatus(
   // Update the staking start time of this minipool.
   minipool.stakingBlockTime = blockTimeStamp
   node.stakingMinipools = node.stakingMinipools.plus(BigInt.fromI32(1))
+
+  // If we transition to staking and have a 0 node deposit amount, then
+  // we can be sure that this is an unbonded minipool.
+  if(minipool.nodeDepositETHAmount == BigInt.fromI32(0) && minipool.userDepositETHAmount > BigInt.fromI32(0)){
+    node.stakingUnbondedMinipools = node.stakingUnbondedMinipools.plus(BigInt.fromI32(1));
+  }
 }
 
 /**
@@ -106,4 +112,10 @@ export function handleMinipoolWithdrawableStatus(
   node.stakingMinipools = node.stakingMinipools.minus(BigInt.fromI32(1))
   if (node.stakingMinipools < BigInt.fromI32(0))
     node.stakingMinipools = BigInt.fromI32(0)
+
+  // If we transition to withdrawable and have a 0 node deposit amount, then
+  // we can be sure that this is an unbonded minipool.
+  if(minipool.nodeDepositETHAmount == BigInt.fromI32(0) && minipool.userDepositETHAmount > BigInt.fromI32(0) && node.stakingUnbondedMinipools > BigInt.fromI32(0)){
+    node.stakingUnbondedMinipools = node.stakingUnbondedMinipools.minus(BigInt.fromI32(1));
+  }
 }
