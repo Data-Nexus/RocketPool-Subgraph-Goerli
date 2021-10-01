@@ -160,12 +160,6 @@ function generateNodeBalanceCheckpoints(
     if (nodeBalanceCheckpoint == null) continue
     node.lastNodeBalanceCheckpoint = nodeBalanceCheckpoint.id
 
-    // Keep track of the highest RPL rewards claimed rank for this checkpoint.
-    if (node.totalRPLClaimedRewardsRank == BigInt.fromI32(1)) {
-      networkCheckpoint.checkpointWithHighestRPLRewardsRank =
-        nodeBalanceCheckpoint.id
-    }
-
     // Index both the updated node & the new node balance checkpoint.
     nodeBalanceCheckpoint.save()
     node.save()

@@ -93,7 +93,6 @@ class RocketPoolEntityFactory {
     networkBalance.stakerETHInProtocol = event.params.totalEth;
     networkBalance.totalRETHSupply = event.params.rethSupply;
     networkBalance.averageStakerETHRewards = BigInt.fromI32(0);
-    networkBalance.checkpointWithHighestRewardsRank = null;
     networkBalance.rETHExchangeRate = rEthExchangeRate;
     networkBalance.block = event.block.number;
     networkBalance.blockTime = event.block.timestamp;
@@ -115,7 +114,6 @@ class RocketPoolEntityFactory {
     staker.rETHBalance = BigInt.fromI32(0);
     staker.ethBalance = BigInt.fromI32(0);
     staker.totalETHRewards = BigInt.fromI32(0);
-    staker.totalETHRewardsRank = BigInt.fromI32(0);
     staker.lastBalanceCheckpoint = null;
     staker.hasAccruedETHRewardsDuringLifecycle = false;
     staker.block = blockNumber;
@@ -154,10 +152,7 @@ class RocketPoolEntityFactory {
     stakerBalanceCheckpoint.rETHBalance = rEthBalance;
     stakerBalanceCheckpoint.totalETHRewards = totalETHRewards;
     stakerBalanceCheckpoint.block = blockNumber;
-    stakerBalanceCheckpoint.blockTime = blockTime;
-
-    // Set later based on other staker balance checkpoints in the same network checkpoint.
-    stakerBalanceCheckpoint.totalETHRewardsRank = BigInt.fromI32(0); 
+    stakerBalanceCheckpoint.blockTime = blockTime; 
 
     return stakerBalanceCheckpoint;
   }
@@ -190,7 +185,6 @@ class RocketPoolEntityFactory {
     node.maximumEffectiveRPL = BigInt.fromI32(0);
     node.totalRPLSlashed = BigInt.fromI32(0);
     node.totalClaimedRPLRewards = BigInt.fromI32(0);
-    node.totalRPLClaimedRewardsRank = BigInt.fromI32(0);
     node.queuedMinipools = BigInt.fromI32(0);
     node.stakingMinipools = BigInt.fromI32(0);
     node.stakingUnbondedMinipools = BigInt.fromI32(0);
@@ -320,7 +314,6 @@ class RocketPoolEntityFactory {
     checkpoint.maximumEffectiveRPL = BigInt.fromI32(0); // Will be calculated.
     checkpoint.totalRPLSlashed = BigInt.fromI32(0); // Will be calculated.
     checkpoint.totalClaimedRPLRewards = BigInt.fromI32(0); // Will be calculated.
-    checkpoint.checkpointWithHighestRPLRewardsRank = null; // Should be determined later.
     checkpoint.rplPriceInETH = newRplPriceInETH; // From the associated price update.
     checkpoint.queuedMinipools = BigInt.fromI32(0); // Will be calculated.
     checkpoint.stakingMinipools = BigInt.fromI32(0); // Will be calculated.
@@ -364,10 +357,6 @@ class RocketPoolEntityFactory {
     checkpoint.averageFeeForActiveMinipools = node.averageFeeForActiveMinipools;
     checkpoint.block = blockNumber;
     checkpoint.blockTime = blockTime;
-
-    // Unlike the staker total ETH rewards rank, the RPL rewards rank it kept up to date by the ETH1 chain every time rewards are claimed.
-    // That means we can just copy the state over from the node.
-    checkpoint.totalRPLClaimedRewardsRank = node.totalRPLClaimedRewardsRank;
 
     return checkpoint;
   }
