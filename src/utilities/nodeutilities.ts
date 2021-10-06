@@ -192,8 +192,7 @@ class NodeUtilities {
     ) {
       // Store this in WEI.
       checkpoint.averageClaimedRPLRewards = checkpoint.totalClaimedRPLRewards
-        .div(rplMetadata.totalNodesWithClaimedRPLRewards)
-        .times(ONE_ETHER_IN_WEI);
+        .div(rplMetadata.totalNodesWithClaimedRPLRewards);
     }
   }
 
