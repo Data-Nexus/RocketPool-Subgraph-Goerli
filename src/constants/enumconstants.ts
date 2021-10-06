@@ -5,7 +5,7 @@ export let NODERPLSTAKETRANSACTIONTYPE_SLASHED = "Slashed";
 
 // Related to RPL Rewards Claims.
 export let RPLREWARDCLAIMERTYPE_PDAO = "PDAO";
-export let RPLREWARDCLAIMERTYPE_TRUSTEDNODE = "TrustedNode";
+export let RPLREWARDCLAIMERTYPE_ODAO = "ODAO";
 export let RPLREWARDCLAIMERTYPE_NODE = "Node";
 
 // Related to Minipool Status.

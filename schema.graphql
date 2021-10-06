@@ -156,6 +156,15 @@ type Node @entity {
   # Current timezone for this node.
   timezone: NetworkNodeTimezone!
 
+  # Indicator that determines if a node is currently an oracle node or not.
+  isOracleNode: Boolean!
+
+  # If this node is currently an oracle node, signifies the RPL bond of the ODAO node.
+  oracleNodeRPLBond: BigInt
+
+  # Identifies the block time of the last ODAO state change for this node.
+  oracleNodeBlockTime: BigInt
+
   # Current RPL staked.
   rplStaked: BigInt!
 
@@ -290,7 +299,7 @@ type RPLRewardInterval @entity {
 # Represents the RPL reward claimer options.
 enum RPLRewardClaimerType {
   PDAO
-  TrustedNode
+  ODAO
   Node
 }
 
@@ -346,6 +355,9 @@ type NetworkNodeBalanceCheckpoint @entity {
 
   # Total number of registered RocketPool nodes at this checkpoint.
   nodesRegistered: BigInt!
+
+  # Total number of oracle nodes registrered with RocketPool at this checkpoint.
+  oracleNodesRegistered: BigInt!
 
   # RPL staked accross all nodes at this checkpoint.
   rplStaked: BigInt!
@@ -415,6 +427,15 @@ type NodeBalanceCheckpoint @entity {
 
   # Network node balance checkpoint associated with this checkpoint.
   NetworkNodeBalanceCheckpoint: NetworkNodeBalanceCheckpoint!
+
+  # Indicator that determines if a node is an oracle node or not at this checkpoint.
+  isOracleNode: Boolean!
+
+  # If this node is an oracle node at this checkpoint, signifies the RPL bond of the ODAO node.
+  oracleNodeRPLBond: BigInt
+
+  # Identifies the block time of the last ODAO state change for this node at this checkpoint.
+  oracleNodeBlockTime: BigInt
 
   # RPL staked at this checkpoint.
   rplStaked: BigInt!
