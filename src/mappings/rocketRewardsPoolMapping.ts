@@ -150,6 +150,8 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     associatedNode.totalClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.plus(
       event.params.amount,
     )
+    associatedNode.rplClaimCount = associatedNode.rplClaimCount.plus(BigInt.fromI32(1));
+    associatedNode.averageClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.div(associatedNode.rplClaimCount);
   }
 
   // Update the grand total claimed of the current interval.

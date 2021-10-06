@@ -6,7 +6,7 @@ import { rocketNodeStaking } from '../../generated/rocketNetworkPrices/rocketNod
 import { Node, NetworkNodeBalanceCheckpoint } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalUtilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
-import { NetworkNodeBalanceMinipoolMetadata } from '../models/networkNodeBalanceMinipoolMetadata'
+import { NetworkNodeBalanceMetadata } from '../models/networkNodeBalanceMetadata'
 import {
   ROCKET_DAO_PROTOCOL_SETTINGS_MINIPOOL_CONTRACT_ADDRESS,
   ROCKET_DAO_PROTOCOL_SETTINGS_NODE_CONTRACT_ADDRESS,
@@ -68,7 +68,7 @@ export function handlePricesUpdated(event: PricesUpdated): void {
   }
 
   // Handle the node impact.
-  let minipoolMetadata = generateNodeBalanceCheckpoints(
+  let metadata = generateNodeBalanceCheckpoints(
     protocol.nodes,
     <NetworkNodeBalanceCheckpoint>checkpoint,
     event.block.number,
@@ -84,7 +84,11 @@ export function handlePricesUpdated(event: PricesUpdated): void {
   // Update certain totals/averages based on minipool metadata.
   nodeUtilities.updateNetworkNodeBalanceCheckpointForMinipoolMetadata(
     <NetworkNodeBalanceCheckpoint>checkpoint,
-    minipoolMetadata,
+    metadata.minipoolMetadata,
+  )
+  nodeUtilities.updateNetworkNodeBalanceCheckpointForRPLMetadata(
+    <NetworkNodeBalanceCheckpoint>checkpoint,
+    metadata.rplMetadata,
   )
 
   // Update the link so the protocol points to the last network node balance checkpoint.
@@ -105,11 +109,11 @@ function generateNodeBalanceCheckpoints(
   networkCheckpoint: NetworkNodeBalanceCheckpoint,
   blockNumber: BigInt,
   blockTime: BigInt,
-): NetworkNodeBalanceMinipoolMetadata {
-  let minipoolMetadata = new NetworkNodeBalanceMinipoolMetadata()
+): NetworkNodeBalanceMetadata {
+  let networkMetadata = new NetworkNodeBalanceMetadata()
 
   // If we don't have any registered nodes at this time, stop.
-  if (nodeIds.length === 0) return minipoolMetadata
+  if (nodeIds.length === 0) return networkMetadata
 
   // We will need the rocket node staking contract to get some latest state for the associated node.
   let rocketNodeStakingContract = rocketNodeStaking.bind(
@@ -147,7 +151,16 @@ function generateNodeBalanceCheckpoints(
     )
 
     // We need this to calculate the min/max effective RPL needed for the network.
-    nodeUtilities.updateMinipoolMetadataWithNode(minipoolMetadata, <Node>node)
+    nodeUtilities.updateMinipoolMetadataWithNode(
+      networkMetadata.minipoolMetadata,
+      <Node>node,
+    )
+
+    // We need this to calculate the average RPL claimed rewards on the network level.
+    nodeUtilities.updateRPLMetadataWithNode(
+      networkMetadata.rplMetadata,
+      <Node>node,
+    )
 
     // Create a new node balance checkpoint
     let nodeBalanceCheckpoint = rocketPoolEntityFactory.createNodeBalanceCheckpoint(
@@ -165,7 +178,7 @@ function generateNodeBalanceCheckpoints(
     node.save()
   }
 
-  return minipoolMetadata
+  return networkMetadata
 }
 
 /**

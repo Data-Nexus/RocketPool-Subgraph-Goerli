@@ -185,6 +185,8 @@ class RocketPoolEntityFactory {
     node.maximumEffectiveRPL = BigInt.fromI32(0);
     node.totalRPLSlashed = BigInt.fromI32(0);
     node.totalClaimedRPLRewards = BigInt.fromI32(0);
+    node.averageClaimedRPLRewards = BigInt.fromI32(0);
+    node.rplClaimCount = BigInt.fromI32(0);
     node.queuedMinipools = BigInt.fromI32(0);
     node.stakingMinipools = BigInt.fromI32(0);
     node.stakingUnbondedMinipools = BigInt.fromI32(0);
@@ -314,6 +316,7 @@ class RocketPoolEntityFactory {
     checkpoint.maximumEffectiveRPL = BigInt.fromI32(0); // Will be calculated.
     checkpoint.totalRPLSlashed = BigInt.fromI32(0); // Will be calculated.
     checkpoint.totalClaimedRPLRewards = BigInt.fromI32(0); // Will be calculated.
+    checkpoint.averageClaimedRPLRewards = BigInt.fromI32(0); // Will be calculated.
     checkpoint.rplPriceInETH = newRplPriceInETH; // From the associated price update.
     checkpoint.queuedMinipools = BigInt.fromI32(0); // Will be calculated.
     checkpoint.stakingMinipools = BigInt.fromI32(0); // Will be calculated.
@@ -349,6 +352,8 @@ class RocketPoolEntityFactory {
     checkpoint.maximumEffectiveRPL = node.maximumEffectiveRPL;
     checkpoint.totalRPLSlashed = node.totalRPLSlashed;
     checkpoint.totalClaimedRPLRewards = node.totalClaimedRPLRewards;
+    checkpoint.averageClaimedRPLRewards = node.averageClaimedRPLRewards;
+    checkpoint.rplClaimCount = node.rplClaimCount;
     checkpoint.queuedMinipools = node.queuedMinipools;
     checkpoint.stakingMinipools = node.stakingMinipools;
     checkpoint.stakingUnbondedMinipools = node.stakingUnbondedMinipools;

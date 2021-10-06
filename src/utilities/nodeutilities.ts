@@ -3,6 +3,7 @@ import { NetworkNodeBalanceCheckpoint, Node } from "../../generated/schema";
 import { generalUtilities } from "./generalUtilities";
 import { NetworkNodeBalanceMinipoolMetadata } from "../models/networkNodeBalanceMinipoolMetadata";
 import { ONE_ETHER_IN_WEI } from "../constants/generalconstants";
+import { NetworkNodeBalanceRPLMetadata } from "../models/networkNodeBalanceRPLMetadata";
 
 class NodeUtilities {
   /**
@@ -127,6 +128,21 @@ class NodeUtilities {
   }
 
   /**
+   * Updates the metadata with the relevant state from the node.
+   */
+   public updateRPLMetadataWithNode(
+    rplMetadata: NetworkNodeBalanceRPLMetadata,
+    node: Node
+  ): void {
+    // We need this to calculate the averages on the network level.
+    if (node.totalClaimedRPLRewards > BigInt.fromI32(0)) {
+      rplMetadata.totalNodesWithClaimedRPLRewards = rplMetadata.totalNodesWithClaimedRPLRewards.plus(
+        BigInt.fromI32(1)
+      );
+    }
+  }
+
+  /**
    * Updates the network node balance checkpoint based on the given minipool metadata.
    * E.G. Calculate the average node fee for the active minipools, ...
    */
@@ -149,6 +165,27 @@ class NodeUtilities {
     // Calculate total RPL needed to min/max collateralize the staking minipools at this checkpoint.
     checkpoint.minimumEffectiveRPL = minipoolMetadata.totalMinimumEffectiveRPL;
     checkpoint.maximumEffectiveRPL = minipoolMetadata.totalMaximumEffectiveRPL;
+  }
+
+  /**
+   * Updates the network node balance checkpoint based on the given rpl metadata.
+   * E.G. Calculate the average RPL reward claims
+   */
+   public updateNetworkNodeBalanceCheckpointForRPLMetadata(
+    checkpoint: NetworkNodeBalanceCheckpoint,
+    rplMetadata: NetworkNodeBalanceRPLMetadata
+  ): void {
+    // Calculate the network RPL claimed average if possible.
+    if (
+      rplMetadata.totalNodesWithClaimedRPLRewards > BigInt.fromI32(0) &&
+      checkpoint.totalClaimedRPLRewards >
+      BigInt.fromI32(0)
+    ) {
+      // Store this in WEI.
+      checkpoint.averageClaimedRPLRewards = checkpoint.totalClaimedRPLRewards
+        .div(rplMetadata.totalNodesWithClaimedRPLRewards)
+        .times(ONE_ETHER_IN_WEI);
+    }
   }
 
   /**

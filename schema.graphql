@@ -168,6 +168,12 @@ type Node @entity {
   # Total claimed RPL rewards since this node was registered with RocketPool.
   totalClaimedRPLRewards: BigInt!
 
+  # Average claimed RPL rewards for this node since registered with RocketPool.
+  averageClaimedRPLRewards: BigInt!
+
+  # Total amount of successfull RPL claims a node has done.
+  rplClaimCount: BigInt!
+
   # Current minimum RPL needed to collateralize all staking minipools of this node by the bare minimum.
   minimumEffectiveRPL: BigInt!
 
@@ -365,6 +371,9 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
 
+  # Average claimed RPL rewards from all previous checkpoints up to this checkpoint.
+  averageClaimedRPLRewards: BigInt!
+
   # The RPL price in ETH at this checkpoint.
   rplPriceInETH: BigInt!
 
@@ -424,6 +433,12 @@ type NodeBalanceCheckpoint @entity {
 
   # Total Claimed RPL rewards up to this checkpoint.
   totalClaimedRPLRewards: BigInt!
+
+  # Average claimed RPL rewards for this node up to this checkpoint.
+  averageClaimedRPLRewards: BigInt!
+
+  # Total amount of successfull RPL claims a node has done up to this checkpoint.
+  rplClaimCount: BigInt!
 
   # Queued minipools for this node at this checkpoint.
   queuedMinipools: BigInt!

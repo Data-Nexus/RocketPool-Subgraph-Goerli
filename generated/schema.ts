@@ -654,6 +654,8 @@ export class Node extends Entity {
     this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
     this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("averageClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("rplClaimCount", Value.fromBigInt(BigInt.zero()));
     this.set("minimumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("maximumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
@@ -736,6 +738,24 @@ export class Node extends Entity {
 
   set totalClaimedRPLRewards(value: BigInt) {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get averageClaimedRPLRewards(): BigInt {
+    let value = this.get("averageClaimedRPLRewards");
+    return value!.toBigInt();
+  }
+
+  set averageClaimedRPLRewards(value: BigInt) {
+    this.set("averageClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get rplClaimCount(): BigInt {
+    let value = this.get("rplClaimCount");
+    return value!.toBigInt();
+  }
+
+  set rplClaimCount(value: BigInt) {
+    this.set("rplClaimCount", Value.fromBigInt(value));
   }
 
   get minimumEffectiveRPL(): BigInt {
@@ -1322,6 +1342,7 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("maximumEffectiveRPLNewMinipool", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
     this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("averageClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
     this.set("rplPriceInETH", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
@@ -1480,6 +1501,15 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
   }
 
+  get averageClaimedRPLRewards(): BigInt {
+    let value = this.get("averageClaimedRPLRewards");
+    return value!.toBigInt();
+  }
+
+  set averageClaimedRPLRewards(value: BigInt) {
+    this.set("averageClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
   get rplPriceInETH(): BigInt {
     let value = this.get("rplPriceInETH");
     return value!.toBigInt();
@@ -1584,6 +1614,8 @@ export class NodeBalanceCheckpoint extends Entity {
     this.set("maximumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
     this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("averageClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("rplClaimCount", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
@@ -1695,6 +1727,24 @@ export class NodeBalanceCheckpoint extends Entity {
 
   set totalClaimedRPLRewards(value: BigInt) {
     this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get averageClaimedRPLRewards(): BigInt {
+    let value = this.get("averageClaimedRPLRewards");
+    return value!.toBigInt();
+  }
+
+  set averageClaimedRPLRewards(value: BigInt) {
+    this.set("averageClaimedRPLRewards", Value.fromBigInt(value));
+  }
+
+  get rplClaimCount(): BigInt {
+    let value = this.get("rplClaimCount");
+    return value!.toBigInt();
+  }
+
+  set rplClaimCount(value: BigInt) {
+    this.set("rplClaimCount", Value.fromBigInt(value));
   }
 
   get queuedMinipools(): BigInt {
