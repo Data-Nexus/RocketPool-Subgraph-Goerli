@@ -179,6 +179,9 @@ class RocketPoolEntityFactory {
 
     let node = new Node(id);
     node.timezone = timezoneId;
+    node.isOracleNode = false;
+    node.oracleNodeBlockTime = BigInt.fromI32(0);
+    node.oracleNodeRPLBond = BigInt.fromI32(0);
     node.rplStaked = BigInt.fromI32(0);
     node.effectiveRPLStaked = BigInt.fromI32(0);
     node.minimumEffectiveRPL = BigInt.fromI32(0);
@@ -306,6 +309,7 @@ class RocketPoolEntityFactory {
     checkpoint.previousCheckpointId = previousCheckpointId;
     checkpoint.nextCheckpointId = null;
     checkpoint.nodesRegistered = BigInt.fromI32(0); // Will be calculated.
+    checkpoint.oracleNodesRegistered = BigInt.fromI32(0); // Will be calculated.
     checkpoint.rplStaked = BigInt.fromI32(0); // Will be calculated.
     checkpoint.effectiveRPLStaked = BigInt.fromI32(0); // Will be calculated.
     checkpoint.minimumEffectiveRPLNewMinipool = minimumEffectiveRPLNewMinipool;
@@ -343,6 +347,9 @@ class RocketPoolEntityFactory {
     let checkpoint = new NodeBalanceCheckpoint(id);
     checkpoint.NetworkNodeBalanceCheckpoint = networkCheckpointId;
     checkpoint.Node = node.id;
+    checkpoint.isOracleNode = node.isOracleNode;
+    checkpoint.oracleNodeRPLBond = node.oracleNodeRPLBond;
+    checkpoint.oracleNodeBlockTime = node.oracleNodeBlockTime;
     checkpoint.rplStaked = node.rplStaked;
     checkpoint.effectiveRPLStaked = node.effectiveRPLStaked;
     checkpoint.minimumEffectiveRPL = node.minimumEffectiveRPL;

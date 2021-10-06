@@ -650,6 +650,7 @@ export class Node extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("timezone", Value.fromString(""));
+    this.set("isOracleNode", Value.fromBoolean(false));
     this.set("rplStaked", Value.fromBigInt(BigInt.zero()));
     this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
@@ -700,6 +701,49 @@ export class Node extends Entity {
 
   set timezone(value: string) {
     this.set("timezone", Value.fromString(value));
+  }
+
+  get isOracleNode(): boolean {
+    let value = this.get("isOracleNode");
+    return value!.toBoolean();
+  }
+
+  set isOracleNode(value: boolean) {
+    this.set("isOracleNode", Value.fromBoolean(value));
+  }
+
+  get oracleNodeRPLBond(): BigInt | null {
+    let value = this.get("oracleNodeRPLBond");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set oracleNodeRPLBond(value: BigInt | null) {
+    if (!value) {
+      this.unset("oracleNodeRPLBond");
+    } else {
+      this.set("oracleNodeRPLBond", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get oracleNodeBlockTime(): BigInt | null {
+    let value = this.get("oracleNodeBlockTime");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set oracleNodeBlockTime(value: BigInt | null) {
+    if (!value) {
+      this.unset("oracleNodeBlockTime");
+    } else {
+      this.set("oracleNodeBlockTime", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get rplStaked(): BigInt {
@@ -1314,6 +1358,7 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("nodesRegistered", Value.fromBigInt(BigInt.zero()));
+    this.set("oracleNodesRegistered", Value.fromBigInt(BigInt.zero()));
     this.set("rplStaked", Value.fromBigInt(BigInt.zero()));
     this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
     this.set("minimumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
@@ -1406,6 +1451,15 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
 
   set nodesRegistered(value: BigInt) {
     this.set("nodesRegistered", Value.fromBigInt(value));
+  }
+
+  get oracleNodesRegistered(): BigInt {
+    let value = this.get("oracleNodesRegistered");
+    return value!.toBigInt();
+  }
+
+  set oracleNodesRegistered(value: BigInt) {
+    this.set("oracleNodesRegistered", Value.fromBigInt(value));
   }
 
   get rplStaked(): BigInt {
@@ -1578,6 +1632,7 @@ export class NodeBalanceCheckpoint extends Entity {
 
     this.set("Node", Value.fromString(""));
     this.set("NetworkNodeBalanceCheckpoint", Value.fromString(""));
+    this.set("isOracleNode", Value.fromBoolean(false));
     this.set("rplStaked", Value.fromBigInt(BigInt.zero()));
     this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
     this.set("minimumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
@@ -1641,6 +1696,49 @@ export class NodeBalanceCheckpoint extends Entity {
 
   set NetworkNodeBalanceCheckpoint(value: string) {
     this.set("NetworkNodeBalanceCheckpoint", Value.fromString(value));
+  }
+
+  get isOracleNode(): boolean {
+    let value = this.get("isOracleNode");
+    return value!.toBoolean();
+  }
+
+  set isOracleNode(value: boolean) {
+    this.set("isOracleNode", Value.fromBoolean(value));
+  }
+
+  get oracleNodeRPLBond(): BigInt | null {
+    let value = this.get("oracleNodeRPLBond");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set oracleNodeRPLBond(value: BigInt | null) {
+    if (!value) {
+      this.unset("oracleNodeRPLBond");
+    } else {
+      this.set("oracleNodeRPLBond", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get oracleNodeBlockTime(): BigInt | null {
+    let value = this.get("oracleNodeBlockTime");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set oracleNodeBlockTime(value: BigInt | null) {
+    if (!value) {
+      this.unset("oracleNodeBlockTime");
+    } else {
+      this.set("oracleNodeBlockTime", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get rplStaked(): BigInt {

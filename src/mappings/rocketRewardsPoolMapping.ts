@@ -20,7 +20,7 @@ import {
 } from '../constants/contractconstants'
 import {
   RPLREWARDCLAIMERTYPE_PDAO,
-  RPLREWARDCLAIMERTYPE_TRUSTEDNODE,
+  RPLREWARDCLAIMERTYPE_ODAO,
   RPLREWARDCLAIMERTYPE_NODE,
 } from '../constants/enumconstants'
 
@@ -144,7 +144,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   )
   if (rplRewardClaim === null) return
 
-  // If the claimer was a (trusted) node, then increment its total claimed rewards.
+  // If the claimer was an ODAO node, then increment its total claimed rewards.
   let associatedNode = Node.load(event.params.claimingAddress.toHexString())
   if (associatedNode !== null) {
     associatedNode.totalClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.plus(
@@ -185,19 +185,19 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
 }
 
 /**
- * Checks if the given address is actually a trusted node.
+ * Checks if the given address is actually a oracle node.
  */
-function getIsTrustedNode(address: Address): boolean {
-  let isTrustedNode: boolean = false
+function getIsOracleNode(address: Address): boolean {
+  let isOracleNode: boolean = false
 
   let rocketDaoNodeTrustedContract = rocketDAONodeTrusted.bind(
     Address.fromString(ROCKET_DAO_NODE_TRUSTED_CONTRACT_ADDRESS),
   )
-  isTrustedNode =
+  isOracleNode =
     rocketDaoNodeTrustedContract !== null &&
     rocketDaoNodeTrustedContract.getMemberIsValid(address)
 
-  return isTrustedNode
+  return isOracleNode
 }
 
 /**
@@ -221,9 +221,9 @@ function getRplRewardClaimerType(
     rplRewardClaimerType = RPLREWARDCLAIMERTYPE_PDAO
   }
 
-  // #2: Could be a trusted node.
-  if (rplRewardClaimerType == null && getIsTrustedNode(claimingAddress)) {
-    rplRewardClaimerType = RPLREWARDCLAIMERTYPE_TRUSTEDNODE
+  // #2: Could be an oracle node.
+  if (rplRewardClaimerType == null && getIsOracleNode(claimingAddress)) {
+    rplRewardClaimerType = RPLREWARDCLAIMERTYPE_ODAO
   }
 
   // #3: if the claimer type is still null, it **should** be a regular node.
