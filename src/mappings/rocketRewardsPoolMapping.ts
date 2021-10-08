@@ -144,7 +144,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   )
   if (rplRewardClaim === null) return
 
-  // If the claimer was an ODAO node, then increment its total claimed rewards.
+  // If the claimer was a node, then increment its total claimed rewards.
   let associatedNode = Node.load(event.params.claimingAddress.toHexString())
   if (associatedNode !== null) {
     associatedNode.totalClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.plus(
