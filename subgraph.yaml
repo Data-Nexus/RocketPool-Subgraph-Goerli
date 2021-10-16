@@ -190,10 +190,6 @@ dataSources:
           handler: handleMinipoolCreated
         - event: MinipoolDestroyed(indexed address,indexed address,uint256)
           handler: handleMinipoolDestroyed
-      # TODO: Use when call handlers are usable, on mainnet. (Goerli doesn't support) (no way of knowing if a minipool is finalized via events)
-      # callHandlers:
-      #   - function: incrementNodeFinalisedMinipoolCount(address)
-      #     handler: handleIncrementNodeFinalisedMinipoolCount
       file: ./src/mappings/rocketMinipoolManagerMapping.ts
 
   - kind: ethereum/contract

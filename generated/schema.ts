@@ -1024,7 +1024,17 @@ export class RPLRewardInterval extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("claimableRewards", Value.fromBigInt(BigInt.zero()));
+    this.set(
+      "claimableRewardsFromPreviousInterval",
+      Value.fromBigInt(BigInt.zero())
+    );
+    this.set("claimableRewardsByPDAO", Value.fromBigInt(BigInt.zero()));
+    this.set("claimableRewardsByODAO", Value.fromBigInt(BigInt.zero()));
+    this.set("claimableRewardsByNodes", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalRPLClaimedByPDAO", Value.fromBigInt(BigInt.zero()));
+    this.set("totalRPLClaimedByODAO", Value.fromBigInt(BigInt.zero()));
+    this.set("totalRPLClaimedByNodes", Value.fromBigInt(BigInt.zero()));
     this.set("averageRPLClaimed", Value.fromBigInt(BigInt.zero()));
     this.set("rplRewardClaims", Value.fromStringArray(new Array(0)));
     this.set("isClosed", Value.fromBoolean(false));
@@ -1105,6 +1115,42 @@ export class RPLRewardInterval extends Entity {
     this.set("claimableRewards", Value.fromBigInt(value));
   }
 
+  get claimableRewardsFromPreviousInterval(): BigInt {
+    let value = this.get("claimableRewardsFromPreviousInterval");
+    return value!.toBigInt();
+  }
+
+  set claimableRewardsFromPreviousInterval(value: BigInt) {
+    this.set("claimableRewardsFromPreviousInterval", Value.fromBigInt(value));
+  }
+
+  get claimableRewardsByPDAO(): BigInt {
+    let value = this.get("claimableRewardsByPDAO");
+    return value!.toBigInt();
+  }
+
+  set claimableRewardsByPDAO(value: BigInt) {
+    this.set("claimableRewardsByPDAO", Value.fromBigInt(value));
+  }
+
+  get claimableRewardsByODAO(): BigInt {
+    let value = this.get("claimableRewardsByODAO");
+    return value!.toBigInt();
+  }
+
+  set claimableRewardsByODAO(value: BigInt) {
+    this.set("claimableRewardsByODAO", Value.fromBigInt(value));
+  }
+
+  get claimableRewardsByNodes(): BigInt {
+    let value = this.get("claimableRewardsByNodes");
+    return value!.toBigInt();
+  }
+
+  set claimableRewardsByNodes(value: BigInt) {
+    this.set("claimableRewardsByNodes", Value.fromBigInt(value));
+  }
+
   get totalRPLClaimed(): BigInt {
     let value = this.get("totalRPLClaimed");
     return value!.toBigInt();
@@ -1112,6 +1158,33 @@ export class RPLRewardInterval extends Entity {
 
   set totalRPLClaimed(value: BigInt) {
     this.set("totalRPLClaimed", Value.fromBigInt(value));
+  }
+
+  get totalRPLClaimedByPDAO(): BigInt {
+    let value = this.get("totalRPLClaimedByPDAO");
+    return value!.toBigInt();
+  }
+
+  set totalRPLClaimedByPDAO(value: BigInt) {
+    this.set("totalRPLClaimedByPDAO", Value.fromBigInt(value));
+  }
+
+  get totalRPLClaimedByODAO(): BigInt {
+    let value = this.get("totalRPLClaimedByODAO");
+    return value!.toBigInt();
+  }
+
+  set totalRPLClaimedByODAO(value: BigInt) {
+    this.set("totalRPLClaimedByODAO", Value.fromBigInt(value));
+  }
+
+  get totalRPLClaimedByNodes(): BigInt {
+    let value = this.get("totalRPLClaimedByNodes");
+    return value!.toBigInt();
+  }
+
+  set totalRPLClaimedByNodes(value: BigInt) {
+    this.set("totalRPLClaimedByNodes", Value.fromBigInt(value));
   }
 
   get averageRPLClaimed(): BigInt {
@@ -1217,6 +1290,7 @@ export class RPLRewardClaim extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
+    this.set("rplRewardIntervalId", Value.fromString(""));
     this.set("claimer", Value.fromString(""));
     this.set("claimerType", Value.fromString(""));
     this.set("amount", Value.fromBigInt(BigInt.zero()));
@@ -1249,6 +1323,15 @@ export class RPLRewardClaim extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get rplRewardIntervalId(): string {
+    let value = this.get("rplRewardIntervalId");
+    return value!.toString();
+  }
+
+  set rplRewardIntervalId(value: string) {
+    this.set("rplRewardIntervalId", Value.fromString(value));
   }
 
   get claimer(): string {

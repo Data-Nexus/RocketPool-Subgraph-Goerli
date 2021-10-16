@@ -119,8 +119,8 @@ class NodeUtilities {
   ): void {
     // We need this to calculate the averages on the network level.
     if (node.averageFeeForActiveMinipools > BigInt.fromI32(0)) {
-      minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools = minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools.plus(
-        node.averageFeeForActiveMinipools.div(ONE_ETHER_IN_WEI),
+      minipoolMetadata.totalAverageFeeForAllActiveMinipools = minipoolMetadata.totalAverageFeeForAllActiveMinipools.plus(
+        node.averageFeeForActiveMinipools
       )
       minipoolMetadata.totalNodesWithActiveMinipools = minipoolMetadata.totalNodesWithActiveMinipools.plus(
         BigInt.fromI32(1),
@@ -162,13 +162,13 @@ class NodeUtilities {
     // Calculate the network fee average for active minipools if possible.
     if (
       minipoolMetadata.totalNodesWithActiveMinipools > BigInt.fromI32(0) &&
-      minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools >
+      minipoolMetadata.totalAverageFeeForAllActiveMinipools >
         BigInt.fromI32(0)
     ) {
       // Store this in WEI.
-      checkpoint.averageFeeForActiveMinipools = minipoolMetadata.totalAverageFeeInETHForAllActiveMinipools
+      checkpoint.averageFeeForActiveMinipools = minipoolMetadata.totalAverageFeeForAllActiveMinipools
         .div(minipoolMetadata.totalNodesWithActiveMinipools)
-        .times(ONE_ETHER_IN_WEI)
+        .div(ONE_ETHER_IN_WEI)
     }
 
     // Calculate total RPL needed to min/max collateralize the staking minipools at this checkpoint.

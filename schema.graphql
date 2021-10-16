@@ -265,8 +265,29 @@ type RPLRewardInterval @entity {
   # The total RPL rewards that are claimable for this interval.
   claimableRewards: BigInt!
 
+  # The total RPL rewards from the previous interval that rolled over into this interval.
+  claimableRewardsFromPreviousInterval: BigInt!
+
+  # The total RPL rewards that are claimable for this interval by the PDAO.
+  claimableRewardsByPDAO: BigInt!
+
+  # The total RPL rewards that are claimable for this interval by the ODAO.
+  claimableRewardsByODAO: BigInt!
+
+  # The total RPL rewards that are claimable for this interval by regular nodes.
+  claimableRewardsByNodes: BigInt!
+
   # The total RPL rewards claimed during this interval.
   totalRPLClaimed: BigInt!
+
+  # The total RPL rewards that have been claimed during this interval by the PDAO.
+  totalRPLClaimedByPDAO: BigInt!
+
+  # The total RPL rewards that have been claimed during this interval by the ODAO.
+  totalRPLClaimedByODAO: BigInt!
+
+  # The total RPL rewards that have been claimed during this interval by regular nodes.
+  totalRPLClaimedByNodes: BigInt!
 
   # Average RPL Rewards during this interval.
   averageRPLClaimed: BigInt!
@@ -307,6 +328,9 @@ enum RPLRewardClaimerType {
 type RPLRewardClaim @entity {
   # Composite key based on transaction hash of the triggered event and its log index.
   id: ID!
+
+  # Id of the associated RPL reward interval parent.
+  rplRewardIntervalId: String!
 
   # The claiming address.
   claimer: String!
