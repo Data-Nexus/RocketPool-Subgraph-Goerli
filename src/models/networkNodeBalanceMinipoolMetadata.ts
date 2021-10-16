@@ -5,13 +5,13 @@ import { BigInt } from '@graphprotocol/graph-ts'
  */
 export class NetworkNodeBalanceMinipoolMetadata {
     totalNodesWithActiveMinipools: BigInt
-    totalAverageFeeInETHForAllActiveMinipools: BigInt
+    totalAverageFeeForAllActiveMinipools: BigInt
     totalMinimumEffectiveRPL: BigInt
     totalMaximumEffectiveRPL: BigInt
 
     constructor() {
       this.totalNodesWithActiveMinipools = BigInt.fromI32(0)
-      this.totalAverageFeeInETHForAllActiveMinipools = BigInt.fromI32(0)
+      this.totalAverageFeeForAllActiveMinipools = BigInt.fromI32(0)
       this.totalMinimumEffectiveRPL = BigInt.fromI32(0)
       this.totalMaximumEffectiveRPL = BigInt.fromI32(0)
     }

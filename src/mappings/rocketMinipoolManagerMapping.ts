@@ -60,7 +60,7 @@ export function handleMinipoolCreated(event: MinipoolCreated): void {
   setEffectiveRPLStaked(<Node>node)
 
   // A destroyed minipool changes the average minipool fee for a node.
-  setAverageFeeForActiveMinipools(<Node>node)
+  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(nodeMinipools)
 
   // Index the changes to the associated node.
   node.save()
@@ -101,7 +101,7 @@ export function handleMinipoolDestroyed(event: MinipoolDestroyed): void {
   setEffectiveRPLStaked(<Node>node)
 
   // A destroyed minipool changes the average minipool fee for a node.
-  setAverageFeeForActiveMinipools(<Node>node)
+  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(node.minipools)
 
   // Index change to the associated node.
   node.save()
@@ -147,7 +147,7 @@ export function handleIncrementNodeFinalisedMinipoolCount(
   setEffectiveRPLStaked(<Node>node)
 
   // A finalized minipool changes the average minipool fee for a node.
-  setAverageFeeForActiveMinipools(<Node>node)
+  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(node.minipools)
 
   // Index the associated node.
   node.save()
@@ -192,13 +192,9 @@ function setEffectiveRPLStaked(node: Node): void {
 /**
  * Loops through all minipools of a node and sets the average fee for the active minipools.
  */
-function setAverageFeeForActiveMinipools(node: Node): void {
-  // Start off with an average fee of 0.
-  node.averageFeeForActiveMinipools = BigInt.fromI32(0)
-
+function getAverageFeeForActiveMinipools(minipoolIds: string[]): BigInt {
   // If there were no minipools, then the average fee is currently 0.
-  let minipoolIds = node.minipools
-  if (minipoolIds === null || minipoolIds.length == 0) return
+  if (minipoolIds === null || minipoolIds.length == 0) return BigInt.fromI32(0)
 
   // We'll need these to calculate the average fee accross all minipools for the given node.
   let totalMinipoolFeeForActiveMinipools = BigInt.fromI32(0)
@@ -245,8 +241,8 @@ function setAverageFeeForActiveMinipools(node: Node): void {
     totalActiveMinipools > BigInt.fromI32(0) &&
     totalMinipoolFeeForActiveMinipools > BigInt.fromI32(0)
   ) {
-    node.averageFeeForActiveMinipools = totalMinipoolFeeForActiveMinipools.div(
+    return totalMinipoolFeeForActiveMinipools.div(
       totalActiveMinipools,
     )
-  }
+  } else return BigInt.fromI32(0)
 }

@@ -17,6 +17,9 @@ import {
   ROCKET_NETWORK_PRICES_CONTRACT_ADDRESS,
   ROCKET_DAO_NODE_TRUSTED_CONTRACT_ADDRESS,
   ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_ADDRESS,
+  ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_NAME,
+  ROCKET_DAO_TRUSTED_NODE_REWARD_CLAIM_CONTRACT_NAME,
+  ROCKET_NODE_REWARD_CLAIM_CONTRACT_NAME,
 } from '../constants/contractconstants'
 import {
   RPLREWARDCLAIMERTYPE_PDAO,
@@ -104,6 +107,15 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
         generalUtilities.extractIdForEntity(event),
       previousActiveIndexedRewardIntervalId,
       rocketRewardPoolContract.getClaimIntervalRewardsTotal(),
+      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_PDAO),
+      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_ODAO),
+      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_NODE),
+      previousActiveIndexedRewardInterval !== null &&
+        previousActiveIndexedRewardInterval.claimableRewards > BigInt.fromI32(0)
+        ? previousActiveIndexedRewardInterval.claimableRewards.minus(
+            previousActiveIndexedRewardInterval.totalRPLClaimed,
+          )
+        : BigInt.fromI32(0),
       smartContractCurrentRewardIntervalStartTime,
       rocketRewardPoolContract.getClaimIntervalTime(),
       event.block.number,
@@ -122,7 +134,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   // We need this to determine the current RPL/ETH price based on the smart contracts.
   // If for some reason this fails, something is horribly wrong and we need to stop indexing.
   let networkPricesContract = rocketNetworkPrices.bind(
-    Address.fromString(ROCKET_NETWORK_PRICES_CONTRACT_ADDRESS)
+    Address.fromString(ROCKET_NETWORK_PRICES_CONTRACT_ADDRESS),
   )
   let rplETHExchangeRate = networkPricesContract.getRPLPrice()
   let rplRewardETHAmount = BigInt.fromI32(0)
@@ -135,6 +147,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   // Create a new reward claim.
   let rplRewardClaim = rocketPoolEntityFactory.createRPLRewardClaim(
     generalUtilities.extractIdForEntity(event),
+    activeIndexedRewardInterval.id,
     event.params.claimingAddress.toHexString(),
     <string>rplRewardClaimerType,
     event.params.amount,
@@ -144,14 +157,41 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   )
   if (rplRewardClaim === null) return
 
-  // If the claimer was a node, then increment its total claimed rewards.
+  // If the claimer was a node..
   let associatedNode = Node.load(event.params.claimingAddress.toHexString())
   if (associatedNode !== null) {
+    // Increment its total claimed rewards.
     associatedNode.totalClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.plus(
       event.params.amount,
     )
-    associatedNode.rplClaimCount = associatedNode.rplClaimCount.plus(BigInt.fromI32(1));
-    associatedNode.averageClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.div(associatedNode.rplClaimCount);
+
+    // Increment its total RPL claim count.
+    associatedNode.rplClaimCount = associatedNode.rplClaimCount.plus(
+      BigInt.fromI32(1),
+    )
+
+    // Recalculate its average RPL rewards.
+    associatedNode.averageClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.div(
+      associatedNode.rplClaimCount,
+    )
+
+    // Depending on if the node is an oracle node..
+    if (associatedNode.isOracleNode) {
+      // Add the total RPL claimed on the active interval by oracle nodes.
+      activeIndexedRewardInterval.totalRPLClaimedByODAO = activeIndexedRewardInterval.totalRPLClaimedByODAO.plus(
+        event.params.amount,
+      )
+    } else {
+      // Add the total RPL claimed on the active interval by regular nodes.
+      activeIndexedRewardInterval.totalRPLClaimedByNodes = activeIndexedRewardInterval.totalRPLClaimedByNodes.plus(
+        event.params.amount,
+      )
+    }
+  } else if (rplRewardClaimerType == RPLREWARDCLAIMERTYPE_PDAO) {
+    // If the claim was made by the PDAO, increment the total on the active interval.
+    activeIndexedRewardInterval.totalRPLClaimedByPDAO = activeIndexedRewardInterval.totalRPLClaimedByPDAO.plus(
+      event.params.amount,
+    )
   }
 
   // Update the grand total claimed of the current interval.
@@ -238,4 +278,29 @@ function getRplRewardClaimerType(
   }
 
   return rplRewardClaimerType
+}
+
+/**
+ * Gets the current claiming contract allowance for the given RPL reward claim type from the smart contracts.
+ */
+function getClaimingContractAllowance(rplRewardClaimType: string): BigInt {
+  let rocketRewardsContract = rocketRewardsPool.bind(
+    Address.fromString(ROCKET_REWARDS_POOL_CONTRACT_ADDRESS),
+  )
+
+  if (rplRewardClaimType == RPLREWARDCLAIMERTYPE_PDAO) {
+    return rocketRewardsContract.getClaimingContractAllowance(
+      ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_NAME,
+    )
+  } else if (rplRewardClaimType == RPLREWARDCLAIMERTYPE_ODAO) {
+    return rocketRewardsContract.getClaimingContractAllowance(
+      ROCKET_DAO_TRUSTED_NODE_REWARD_CLAIM_CONTRACT_NAME,
+    )
+  } else if (rplRewardClaimType == RPLREWARDCLAIMERTYPE_NODE) {
+    return rocketRewardsContract.getClaimingContractAllowance(
+      ROCKET_NODE_REWARD_CLAIM_CONTRACT_NAME,
+    )
+  } else {
+    return BigInt.fromI32(0)
+  }
 }
