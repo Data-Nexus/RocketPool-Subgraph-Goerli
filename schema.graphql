@@ -3,7 +3,13 @@ type RocketPoolProtocol @entity {
   # The name of the RocketPool protocol.
   id: ID! 
 
-  # All stakers (addresses holding rETH) associated with the RocketPool protocol.
+  # All stakers that have had ETH rewards while staking with RocketPool.
+  stakersWithETHRewards: [Staker!]!
+
+  # All stakers that currently have an rETH balance greater than 0.
+  activeStakers: [Staker!]!
+
+  # All stakers that have ever held rETH.
   stakers: [Staker!]!
 
   # Last known staker network balance checkpoint.

@@ -23,6 +23,8 @@ class RocketPoolEntityFactory {
    */
   public createRocketPoolProtocol(): RocketPoolProtocol {
     let protocol = new RocketPoolProtocol(ROCKETPOOL_PROTOCOL_ROOT_ID)
+    protocol.activeStakers = new Array<string>(0)
+    protocol.stakersWithETHRewards = new Array<string>(0)
     protocol.stakers = new Array<string>(0)
     protocol.lastNetworkStakerBalanceCheckPoint = null
     protocol.nodes = new Array<string>(0)
