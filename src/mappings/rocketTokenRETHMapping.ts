@@ -94,11 +94,19 @@ function saveTransaction(
   stakerUtilities.changeStakerBalances(from, rETHAmount, exchangeRate, false)
   stakerUtilities.changeStakerBalances(to, rETHAmount, exchangeRate, true)
 
-  // Save all indirectly affected entities of the protocol
+  // Save all indirectly affected entities of the protocol - All stakers
   let protocolStakers = protocol.stakers
   if (protocolStakers.indexOf(from.id) == -1) protocolStakers.push(from.id)
   if (protocolStakers.indexOf(to.id) == -1) protocolStakers.push(to.id)
   protocol.stakers = protocolStakers
+
+  // Save all indirectly affected entities of the protocol - Active stakers.
+  let protocolActiveStakers = protocol.activeStakers
+  if (from.rETHBalance > BigInt.fromI32(0) && protocolActiveStakers.indexOf(from.id) == -1) protocolActiveStakers.push(from.id)
+  else if (from.rETHBalance == BigInt.fromI32(0) && protocolActiveStakers.indexOf(from.id) != -1) protocolActiveStakers.splice(protocolActiveStakers.indexOf(from.id), 1);
+  if (to.rETHBalance > BigInt.fromI32(0) && protocolActiveStakers.indexOf(to.id) == -1) protocolActiveStakers.push(to.id)
+  else if (to.rETHBalance == BigInt.fromI32(0) && protocolActiveStakers.indexOf(to.id) != -1) protocolActiveStakers.splice(protocolActiveStakers.indexOf(to.id), 1);
+  protocol.activeStakers = protocolActiveStakers
 
   // Index all state.
   from.save()

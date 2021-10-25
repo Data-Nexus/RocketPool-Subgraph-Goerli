@@ -5,6 +5,7 @@ import {
   Staker,
   NetworkStakerBalanceCheckpoint,
   StakerBalanceCheckpoint,
+  RocketPoolProtocol,
 } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalUtilities'
 import { stakerUtilities } from '../utilities/stakerutilities'
@@ -87,11 +88,13 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
 
   // Handle the staker impact.
   generateStakerBalanceCheckpoints(
-    protocol.stakers,
+    protocol.activeStakers,
     <NetworkStakerBalanceCheckpoint>checkpoint,
+    <NetworkStakerBalanceCheckpoint>previousCheckpoint,
     previousRETHExchangeRate,
     event.block.number,
     event.block.timestamp,
+    protocol
   )
 
   // If for some reason the running summary totals up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
@@ -127,37 +130,32 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
  * Create a StakerBalanceCheckpoint
  */
 function generateStakerBalanceCheckpoints(
-  stakerIds: Array<string>,
+  activeStakerIds: Array<string>,
   networkCheckpoint: NetworkStakerBalanceCheckpoint,
+  previousCheckpoint: NetworkStakerBalanceCheckpoint,
   previousRETHExchangeRate: BigInt,
   blockNumber: BigInt,
   blockTime: BigInt,
+  protocol: RocketPoolProtocol
 ): void {
-  // If we don't have any stakers, stop.
-  if (stakerIds.length === 0) {
-    return
-  }
+  // Update grand totals based on previous checkpoint before we do anything.
+  stakerUtilities.updateNetworkStakerBalanceCheckpointForPreviousCheckpointAndProtocol(
+    networkCheckpoint,
+    previousCheckpoint,
+    protocol
+  )
 
   // Loop through all the staker id's in the protocol.
-  for (let index = 0; index < stakerIds.length; index++) {
+  for (let index = 0; index < activeStakerIds.length; index++) {
     // Determine current staker ID.
-    let stakerId = <string>stakerIds[index]
+    let stakerId = <string>activeStakerIds[index]
     if (stakerId == null || stakerId == ZERO_ADDRESS_STRING) continue
 
     // Load the indexed staker.
     let staker = Staker.load(stakerId)
-    if (staker === null) continue
-    if (staker.rETHBalance == BigInt.fromI32(0)) {
-      // Stakers with 0 rETH don't get new staker balance checkpoint(s)
-      // But their rewards are accounted for in the total(s) of the current network checkpoint.
-      stakerUtilities.updateNetworkStakerBalanceCheckpoint(
-        networkCheckpoint,
-        <Staker>staker,
-      )
 
-      // Only generate a staker balance checkpoint if the staker still has an rETH balance.
-      continue
-    }
+    // Shouldn't occur since we're only passing in staker ID's that have an active rETH balance.
+    if (staker === null || staker.rETHBalance == BigInt.fromI32(0)) continue
 
     // Get the current & previous balances for this staker and update the staker balance for the current exchange rate.
     let stakerBalance = stakerUtilities.getStakerBalance(
@@ -179,6 +177,7 @@ function generateStakerBalanceCheckpoints(
       ethRewardsSincePreviousCheckpoint,
       <Staker>staker,
       networkCheckpoint,
+      protocol
     )
 
     // Create a new staker balance checkpoint

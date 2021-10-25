@@ -17,6 +17,8 @@ export class RocketPoolProtocol extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
+    this.set("stakersWithETHRewards", Value.fromStringArray(new Array(0)));
+    this.set("activeStakers", Value.fromStringArray(new Array(0)));
     this.set("stakers", Value.fromStringArray(new Array(0)));
     this.set("nodes", Value.fromStringArray(new Array(0)));
     this.set("nodeTimezones", Value.fromStringArray(new Array(0)));
@@ -48,6 +50,24 @@ export class RocketPoolProtocol extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get stakersWithETHRewards(): Array<string> {
+    let value = this.get("stakersWithETHRewards");
+    return value!.toStringArray();
+  }
+
+  set stakersWithETHRewards(value: Array<string>) {
+    this.set("stakersWithETHRewards", Value.fromStringArray(value));
+  }
+
+  get activeStakers(): Array<string> {
+    let value = this.get("activeStakers");
+    return value!.toStringArray();
+  }
+
+  set activeStakers(value: Array<string>) {
+    this.set("activeStakers", Value.fromStringArray(value));
   }
 
   get stakers(): Array<string> {
