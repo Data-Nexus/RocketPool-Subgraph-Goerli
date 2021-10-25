@@ -319,7 +319,7 @@ class StakerUtilities {
    */
   public updateNetworkStakerBalanceCheckpointForPreviousCheckpointAndProtocol(
     networkCheckpoint: NetworkStakerBalanceCheckpoint,
-    previousCheckpoint: NetworkStakerBalanceCheckpoint,
+    previousCheckpoint: NetworkStakerBalanceCheckpoint | null,
     protocol: RocketPoolProtocol,
   ): void {
     if (networkCheckpoint === null) return
