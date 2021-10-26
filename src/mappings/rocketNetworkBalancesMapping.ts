@@ -90,7 +90,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   generateStakerBalanceCheckpoints(
     protocol.activeStakers,
     <NetworkStakerBalanceCheckpoint>checkpoint,
-    <NetworkStakerBalanceCheckpoint>previousCheckpoint,
+    previousCheckpoint !== null ? <NetworkStakerBalanceCheckpoint>previousCheckpoint : null,
     previousRETHExchangeRate,
     event.block.number,
     event.block.timestamp,
@@ -132,7 +132,7 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
 function generateStakerBalanceCheckpoints(
   activeStakerIds: Array<string>,
   networkCheckpoint: NetworkStakerBalanceCheckpoint,
-  previousCheckpoint: NetworkStakerBalanceCheckpoint,
+  previousCheckpoint: NetworkStakerBalanceCheckpoint | null,
   previousRETHExchangeRate: BigInt,
   blockNumber: BigInt,
   blockTime: BigInt,
