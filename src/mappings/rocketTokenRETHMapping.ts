@@ -1,4 +1,3 @@
-import { ROCKET_TOKEN_RETH_CONTRACT_ADDRESS } from '../constants/contractconstants'
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Transfer } from '../../generated/rocketTokenRETH/rocketTokenRETH'
 import { rocketTokenRETH } from '../../generated/rocketTokenRETH/rocketTokenRETH'
@@ -86,7 +85,7 @@ function saveTransaction(
   }
 
   // Load the RocketTokenRETH contract.
-  let rETHContract = rocketTokenRETH.bind(Address.fromString(ROCKET_TOKEN_RETH_CONTRACT_ADDRESS))
+  let rETHContract = rocketTokenRETH.bind(event.address)
   if (rETHContract === null) return
 
   // Update active balances for stakesr.

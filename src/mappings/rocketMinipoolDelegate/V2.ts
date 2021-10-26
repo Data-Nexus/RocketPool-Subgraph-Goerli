@@ -2,13 +2,13 @@ import { Address, BigInt } from '@graphprotocol/graph-ts'
 import {
   EtherDeposited,
   StatusUpdated,
-} from '../../generated/templates/rocketMinipoolDelegateV1/rocketMinipoolDelegateV1'
-import { Minipool, Node } from '../../generated/schema'
+} from '../../../generated/templates/rocketMinipoolDelegateV2/rocketMinipoolDelegateV2'
+import { Minipool, Node } from '../../../generated/schema'
 import {
   MINIPOOLSTATUS_STAKING,
   MINIPOOLSTATUS_WITHDRAWABLE,
-} from '../constants/enumconstants'
-import { ROCKET_NODE_DEPOSIT_CONTRACT_ADDRESS } from '../constants/contractconstants'
+} from '../../constants/enumconstants'
+import { ROCKET_NODE_DEPOSIT_CONTRACT_ADDRESS } from '../../constants/contractconstants'
 
 /**
  * Occurs when a node operator makes an ETH deposit on his node to create a minipool.

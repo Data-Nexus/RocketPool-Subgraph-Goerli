@@ -13,7 +13,6 @@ import {
   ROCKETPOOL_RPL_REWARD_INTERVAL_ID_PREFIX,
 } from '../constants/generalconstants'
 import {
-  ROCKET_REWARDS_POOL_CONTRACT_ADDRESS,
   ROCKET_NETWORK_PRICES_CONTRACT_ADDRESS,
   ROCKET_DAO_NODE_TRUSTED_CONTRACT_ADDRESS,
   ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_ADDRESS,
@@ -50,7 +49,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
   // We will need the rocketvault smart contract state to get specific addresses.
   // We will need the rocket rewards pool contract to get its smart contract state.
   let rocketRewardPoolContract = rocketRewardsPool.bind(
-    Address.fromString(ROCKET_REWARDS_POOL_CONTRACT_ADDRESS),
+    event.address,
   )
 
   // We need to retrieve the last RPL rewards interval so we can compare it to the current state in the smart contracts.
@@ -107,9 +106,9 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
         generalUtilities.extractIdForEntity(event),
       previousActiveIndexedRewardIntervalId,
       rocketRewardPoolContract.getClaimIntervalRewardsTotal(),
-      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_PDAO),
-      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_ODAO),
-      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_NODE),
+      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_PDAO, event.address),
+      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_ODAO, event.address),
+      getClaimingContractAllowance(RPLREWARDCLAIMERTYPE_NODE, event.address),
       previousActiveIndexedRewardInterval !== null &&
         previousActiveIndexedRewardInterval.claimableRewards > BigInt.fromI32(0)
         ? previousActiveIndexedRewardInterval.claimableRewards.minus(
@@ -283,10 +282,8 @@ function getRplRewardClaimerType(
 /**
  * Gets the current claiming contract allowance for the given RPL reward claim type from the smart contracts.
  */
-function getClaimingContractAllowance(rplRewardClaimType: string): BigInt {
-  let rocketRewardsContract = rocketRewardsPool.bind(
-    Address.fromString(ROCKET_REWARDS_POOL_CONTRACT_ADDRESS),
-  )
+function getClaimingContractAllowance(rplRewardClaimType: string, rewardsPoolAddress: Address): BigInt {
+  let rocketRewardsContract = rocketRewardsPool.bind(rewardsPoolAddress)
 
   if (rplRewardClaimType == RPLREWARDCLAIMERTYPE_PDAO) {
     return rocketRewardsContract.getClaimingContractAllowance(
