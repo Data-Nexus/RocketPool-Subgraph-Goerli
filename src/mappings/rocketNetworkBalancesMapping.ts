@@ -4,7 +4,6 @@ import { rocketDepositPool } from '../../generated/rocketNetworkBalances/rocketD
 import {
   Staker,
   NetworkStakerBalanceCheckpoint,
-  StakerBalanceCheckpoint,
   RocketPoolProtocol,
 } from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalUtilities'

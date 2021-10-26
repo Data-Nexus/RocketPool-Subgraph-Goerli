@@ -1,18 +1,17 @@
 import { BigInt, Address } from '@graphprotocol/graph-ts'
-import { generalUtilities } from '../utilities/generalutilities'
-import { rocketPoolEntityFactory } from '../entityfactory'
-import { Node, NetworkNodeTimezone } from '../../generated/schema'
+import { generalUtilities } from '../../utilities/generalutilities'
+import { rocketPoolEntityFactory } from '../../entityfactory'
+import { Node, NetworkNodeTimezone } from '../../../generated/schema'
 import {
-  rocketNodeManager,
+  rocketNodeManagerV2,
   NodeRegistered,
   NodeTimezoneLocationSet,
-} from '../../generated/rocketNodeManager/rocketNodeManager'
-import { ROCKET_NODE_MANAGER_CONTRACT_ADDRESS } from '../constants/contractconstants'
+} from '../../../generated/rocketNodeManagerV2/rocketNodeManagerV2'
 
 /**
  * Occurs when a node operator registers his address with the RocketPool protocol.
  */
-export function handleNodeRegister(event: NodeRegistered): void {
+export function handleNodeRegisterV2(event: NodeRegistered): void {
   // Preliminary null checks.
   if (event === null || event.params === null || event.params.node === null)
     return
@@ -22,7 +21,10 @@ export function handleNodeRegister(event: NodeRegistered): void {
   if (node !== null) return
 
   // Retrieve the associated timezone, if the timezone doesn't exist yet, we need to create it.
-  let nodeTimezoneStringId = getNodeTimezoneId(event.params.node.toHex())
+  let nodeTimezoneStringId = getNodeTimezoneId(
+    event.params.node.toHex(),
+    event.address,
+  )
   let nodeTimezone = NetworkNodeTimezone.load(nodeTimezoneStringId)
   if (nodeTimezone === null || nodeTimezone.id == null) {
     nodeTimezone = rocketPoolEntityFactory.createNodeTimezone(
@@ -64,7 +66,7 @@ export function handleNodeRegister(event: NodeRegistered): void {
 /**
  * Occurs when a node operator changes his timzone in the RocketPool protocol.
  */
-export function handleNodeTimezoneChanged(
+export function handleNodeTimezoneChangedV2(
   event: NodeTimezoneLocationSet,
 ): void {
   if (event === null || event.params === null || event.params.node === null)
@@ -91,7 +93,8 @@ export function handleNodeTimezoneChanged(
 
   // If the newly set timezone doesn't exist yet, we need to create it.
   let newNodeTimezoneId = getNodeTimezoneId(
-    event.params.node.toHex()
+    event.params.node.toHex(),
+    event.address,
   )
   let newNodeTimezone: NetworkNodeTimezone | null = null
   if (newNodeTimezoneId != null) {
@@ -115,9 +118,12 @@ export function handleNodeTimezoneChanged(
 /**
  * Returns the node timezone identifier based on what was in the smart contracts.
  */
-function getNodeTimezoneId(nodeAddress: string): string {
-  let rocketNodeManagerContract = rocketNodeManager.bind(
-    Address.fromString(ROCKET_NODE_MANAGER_CONTRACT_ADDRESS),
+function getNodeTimezoneId(
+  nodeAddress: string,
+  nodeManagerContractAddress: Address,
+): string {
+  let rocketNodeManagerContract = rocketNodeManagerV2.bind(
+    nodeManagerContractAddress,
   )
   let nodeTimezoneStringId = rocketNodeManagerContract.getNodeTimezoneLocation(
     Address.fromString(nodeAddress),

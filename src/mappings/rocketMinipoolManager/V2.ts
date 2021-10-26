@@ -3,21 +3,21 @@ import {
   IncrementNodeFinalisedMinipoolCountCall,
   MinipoolCreated,
   MinipoolDestroyed,
-} from '../../generated/rocketMinipoolManager/rocketMinipoolManager'
-import { rocketNetworkFees } from '../../generated/rocketMinipoolManager/rocketNetworkFees'
-import { rocketNodeStaking } from '../../generated/rocketMinipoolManager/rocketNodeStaking'
+} from '../../../generated/rocketMinipoolManagerV2/rocketMinipoolManagerV2'
+import { rocketNetworkFees } from '../../../generated/rocketMinipoolManagerV2/rocketNetworkFees'
+import { rocketNodeStaking } from '../../../generated/rocketMinipoolManagerV2/rocketNodeStaking'
 import {
   ROCKET_NETWORK_FEES_CONTRACT_ADDRESS,
   ROCKET_NODE_STAKING_CONTRACT_ADDRESS,
-} from './../constants/contractconstants'
-import { Minipool, Node } from '../../generated/schema'
-import { rocketMinipoolDelegateV1 } from '../../generated/templates'
-import { rocketPoolEntityFactory } from '../entityfactory'
+} from '../../constants/contractconstants'
+import { Minipool, Node } from '../../../generated/schema'
+import { rocketPoolEntityFactory } from '../../entityfactory'
+import { rocketMinipoolDelegateV1, rocketMinipoolDelegateV2 } from '../../../generated/templates'
 
 /**
  * Occurs when a node operator makes an ETH deposit on his node to create a minipool.
  */
-export function handleMinipoolCreated(event: MinipoolCreated): void {
+export function handleMinipoolCreatedV2(event: MinipoolCreated): void {
   // Preliminary null checks.
   if (
     event === null ||
@@ -60,19 +60,25 @@ export function handleMinipoolCreated(event: MinipoolCreated): void {
   setEffectiveRPLStaked(<Node>node)
 
   // A destroyed minipool changes the average minipool fee for a node.
-  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(nodeMinipools)
+  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(
+    nodeMinipools,
+  )
 
   // Index the changes to the associated node.
   node.save()
 
-  // Create the tracked contract based on the template.
-  rocketMinipoolDelegateV1.create(Address.fromString(minipool.id))
+  // Get the appropriate delegate template for this block and use it to create another instance of the entity.
+  if (event.block.number < BigInt.fromI32(5696004)) {  
+    rocketMinipoolDelegateV1.create(Address.fromString(minipool.id));
+  } else {
+    rocketMinipoolDelegateV2.create(Address.fromString(minipool.id));
+  }
 }
 
 /**
  * Occurs when a minipool is dissolved and the node operator calls destroy on his minipool.
  */
-export function handleMinipoolDestroyed(event: MinipoolDestroyed): void {
+export function handleMinipoolDestroyedV2(event: MinipoolDestroyed): void {
   // Preliminary null checks.
   if (
     event === null ||
@@ -101,7 +107,9 @@ export function handleMinipoolDestroyed(event: MinipoolDestroyed): void {
   setEffectiveRPLStaked(<Node>node)
 
   // A destroyed minipool changes the average minipool fee for a node.
-  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(node.minipools)
+  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(
+    node.minipools,
+  )
 
   // Index change to the associated node.
   node.save()
@@ -111,7 +119,7 @@ export function handleMinipoolDestroyed(event: MinipoolDestroyed): void {
  * TODO: Use on mainnet; call handlers don't work on goerli
  * Occurs after a node operator finalizes his minipool to unlock his RPL stake.
  */
-export function handleIncrementNodeFinalisedMinipoolCount(
+export function handleIncrementNodeFinalisedMinipoolCountV2(
   call: IncrementNodeFinalisedMinipoolCountCall,
 ): void {
   // Preliminary null checks.
@@ -147,7 +155,9 @@ export function handleIncrementNodeFinalisedMinipoolCount(
   setEffectiveRPLStaked(<Node>node)
 
   // A finalized minipool changes the average minipool fee for a node.
-  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(node.minipools)
+  node.averageFeeForActiveMinipools = getAverageFeeForActiveMinipools(
+    node.minipools,
+  )
 
   // Index the associated node.
   node.save()
@@ -241,8 +251,6 @@ function getAverageFeeForActiveMinipools(minipoolIds: string[]): BigInt {
     totalActiveMinipools > BigInt.fromI32(0) &&
     totalMinipoolFeeForActiveMinipools > BigInt.fromI32(0)
   ) {
-    return totalMinipoolFeeForActiveMinipools.div(
-      totalActiveMinipools,
-    )
+    return totalMinipoolFeeForActiveMinipools.div(totalActiveMinipools)
   } else return BigInt.fromI32(0)
 }
