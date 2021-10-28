@@ -21,15 +21,18 @@ import { EffectiveMinipoolRPLBounds } from '../models/effectiveMinipoolRPLBounds
  * When enough ODAO members submitted their votes and a consensus threshold is reached, a new RPL price is comitted to the smart contracts.
  */
 export function handlePricesUpdated(event: PricesUpdated): void {
-  // Preliminary check to ensure we haven't handled this before.
-  if (nodeUtilities.hasNetworkNodeBalanceCheckpointHasBeenIndexed(event)) return
-
   // Protocol entity should exist, if not, then we attempt to create it.
   let protocol = generalUtilities.getRocketPoolProtocolEntity()
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
   }
   if (protocol === null) return
+
+  // Preliminary check to ensure we haven't handled this before.
+  if (
+    nodeUtilities.hasNetworkNodeBalanceCheckpointHasBeenIndexed(protocol, event)
+  )
+    return
 
   // Determine the fee for a new minipool.
   let networkFeesContract = rocketNetworkFees.bind(

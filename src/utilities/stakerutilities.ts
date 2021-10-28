@@ -26,13 +26,52 @@ class StakerUtilities {
    * Checks if there is already an indexed network staker balance checkpoint for the given event.
    */
   public hasNetworkStakerBalanceCheckpointHasBeenIndexed(
+    protocol: RocketPoolProtocol,
     event: ethereum.Event,
   ): boolean {
-    // Is this transaction already logged?
-    return (
+    // If this specific event has been handled, then return true.
+    if (
       NetworkStakerBalanceCheckpoint.load(
         generalUtilities.extractIdForEntity(event),
       ) !== null
+    )
+      return true
+
+    // No indexed protocol means there is no latest network staker balance checkpoint.
+    if (protocol === null) return false;
+
+    /*
+      Retrieve the latest network balance checkpoint.
+      If there is none at the moment, return false because this hasnt been handled yet.
+    */
+    let latestNetworkStakerBalanceCheckpointId =
+      protocol.lastNetworkStakerBalanceCheckPoint
+    if (latestNetworkStakerBalanceCheckpointId === null) return false
+    const latestNetworkStakerBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(
+      latestNetworkStakerBalanceCheckpointId,
+    )
+    if (
+      latestNetworkStakerBalanceCheckpoint === null ||
+      latestNetworkStakerBalanceCheckpoint.blockTime == BigInt.fromI32(0)
+    )
+      return false
+
+    // Get the date of the network staker balance event candidate and the latest network staker balance checkpoint.
+    let dateOfNewNetworkStakerBalanceCheckpoint = new Date(
+      event.block.timestamp.toI32() * 1000,
+    )
+    let dateOfLatestNetworkStakerBalanceCheckpoint = new Date(
+      latestNetworkStakerBalanceCheckpoint.blockTime.toI32() * 1000,
+    )
+
+    // If the latest network staker balance checkpoint and the candidate match in terms of day/month/year, then return false.
+    return (
+      dateOfNewNetworkStakerBalanceCheckpoint.getUTCFullYear() ==
+        dateOfLatestNetworkStakerBalanceCheckpoint.getUTCFullYear() &&
+      dateOfNewNetworkStakerBalanceCheckpoint.getUTCMonth() ==
+        dateOfLatestNetworkStakerBalanceCheckpoint.getUTCMonth() &&
+      dateOfNewNetworkStakerBalanceCheckpoint.getUTCDate() ==
+        dateOfLatestNetworkStakerBalanceCheckpoint.getUTCDate()
     )
   }
 

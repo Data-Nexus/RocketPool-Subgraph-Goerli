@@ -20,16 +20,21 @@ import { Address, BigInt } from '@graphprotocol/graph-ts'
  * When enough ODAO members votes on a balance and a consensus threshold is reached, the staker beacon chain state is persisted to the smart contracts.
  */
 export function handleBalancesUpdated(event: BalancesUpdated): void {
-  // Preliminary check to ensure we haven't handled this before.
-  if (stakerUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(event))
-    return
-
   // Protocol entity should exist, if not, then we attempt to create it.
   let protocol = generalUtilities.getRocketPoolProtocolEntity()
   if (protocol === null || protocol.id == null) {
     protocol = rocketPoolEntityFactory.createRocketPoolProtocol()
   }
   if (protocol === null) return
+
+  // Preliminary check to ensure we haven't handled this before.
+  if (
+    stakerUtilities.hasNetworkStakerBalanceCheckpointHasBeenIndexed(
+      protocol,
+      event,
+    )
+  )
+    return
 
   // Load the RocketTokenRETH contract
   // We will need the rocketvault smart contract state to get specific addresses.
@@ -89,11 +94,13 @@ export function handleBalancesUpdated(event: BalancesUpdated): void {
   generateStakerBalanceCheckpoints(
     protocol.activeStakers,
     <NetworkStakerBalanceCheckpoint>checkpoint,
-    previousCheckpoint !== null ? <NetworkStakerBalanceCheckpoint>previousCheckpoint : null,
+    previousCheckpoint !== null
+      ? <NetworkStakerBalanceCheckpoint>previousCheckpoint
+      : null,
     previousRETHExchangeRate,
     event.block.number,
     event.block.timestamp,
-    protocol
+    protocol,
   )
 
   // If for some reason the running summary totals up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
@@ -135,13 +142,13 @@ function generateStakerBalanceCheckpoints(
   previousRETHExchangeRate: BigInt,
   blockNumber: BigInt,
   blockTime: BigInt,
-  protocol: RocketPoolProtocol
+  protocol: RocketPoolProtocol,
 ): void {
   // Update grand totals based on previous checkpoint before we do anything.
   stakerUtilities.updateNetworkStakerBalanceCheckpointForPreviousCheckpointAndProtocol(
     networkCheckpoint,
     previousCheckpoint,
-    protocol
+    protocol,
   )
 
   // Loop through all the staker id's in the protocol.
@@ -176,7 +183,7 @@ function generateStakerBalanceCheckpoints(
       ethRewardsSincePreviousCheckpoint,
       <Staker>staker,
       networkCheckpoint,
-      protocol
+      protocol,
     )
 
     // Create a new staker balance checkpoint

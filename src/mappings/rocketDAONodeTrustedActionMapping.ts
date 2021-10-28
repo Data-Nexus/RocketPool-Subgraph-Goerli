@@ -2,6 +2,7 @@ import {
   ActionJoined,
   ActionLeave,
   ActionKick,
+  ActionChallengeDecided,
 } from '../../generated/rocketDAONodeTrustedActions/rocketDAONodeTrustedActions'
 import { Node } from '../../generated/schema'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
@@ -61,6 +62,27 @@ export function handleOracleNodeKicked(event: ActionKick): void {
     false,
     event.params.time,
   )
+}
+
+/**
+ * Occurs when an ODAO is inactive for a large amount of time and an ODAO is challenged by other ODAO members.
+ */
+export function handleChallengeDecided(event: ActionChallengeDecided) : void {
+  if (
+    event === null ||
+    event.params === null ||
+    event.params.nodeChallengedAddress === null
+  )
+    return
+
+  if(event.params.success) {
+    updateOracleNodeState(
+      event.params.nodeChallengedAddress,
+      BigInt.fromI32(0),
+      false,
+      event.params.time,
+    )
+  }
 }
 
 /**
