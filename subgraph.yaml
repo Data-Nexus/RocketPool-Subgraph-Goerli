@@ -236,6 +236,33 @@ dataSources:
         - event: MinipoolDestroyed(indexed address,indexed address,uint256)
           handler: handleMinipoolDestroyedV2
       file: ./src/mappings/rocketMinipoolManager/V2.ts
+
+  - kind: ethereum/contract
+    name: rocketMinipoolManagerV3
+    network: goerli
+    source:
+      address: "0xB815a94430f08dD2ab61143cE1D5739Ac81D3C6d"
+      abi: rocketMinipoolManagerV3
+      startBlock: 5742248 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Minipool
+      abis:
+        - name: rocketMinipoolManagerV3
+          file: ./abis/rocketMinipoolManagerV3.json
+        - name: rocketNetworkFees
+          file: ./abis/rocketNetworkFees.json     
+        - name: rocketNodeStaking
+          file: ./abis/rocketNodeStaking.json   
+      eventHandlers:
+        - event: MinipoolCreated(indexed address,indexed address,uint256)
+          handler: handleMinipoolCreatedV3
+        - event: MinipoolDestroyed(indexed address,indexed address,uint256)
+          handler: handleMinipoolDestroyedV3
+      file: ./src/mappings/rocketMinipoolManager/V3.ts
  
   - kind: ethereum/contract
     name: rocketMinipoolqueue 
@@ -326,6 +353,28 @@ templates:
       abis:
         - name: rocketMinipoolDelegateV2  
           file: ./abis/rocketMinipoolDelegateV2.json 
+      eventHandlers:
+        - event: StatusUpdated(indexed uint8,uint256)
+          handler: handleStatusUpdated
+        - event: EtherDeposited(indexed address,uint256,uint256)
+          handler: handleEtherDeposited
+
+  - name: rocketMinipoolDelegateV3
+    kind: ethereum/contract
+    network: goerli
+    source:
+      abi: rocketMinipoolDelegateV3
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/rocketMinipoolDelegate/V3.ts
+      entities:
+        - Minipool
+        - Node
+      abis:
+        - name: rocketMinipoolDelegateV3 
+          file: ./abis/rocketMinipoolDelegateV3.json 
       eventHandlers:
         - event: StatusUpdated(indexed uint8,uint256)
           handler: handleStatusUpdated
