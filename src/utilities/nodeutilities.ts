@@ -1,22 +1,65 @@
-import { ethereum, BigInt } from "@graphprotocol/graph-ts";
-import { NetworkNodeBalanceCheckpoint, Node } from "../../generated/schema";
-import { generalUtilities } from "./generalUtilities";
-import { NetworkNodeBalanceMinipoolMetadata } from "../models/networkNodeBalanceMinipoolMetadata";
-import { ONE_ETHER_IN_WEI } from "../constants/generalconstants";
-import { NetworkNodeBalanceRPLMetadata } from "../models/networkNodeBalanceRPLMetadata";
+import { ethereum, BigInt } from '@graphprotocol/graph-ts'
+import {
+  NetworkNodeBalanceCheckpoint,
+  Node,
+  RocketPoolProtocol,
+} from '../../generated/schema'
+import { generalUtilities } from './generalUtilities'
+import { NetworkNodeBalanceMinipoolMetadata } from '../models/networkNodeBalanceMinipoolMetadata'
+import { ONE_ETHER_IN_WEI } from '../constants/generalconstants'
+import { NetworkNodeBalanceRPLMetadata } from '../models/networkNodeBalanceRPLMetadata'
 
 class NodeUtilities {
   /**
    * Checks if there is already an indexed network node balance checkpoint for the given event.
    */
   public hasNetworkNodeBalanceCheckpointHasBeenIndexed(
+    protocol: RocketPoolProtocol,
     event: ethereum.Event,
   ): boolean {
-    // Is this transaction already logged?
-    return (
+    // If this specific event has been handled, then return true.
+    if (
       NetworkNodeBalanceCheckpoint.load(
         generalUtilities.extractIdForEntity(event),
       ) !== null
+    )
+      return true
+
+    // No indexed protocol means there is no latest network node balance checkpoint.
+    if (protocol === null) return false
+
+    /*
+    Retrieve the latest network balance checkpoint.
+    If there is none at the moment, return false because this hasnt been handled yet.
+  */
+    let latestNetworkNodeBalanceCheckpointId =
+      protocol.lastNetworkNodeBalanceCheckPoint
+    if (latestNetworkNodeBalanceCheckpointId == null) return false
+    const latestNetworkNodeBalanceCheckpoint = NetworkNodeBalanceCheckpoint.load(
+      latestNetworkNodeBalanceCheckpointId,
+    )
+    if (
+      latestNetworkNodeBalanceCheckpoint === null ||
+      latestNetworkNodeBalanceCheckpoint.blockTime == BigInt.fromI32(0)
+    )
+      return false
+
+    // Get the date of the network node balance event candidate and the latest network node balance checkpoint.
+    let dateOfNewNetworkNodeBalanceCheckpoint = new Date(
+      event.block.timestamp.toI32() * 1000,
+    )
+    let dateOfLatestNetworkNodeBalanceCheckpoint = new Date(
+      latestNetworkNodeBalanceCheckpoint.blockTime.toI32() * 1000,
+    )
+
+    // If the latest network node balance checkpoint and the candidate match in terms of day/month/year, then return false.
+    return (
+      dateOfNewNetworkNodeBalanceCheckpoint.getFullYear() ==
+        dateOfLatestNetworkNodeBalanceCheckpoint.getFullYear() &&
+      dateOfNewNetworkNodeBalanceCheckpoint.getMonth() ==
+        dateOfLatestNetworkNodeBalanceCheckpoint.getMonth() &&
+      dateOfNewNetworkNodeBalanceCheckpoint.getDate() ==
+        dateOfLatestNetworkNodeBalanceCheckpoint.getDate()
     )
   }
 
@@ -68,7 +111,7 @@ class NodeUtilities {
     )
 
     // Update total number of oracle nodes registered if needed.
-    if(node.isOracleNode) {
+    if (node.isOracleNode) {
       networkCheckpoint.oracleNodesRegistered = networkCheckpoint.oracleNodesRegistered.plus(
         BigInt.fromI32(1),
       )
@@ -120,7 +163,7 @@ class NodeUtilities {
     // We need this to calculate the averages on the network level.
     if (node.averageFeeForActiveMinipools > BigInt.fromI32(0)) {
       minipoolMetadata.totalAverageFeeForAllActiveMinipools = minipoolMetadata.totalAverageFeeForAllActiveMinipools.plus(
-        node.averageFeeForActiveMinipools
+        node.averageFeeForActiveMinipools,
       )
       minipoolMetadata.totalNodesWithActiveMinipools = minipoolMetadata.totalNodesWithActiveMinipools.plus(
         BigInt.fromI32(1),
@@ -139,15 +182,15 @@ class NodeUtilities {
   /**
    * Updates the metadata with the relevant state from the node.
    */
-   public updateRPLMetadataWithNode(
+  public updateRPLMetadataWithNode(
     rplMetadata: NetworkNodeBalanceRPLMetadata,
-    node: Node
+    node: Node,
   ): void {
     // We need this to calculate the averages on the network level.
     if (node.totalClaimedRPLRewards > BigInt.fromI32(0)) {
       rplMetadata.totalNodesWithClaimedRPLRewards = rplMetadata.totalNodesWithClaimedRPLRewards.plus(
-        BigInt.fromI32(1)
-      );
+        BigInt.fromI32(1),
+      )
     }
   }
 
@@ -162,8 +205,7 @@ class NodeUtilities {
     // Calculate the network fee average for active minipools if possible.
     if (
       minipoolMetadata.totalNodesWithActiveMinipools > BigInt.fromI32(0) &&
-      minipoolMetadata.totalAverageFeeForAllActiveMinipools >
-        BigInt.fromI32(0)
+      minipoolMetadata.totalAverageFeeForAllActiveMinipools > BigInt.fromI32(0)
     ) {
       // Store this in WEI.
       checkpoint.averageFeeForActiveMinipools = minipoolMetadata.totalAverageFeeForAllActiveMinipools
@@ -180,19 +222,19 @@ class NodeUtilities {
    * Updates the network node balance checkpoint based on the given rpl metadata.
    * E.G. Calculate the average RPL reward claims
    */
-   public updateNetworkNodeBalanceCheckpointForRPLMetadata(
+  public updateNetworkNodeBalanceCheckpointForRPLMetadata(
     checkpoint: NetworkNodeBalanceCheckpoint,
-    rplMetadata: NetworkNodeBalanceRPLMetadata
+    rplMetadata: NetworkNodeBalanceRPLMetadata,
   ): void {
     // Calculate the network RPL claimed average if possible.
     if (
       rplMetadata.totalNodesWithClaimedRPLRewards > BigInt.fromI32(0) &&
-      checkpoint.totalClaimedRPLRewards >
-      BigInt.fromI32(0)
+      checkpoint.totalClaimedRPLRewards > BigInt.fromI32(0)
     ) {
       // Store this in WEI.
-      checkpoint.averageClaimedRPLRewards = checkpoint.totalClaimedRPLRewards
-        .div(rplMetadata.totalNodesWithClaimedRPLRewards);
+      checkpoint.averageClaimedRPLRewards = checkpoint.totalClaimedRPLRewards.div(
+        rplMetadata.totalNodesWithClaimedRPLRewards,
+      )
     }
   }
 

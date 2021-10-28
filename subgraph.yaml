@@ -283,6 +283,8 @@ dataSources:
           handler: handleOracleNodeLeft
         - event: ActionKick(indexed address,uint256,uint256)
           handler: handleOracleNodeKicked
+        - event: ActionChallengeDecided(indexed address,indexed address,bool,uint256)
+          handler: handleChallengeDecided
       file: ./src/mappings/rocketDAONodeTrustedActionMapping.ts
 
 templates:
