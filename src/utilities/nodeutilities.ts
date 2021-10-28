@@ -34,7 +34,7 @@ class NodeUtilities {
   */
     let latestNetworkNodeBalanceCheckpointId =
       protocol.lastNetworkNodeBalanceCheckPoint
-    if (latestNetworkNodeBalanceCheckpointId == null) return false
+    if (latestNetworkNodeBalanceCheckpointId === null) return false
     const latestNetworkNodeBalanceCheckpoint = NetworkNodeBalanceCheckpoint.load(
       latestNetworkNodeBalanceCheckpointId,
     )
@@ -54,12 +54,12 @@ class NodeUtilities {
 
     // If the latest network node balance checkpoint and the candidate match in terms of day/month/year, then return false.
     return (
-      dateOfNewNetworkNodeBalanceCheckpoint.getFullYear() ==
-        dateOfLatestNetworkNodeBalanceCheckpoint.getFullYear() &&
-      dateOfNewNetworkNodeBalanceCheckpoint.getMonth() ==
-        dateOfLatestNetworkNodeBalanceCheckpoint.getMonth() &&
-      dateOfNewNetworkNodeBalanceCheckpoint.getDate() ==
-        dateOfLatestNetworkNodeBalanceCheckpoint.getDate()
+      dateOfNewNetworkNodeBalanceCheckpoint.getUTCFullYear() ==
+        dateOfLatestNetworkNodeBalanceCheckpoint.getUTCFullYear() &&
+      dateOfNewNetworkNodeBalanceCheckpoint.getUTCMonth() ==
+        dateOfLatestNetworkNodeBalanceCheckpoint.getUTCMonth() &&
+      dateOfNewNetworkNodeBalanceCheckpoint.getUTCDate() ==
+        dateOfLatestNetworkNodeBalanceCheckpoint.getUTCDate()
     )
   }
 

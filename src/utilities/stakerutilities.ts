@@ -46,7 +46,7 @@ class StakerUtilities {
     */
     let latestNetworkStakerBalanceCheckpointId =
       protocol.lastNetworkStakerBalanceCheckPoint
-    if (latestNetworkStakerBalanceCheckpointId == null) return false
+    if (latestNetworkStakerBalanceCheckpointId === null) return false
     const latestNetworkStakerBalanceCheckpoint = NetworkStakerBalanceCheckpoint.load(
       latestNetworkStakerBalanceCheckpointId,
     )
@@ -66,12 +66,12 @@ class StakerUtilities {
 
     // If the latest network staker balance checkpoint and the candidate match in terms of day/month/year, then return false.
     return (
-      dateOfNewNetworkStakerBalanceCheckpoint.getFullYear() ==
-        dateOfLatestNetworkStakerBalanceCheckpoint.getFullYear() &&
-      dateOfNewNetworkStakerBalanceCheckpoint.getMonth() ==
-        dateOfLatestNetworkStakerBalanceCheckpoint.getMonth() &&
-      dateOfNewNetworkStakerBalanceCheckpoint.getDate() ==
-        dateOfLatestNetworkStakerBalanceCheckpoint.getDate()
+      dateOfNewNetworkStakerBalanceCheckpoint.getUTCFullYear() ==
+        dateOfLatestNetworkStakerBalanceCheckpoint.getUTCFullYear() &&
+      dateOfNewNetworkStakerBalanceCheckpoint.getUTCMonth() ==
+        dateOfLatestNetworkStakerBalanceCheckpoint.getUTCMonth() &&
+      dateOfNewNetworkStakerBalanceCheckpoint.getUTCDate() ==
+        dateOfLatestNetworkStakerBalanceCheckpoint.getUTCDate()
     )
   }
 
