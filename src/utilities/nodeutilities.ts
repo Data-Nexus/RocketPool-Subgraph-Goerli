@@ -318,11 +318,11 @@ class NodeUtilities {
     }
 
     if (
-      checkpoint.averageODAOTotalRewardsClaimed == BigInt.fromI32(0) &&
-      previousCheckpoint.averageODAOTotalRewardsClaimed > BigInt.fromI32(0)
+      checkpoint.averageTotalODAORewardsClaimed == BigInt.fromI32(0) &&
+      previousCheckpoint.averageTotalODAORewardsClaimed > BigInt.fromI32(0)
     ) {
-      checkpoint.averageODAOTotalRewardsClaimed =
-        previousCheckpoint.averageODAOTotalRewardsClaimed;
+      checkpoint.averageTotalODAORewardsClaimed =
+        previousCheckpoint.averageTotalODAORewardsClaimed;
     }
 
     if (
