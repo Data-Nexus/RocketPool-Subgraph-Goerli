@@ -197,7 +197,7 @@ class NodeUtilities {
     }
 
     if (node.totalNodeRewardsClaimed > BigInt.fromI32(0)) {
-      rplMetadata.totalNodesWithAnNodeRewardClaim = rplMetadata.totalNodesWithAnNodeRewardClaim.plus(
+      rplMetadata.totalNodesWithRewardClaim = rplMetadata.totalNodesWithRewardClaim.plus(
         BigInt.fromI32(1),
       )
     }
@@ -247,12 +247,12 @@ class NodeUtilities {
     }
 
     if (
-      rplMetadata.totalNodesWithAnNodeRewardClaim > BigInt.fromI32(0) &&
+      rplMetadata.totalNodesWithRewardClaim > BigInt.fromI32(0) &&
       checkpoint.totalNodeRewardsClaimed > BigInt.fromI32(0)
     ) {
       // Store this in WEI.
       checkpoint.averageNodeRewardClaim = checkpoint.totalNodeRewardsClaimed.div(
-        rplMetadata.totalNodesWithAnNodeRewardClaim,
+        rplMetadata.totalNodesWithRewardClaim,
       )
     }
   }
