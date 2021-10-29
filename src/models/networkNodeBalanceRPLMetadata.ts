@@ -5,10 +5,14 @@ import { BigInt } from '@graphprotocol/graph-ts'
  */
 export class NetworkNodeBalanceRPLMetadata {
   totalNodesWithRewardClaim: BigInt
+  totalNodeRewardClaimCount: BigInt
   totalNodesWithAnODAORewardClaim: BigInt
+  totalODAORewardClaimCount: BigInt
 
   constructor() {
     this.totalNodesWithRewardClaim = BigInt.fromI32(0)
+    this.totalNodeRewardClaimCount = BigInt.fromI32(0)
     this.totalNodesWithAnODAORewardClaim = BigInt.fromI32(0)
+    this.totalODAORewardClaimCount = BigInt.fromI32(0)
   }
 }

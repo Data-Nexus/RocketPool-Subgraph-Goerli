@@ -1585,6 +1585,15 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("totalNodeRewardsClaimed", Value.fromBigInt(value));
   }
 
+  get averageTotalODAORewardsClaimed(): BigInt {
+    let value = this.get("averageTotalODAORewardsClaimed");
+    return value.toBigInt();
+  }
+
+  set averageTotalODAORewardsClaimed(value: BigInt) {
+    this.set("averageTotalODAORewardsClaimed", Value.fromBigInt(value));
+  }
+
   get averageODAORewardClaim(): BigInt {
     let value = this.get("averageODAORewardClaim");
     return value.toBigInt();
@@ -1592,6 +1601,15 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
 
   set averageODAORewardClaim(value: BigInt) {
     this.set("averageODAORewardClaim", Value.fromBigInt(value));
+  }
+
+  get averageNodeTotalRewardsClaimed(): BigInt {
+    let value = this.get("averageNodeTotalRewardsClaimed");
+    return value.toBigInt();
+  }
+
+  set averageNodeTotalRewardsClaimed(value: BigInt) {
+    this.set("averageNodeTotalRewardsClaimed", Value.fromBigInt(value));
   }
 
   get averageNodeRewardClaim(): BigInt {

@@ -437,10 +437,16 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total accrued rewards via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
   totalNodeRewardsClaimed: BigInt!
 
-  # Average reward via the ODAO reward claim contract from all previous checkpoints up to this checkpoint.
+  # Average total accrued rewards via the ODAO reward claim contract from all previous checkpoints up to this checkpoint.
+  averageTotalODAORewardsClaimed: BigInt!
+
+  # Average reward per claim via the ODAO reward claim contract from all previous checkpoints up to this checkpoint.
   averageODAORewardClaim: BigInt!
 
-  # Average reward via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
+   # Average total accrued rewards via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
+  averageNodeTotalRewardsClaimed: BigInt!
+
+  # Average reward per claim via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
   averageNodeRewardClaim: BigInt!
 
   # The RPL price in ETH at this checkpoint.

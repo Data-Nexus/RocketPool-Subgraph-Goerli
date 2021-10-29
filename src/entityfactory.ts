@@ -349,7 +349,9 @@ class RocketPoolEntityFactory {
     checkpoint.totalRPLSlashed = BigInt.fromI32(0) // Will be calculated.
     checkpoint.totalODAORewardsClaimed = BigInt.fromI32(0) // Will be calculated.
     checkpoint.totalNodeRewardsClaimed = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.averageTotalODAORewardsClaimed = BigInt.fromI32(0) // Will be calculated.
     checkpoint.averageODAORewardClaim = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.averageNodeTotalRewardsClaimed = BigInt.fromI32(0) // Will be calculated.
     checkpoint.averageNodeRewardClaim = BigInt.fromI32(0) // Will be calculated.
     checkpoint.rplPriceInETH = newRplPriceInETH // From the associated price update.
     checkpoint.queuedMinipools = BigInt.fromI32(0) // Will be calculated.
