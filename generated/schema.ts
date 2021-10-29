@@ -674,9 +674,12 @@ export class Node extends Entity {
     this.set("rplStaked", Value.fromBigInt(BigInt.zero()));
     this.set("effectiveRPLStaked", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("averageClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("rplClaimCount", Value.fromBigInt(BigInt.zero()));
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("averageODAORewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("averageNodeRewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("odaoRewardClaimCount", Value.fromBigInt(BigInt.zero()));
+    this.set("nodeRewardClaimCount", Value.fromBigInt(BigInt.zero()));
     this.set("minimumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("maximumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
@@ -795,31 +798,58 @@ export class Node extends Entity {
     this.set("totalRPLSlashed", Value.fromBigInt(value));
   }
 
-  get totalClaimedRPLRewards(): BigInt {
-    let value = this.get("totalClaimedRPLRewards");
+  get totalODAORewardsClaimed(): BigInt {
+    let value = this.get("totalODAORewardsClaimed");
     return value!.toBigInt();
   }
 
-  set totalClaimedRPLRewards(value: BigInt) {
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  set totalODAORewardsClaimed(value: BigInt) {
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(value));
   }
 
-  get averageClaimedRPLRewards(): BigInt {
-    let value = this.get("averageClaimedRPLRewards");
+  get totalNodeRewardsClaimed(): BigInt {
+    let value = this.get("totalNodeRewardsClaimed");
     return value!.toBigInt();
   }
 
-  set averageClaimedRPLRewards(value: BigInt) {
-    this.set("averageClaimedRPLRewards", Value.fromBigInt(value));
+  set totalNodeRewardsClaimed(value: BigInt) {
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(value));
   }
 
-  get rplClaimCount(): BigInt {
-    let value = this.get("rplClaimCount");
+  get averageODAORewardClaim(): BigInt {
+    let value = this.get("averageODAORewardClaim");
     return value!.toBigInt();
   }
 
-  set rplClaimCount(value: BigInt) {
-    this.set("rplClaimCount", Value.fromBigInt(value));
+  set averageODAORewardClaim(value: BigInt) {
+    this.set("averageODAORewardClaim", Value.fromBigInt(value));
+  }
+
+  get averageNodeRewardClaim(): BigInt {
+    let value = this.get("averageNodeRewardClaim");
+    return value!.toBigInt();
+  }
+
+  set averageNodeRewardClaim(value: BigInt) {
+    this.set("averageNodeRewardClaim", Value.fromBigInt(value));
+  }
+
+  get odaoRewardClaimCount(): BigInt {
+    let value = this.get("odaoRewardClaimCount");
+    return value!.toBigInt();
+  }
+
+  set odaoRewardClaimCount(value: BigInt) {
+    this.set("odaoRewardClaimCount", Value.fromBigInt(value));
+  }
+
+  get nodeRewardClaimCount(): BigInt {
+    let value = this.get("nodeRewardClaimCount");
+    return value!.toBigInt();
+  }
+
+  set nodeRewardClaimCount(value: BigInt) {
+    this.set("nodeRewardClaimCount", Value.fromBigInt(value));
   }
 
   get minimumEffectiveRPL(): BigInt {
@@ -1048,14 +1078,17 @@ export class RPLRewardInterval extends Entity {
       "claimableRewardsFromPreviousInterval",
       Value.fromBigInt(BigInt.zero())
     );
-    this.set("claimableRewardsByPDAO", Value.fromBigInt(BigInt.zero()));
-    this.set("claimableRewardsByODAO", Value.fromBigInt(BigInt.zero()));
-    this.set("claimableRewardsByNodes", Value.fromBigInt(BigInt.zero()));
+    this.set("claimablePDAORewards", Value.fromBigInt(BigInt.zero()));
+    this.set("claimableODAORewards", Value.fromBigInt(BigInt.zero()));
+    this.set("claimableNodeRewards", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLClaimed", Value.fromBigInt(BigInt.zero()));
-    this.set("totalRPLClaimedByPDAO", Value.fromBigInt(BigInt.zero()));
-    this.set("totalRPLClaimedByODAO", Value.fromBigInt(BigInt.zero()));
-    this.set("totalRPLClaimedByNodes", Value.fromBigInt(BigInt.zero()));
-    this.set("averageRPLClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalPDAORewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("averageODAORewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("averageNodeRewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("odaoRewardClaimCount", Value.fromBigInt(BigInt.zero()));
+    this.set("nodeRewardClaimCount", Value.fromBigInt(BigInt.zero()));
     this.set("rplRewardClaims", Value.fromStringArray(new Array(0)));
     this.set("isClosed", Value.fromBoolean(false));
     this.set("intervalStartTime", Value.fromBigInt(BigInt.zero()));
@@ -1144,31 +1177,31 @@ export class RPLRewardInterval extends Entity {
     this.set("claimableRewardsFromPreviousInterval", Value.fromBigInt(value));
   }
 
-  get claimableRewardsByPDAO(): BigInt {
-    let value = this.get("claimableRewardsByPDAO");
+  get claimablePDAORewards(): BigInt {
+    let value = this.get("claimablePDAORewards");
     return value!.toBigInt();
   }
 
-  set claimableRewardsByPDAO(value: BigInt) {
-    this.set("claimableRewardsByPDAO", Value.fromBigInt(value));
+  set claimablePDAORewards(value: BigInt) {
+    this.set("claimablePDAORewards", Value.fromBigInt(value));
   }
 
-  get claimableRewardsByODAO(): BigInt {
-    let value = this.get("claimableRewardsByODAO");
+  get claimableODAORewards(): BigInt {
+    let value = this.get("claimableODAORewards");
     return value!.toBigInt();
   }
 
-  set claimableRewardsByODAO(value: BigInt) {
-    this.set("claimableRewardsByODAO", Value.fromBigInt(value));
+  set claimableODAORewards(value: BigInt) {
+    this.set("claimableODAORewards", Value.fromBigInt(value));
   }
 
-  get claimableRewardsByNodes(): BigInt {
-    let value = this.get("claimableRewardsByNodes");
+  get claimableNodeRewards(): BigInt {
+    let value = this.get("claimableNodeRewards");
     return value!.toBigInt();
   }
 
-  set claimableRewardsByNodes(value: BigInt) {
-    this.set("claimableRewardsByNodes", Value.fromBigInt(value));
+  set claimableNodeRewards(value: BigInt) {
+    this.set("claimableNodeRewards", Value.fromBigInt(value));
   }
 
   get totalRPLClaimed(): BigInt {
@@ -1180,40 +1213,67 @@ export class RPLRewardInterval extends Entity {
     this.set("totalRPLClaimed", Value.fromBigInt(value));
   }
 
-  get totalRPLClaimedByPDAO(): BigInt {
-    let value = this.get("totalRPLClaimedByPDAO");
+  get totalPDAORewardsClaimed(): BigInt {
+    let value = this.get("totalPDAORewardsClaimed");
     return value!.toBigInt();
   }
 
-  set totalRPLClaimedByPDAO(value: BigInt) {
-    this.set("totalRPLClaimedByPDAO", Value.fromBigInt(value));
+  set totalPDAORewardsClaimed(value: BigInt) {
+    this.set("totalPDAORewardsClaimed", Value.fromBigInt(value));
   }
 
-  get totalRPLClaimedByODAO(): BigInt {
-    let value = this.get("totalRPLClaimedByODAO");
+  get totalODAORewardsClaimed(): BigInt {
+    let value = this.get("totalODAORewardsClaimed");
     return value!.toBigInt();
   }
 
-  set totalRPLClaimedByODAO(value: BigInt) {
-    this.set("totalRPLClaimedByODAO", Value.fromBigInt(value));
+  set totalODAORewardsClaimed(value: BigInt) {
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(value));
   }
 
-  get totalRPLClaimedByNodes(): BigInt {
-    let value = this.get("totalRPLClaimedByNodes");
+  get totalNodeRewardsClaimed(): BigInt {
+    let value = this.get("totalNodeRewardsClaimed");
     return value!.toBigInt();
   }
 
-  set totalRPLClaimedByNodes(value: BigInt) {
-    this.set("totalRPLClaimedByNodes", Value.fromBigInt(value));
+  set totalNodeRewardsClaimed(value: BigInt) {
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(value));
   }
 
-  get averageRPLClaimed(): BigInt {
-    let value = this.get("averageRPLClaimed");
+  get averageODAORewardClaim(): BigInt {
+    let value = this.get("averageODAORewardClaim");
     return value!.toBigInt();
   }
 
-  set averageRPLClaimed(value: BigInt) {
-    this.set("averageRPLClaimed", Value.fromBigInt(value));
+  set averageODAORewardClaim(value: BigInt) {
+    this.set("averageODAORewardClaim", Value.fromBigInt(value));
+  }
+
+  get averageNodeRewardClaim(): BigInt {
+    let value = this.get("averageNodeRewardClaim");
+    return value!.toBigInt();
+  }
+
+  set averageNodeRewardClaim(value: BigInt) {
+    this.set("averageNodeRewardClaim", Value.fromBigInt(value));
+  }
+
+  get odaoRewardClaimCount(): BigInt {
+    let value = this.get("odaoRewardClaimCount");
+    return value!.toBigInt();
+  }
+
+  set odaoRewardClaimCount(value: BigInt) {
+    this.set("odaoRewardClaimCount", Value.fromBigInt(value));
+  }
+
+  get nodeRewardClaimCount(): BigInt {
+    let value = this.get("nodeRewardClaimCount");
+    return value!.toBigInt();
+  }
+
+  set nodeRewardClaimCount(value: BigInt) {
+    this.set("nodeRewardClaimCount", Value.fromBigInt(value));
   }
 
   get rplRewardClaims(): Array<string> {
@@ -1315,6 +1375,7 @@ export class RPLRewardClaim extends Entity {
     this.set("claimerType", Value.fromString(""));
     this.set("amount", Value.fromBigInt(BigInt.zero()));
     this.set("ethAmount", Value.fromBigInt(BigInt.zero()));
+    this.set("transactionHash", Value.fromString(""));
     this.set("block", Value.fromBigInt(BigInt.zero()));
     this.set("blockTime", Value.fromBigInt(BigInt.zero()));
   }
@@ -1388,6 +1449,15 @@ export class RPLRewardClaim extends Entity {
 
   set ethAmount(value: BigInt) {
     this.set("ethAmount", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): string {
+    let value = this.get("transactionHash");
+    return value!.toString();
+  }
+
+  set transactionHash(value: string) {
+    this.set("transactionHash", Value.fromString(value));
   }
 
   get block(): BigInt {
@@ -1489,8 +1559,12 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("minimumEffectiveRPLNewMinipool", Value.fromBigInt(BigInt.zero()));
     this.set("maximumEffectiveRPLNewMinipool", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("averageClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("averageTotalODAORewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("averageODAORewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("averageNodeTotalRewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("averageNodeRewardClaim", Value.fromBigInt(BigInt.zero()));
     this.set("rplPriceInETH", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
@@ -1649,22 +1723,58 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("totalRPLSlashed", Value.fromBigInt(value));
   }
 
-  get totalClaimedRPLRewards(): BigInt {
-    let value = this.get("totalClaimedRPLRewards");
+  get totalODAORewardsClaimed(): BigInt {
+    let value = this.get("totalODAORewardsClaimed");
     return value!.toBigInt();
   }
 
-  set totalClaimedRPLRewards(value: BigInt) {
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  set totalODAORewardsClaimed(value: BigInt) {
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(value));
   }
 
-  get averageClaimedRPLRewards(): BigInt {
-    let value = this.get("averageClaimedRPLRewards");
+  get totalNodeRewardsClaimed(): BigInt {
+    let value = this.get("totalNodeRewardsClaimed");
     return value!.toBigInt();
   }
 
-  set averageClaimedRPLRewards(value: BigInt) {
-    this.set("averageClaimedRPLRewards", Value.fromBigInt(value));
+  set totalNodeRewardsClaimed(value: BigInt) {
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(value));
+  }
+
+  get averageTotalODAORewardsClaimed(): BigInt {
+    let value = this.get("averageTotalODAORewardsClaimed");
+    return value!.toBigInt();
+  }
+
+  set averageTotalODAORewardsClaimed(value: BigInt) {
+    this.set("averageTotalODAORewardsClaimed", Value.fromBigInt(value));
+  }
+
+  get averageODAORewardClaim(): BigInt {
+    let value = this.get("averageODAORewardClaim");
+    return value!.toBigInt();
+  }
+
+  set averageODAORewardClaim(value: BigInt) {
+    this.set("averageODAORewardClaim", Value.fromBigInt(value));
+  }
+
+  get averageNodeTotalRewardsClaimed(): BigInt {
+    let value = this.get("averageNodeTotalRewardsClaimed");
+    return value!.toBigInt();
+  }
+
+  set averageNodeTotalRewardsClaimed(value: BigInt) {
+    this.set("averageNodeTotalRewardsClaimed", Value.fromBigInt(value));
+  }
+
+  get averageNodeRewardClaim(): BigInt {
+    let value = this.get("averageNodeRewardClaim");
+    return value!.toBigInt();
+  }
+
+  set averageNodeRewardClaim(value: BigInt) {
+    this.set("averageNodeRewardClaim", Value.fromBigInt(value));
   }
 
   get rplPriceInETH(): BigInt {
@@ -1771,9 +1881,12 @@ export class NodeBalanceCheckpoint extends Entity {
     this.set("minimumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("maximumEffectiveRPL", Value.fromBigInt(BigInt.zero()));
     this.set("totalRPLSlashed", Value.fromBigInt(BigInt.zero()));
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("averageClaimedRPLRewards", Value.fromBigInt(BigInt.zero()));
-    this.set("rplClaimCount", Value.fromBigInt(BigInt.zero()));
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(BigInt.zero()));
+    this.set("averageODAORewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("averageNodeRewardClaim", Value.fromBigInt(BigInt.zero()));
+    this.set("odaoRewardClaimCount", Value.fromBigInt(BigInt.zero()));
+    this.set("nodeRewardClaimCount", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
@@ -1921,31 +2034,58 @@ export class NodeBalanceCheckpoint extends Entity {
     this.set("totalRPLSlashed", Value.fromBigInt(value));
   }
 
-  get totalClaimedRPLRewards(): BigInt {
-    let value = this.get("totalClaimedRPLRewards");
+  get totalODAORewardsClaimed(): BigInt {
+    let value = this.get("totalODAORewardsClaimed");
     return value!.toBigInt();
   }
 
-  set totalClaimedRPLRewards(value: BigInt) {
-    this.set("totalClaimedRPLRewards", Value.fromBigInt(value));
+  set totalODAORewardsClaimed(value: BigInt) {
+    this.set("totalODAORewardsClaimed", Value.fromBigInt(value));
   }
 
-  get averageClaimedRPLRewards(): BigInt {
-    let value = this.get("averageClaimedRPLRewards");
+  get totalNodeRewardsClaimed(): BigInt {
+    let value = this.get("totalNodeRewardsClaimed");
     return value!.toBigInt();
   }
 
-  set averageClaimedRPLRewards(value: BigInt) {
-    this.set("averageClaimedRPLRewards", Value.fromBigInt(value));
+  set totalNodeRewardsClaimed(value: BigInt) {
+    this.set("totalNodeRewardsClaimed", Value.fromBigInt(value));
   }
 
-  get rplClaimCount(): BigInt {
-    let value = this.get("rplClaimCount");
+  get averageODAORewardClaim(): BigInt {
+    let value = this.get("averageODAORewardClaim");
     return value!.toBigInt();
   }
 
-  set rplClaimCount(value: BigInt) {
-    this.set("rplClaimCount", Value.fromBigInt(value));
+  set averageODAORewardClaim(value: BigInt) {
+    this.set("averageODAORewardClaim", Value.fromBigInt(value));
+  }
+
+  get averageNodeRewardClaim(): BigInt {
+    let value = this.get("averageNodeRewardClaim");
+    return value!.toBigInt();
+  }
+
+  set averageNodeRewardClaim(value: BigInt) {
+    this.set("averageNodeRewardClaim", Value.fromBigInt(value));
+  }
+
+  get odaoRewardClaimCount(): BigInt {
+    let value = this.get("odaoRewardClaimCount");
+    return value!.toBigInt();
+  }
+
+  set odaoRewardClaimCount(value: BigInt) {
+    this.set("odaoRewardClaimCount", Value.fromBigInt(value));
+  }
+
+  get nodeRewardClaimCount(): BigInt {
+    let value = this.get("nodeRewardClaimCount");
+    return value!.toBigInt();
+  }
+
+  set nodeRewardClaimCount(value: BigInt) {
+    this.set("nodeRewardClaimCount", Value.fromBigInt(value));
   }
 
   get queuedMinipools(): BigInt {

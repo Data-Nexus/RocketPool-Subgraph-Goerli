@@ -180,14 +180,23 @@ type Node @entity {
   # Total RPL slashed since this node was registered with RocketPool.
   totalRPLSlashed: BigInt!
 
-  # Total claimed RPL rewards since this node was registered with RocketPool.
-  totalClaimedRPLRewards: BigInt!
+  # Total claim amount accrued via the ODAO reward claim contract.
+  totalODAORewardsClaimed: BigInt!
 
-  # Average claimed RPL rewards for this node since registered with RocketPool.
-  averageClaimedRPLRewards: BigInt!
+  # Total claim amount accrued via the regular reward claim contract.
+  totalNodeRewardsClaimed: BigInt!
 
-  # Total amount of successfull RPL claims a node has done.
-  rplClaimCount: BigInt!
+  # Average reward claim this node has done via the ODAO reward claim contract.
+  averageODAORewardClaim: BigInt!
+
+  # Average reward claim this node has done via the regular reward claim contract.
+  averageNodeRewardClaim: BigInt!
+
+  # Total amount of successfull RPL claims a node has done via the ODAO reward claim contract.
+  odaoRewardClaimCount: BigInt!
+
+  # Total amount of successfull RPL claims a node has done via the regular node reward claim contract.
+  nodeRewardClaimCount: BigInt!
 
   # Current minimum RPL needed to collateralize all staking minipools of this node by the bare minimum.
   minimumEffectiveRPL: BigInt!
@@ -274,29 +283,38 @@ type RPLRewardInterval @entity {
   # The total RPL rewards from the previous interval that rolled over into this interval.
   claimableRewardsFromPreviousInterval: BigInt!
 
-  # The total RPL rewards that are claimable for this interval by the PDAO.
-  claimableRewardsByPDAO: BigInt!
+  # The total RPL rewards that are claimable for this interval via the PDAO reward claim contract.
+  claimablePDAORewards: BigInt!
 
-  # The total RPL rewards that are claimable for this interval by the ODAO.
-  claimableRewardsByODAO: BigInt!
+  # The total RPL rewards that are claimable for this interval via the ODAO reward claim contract.
+  claimableODAORewards: BigInt!
 
-  # The total RPL rewards that are claimable for this interval by regular nodes.
-  claimableRewardsByNodes: BigInt!
+  # The total RPL rewards that are claimable for this interval via the regula node reward claim contract.
+  claimableNodeRewards: BigInt!
 
   # The total RPL rewards claimed during this interval.
   totalRPLClaimed: BigInt!
 
-  # The total RPL rewards that have been claimed during this interval by the PDAO.
-  totalRPLClaimedByPDAO: BigInt!
+  # The total RPL rewards that have been claimed during this interval for the PDAO reward claim contract.
+  totalPDAORewardsClaimed: BigInt!
 
-  # The total RPL rewards that have been claimed during this interval by the ODAO.
-  totalRPLClaimedByODAO: BigInt!
+  # The total RPL rewards that have been claimed during this interval for the ODAO reward claim contract.
+  totalODAORewardsClaimed: BigInt!
 
-  # The total RPL rewards that have been claimed during this interval by regular nodes.
-  totalRPLClaimedByNodes: BigInt!
+  # The total RPL rewards that have been claimed during this interval for the regular node reward claim contract.
+  totalNodeRewardsClaimed: BigInt!
 
-  # Average RPL Rewards during this interval.
-  averageRPLClaimed: BigInt!
+  # Average RPL claim for the ODAO reward claim contract during this interval.
+  averageODAORewardClaim: BigInt!
+
+  # Average RPL claim for the regular node reward claim contract during this interval.
+  averageNodeRewardClaim: BigInt!
+
+  # The total number of claims done for the ODAO reward claim contract during this interval.
+  odaoRewardClaimCount:  BigInt!
+
+  # The total number of claims done for the regular node reward claim contract during this interval.
+  nodeRewardClaimCount:  BigInt!
 
   # The total RPL rewards that were given out in this interval.
   rplRewardClaims: [RPLRewardClaim!]!
@@ -349,6 +367,9 @@ type RPLRewardClaim @entity {
   
   # The total ETH equivalent (in WEI) at the time of this reward.
   ethAmount: BigInt!
+
+  # The transaction hash associated with this claim.
+  transactionHash: String!
 
   # The block number associated with this claim.
   block: BigInt!
@@ -410,11 +431,23 @@ type NetworkNodeBalanceCheckpoint @entity {
   # Total RPL slashed from all previous checkpoints up to this checkpoint.
   totalRPLSlashed: BigInt!
 
-  # Total Claimed RPL rewards from all previous checkpoints up to this checkpoint.
-  totalClaimedRPLRewards: BigInt!
+  # Total accrued rewards via the ODAO reward claim contract from all previous checkpoints up to this checkpoint.
+  totalODAORewardsClaimed: BigInt!
 
-  # Average claimed RPL rewards from all previous checkpoints up to this checkpoint.
-  averageClaimedRPLRewards: BigInt!
+  # Total accrued rewards via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
+  totalNodeRewardsClaimed: BigInt!
+
+  # Average total accrued rewards via the ODAO reward claim contract from all previous checkpoints up to this checkpoint.
+  averageTotalODAORewardsClaimed: BigInt!
+
+  # Average reward per claim via the ODAO reward claim contract from all previous checkpoints up to this checkpoint.
+  averageODAORewardClaim: BigInt!
+
+   # Average total accrued rewards via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
+  averageNodeTotalRewardsClaimed: BigInt!
+
+  # Average reward per claim via the regular node reward claim contract from all previous checkpoints up to this checkpoint.
+  averageNodeRewardClaim: BigInt!
 
   # The RPL price in ETH at this checkpoint.
   rplPriceInETH: BigInt!
@@ -482,14 +515,23 @@ type NodeBalanceCheckpoint @entity {
   # Total RPL slashed up to this checkpoint.
   totalRPLSlashed: BigInt!
 
-  # Total Claimed RPL rewards up to this checkpoint.
-  totalClaimedRPLRewards: BigInt!
+  # Total accrued rewards via the ODAO reward claim contract up to this checkpoint.
+  totalODAORewardsClaimed: BigInt!
 
-  # Average claimed RPL rewards for this node up to this checkpoint.
-  averageClaimedRPLRewards: BigInt!
+  # Total accrued claimed rewards via the regular node reward claim contract up to this checkpoint.
+  totalNodeRewardsClaimed: BigInt!
 
-  # Total amount of successfull RPL claims a node has done up to this checkpoint.
-  rplClaimCount: BigInt!
+  # Average rewards accrued via the ODAO reward claim contract for this node up to this checkpoint.
+  averageODAORewardClaim: BigInt!
+
+  # Average rewards accrued via the regular node reward claim contract for this node up to this checkpoint.
+  averageNodeRewardClaim: BigInt!
+
+  # Total successfull claims a node has done via the ODAO reward claim contract up to this checkpoint.
+  odaoRewardClaimCount: BigInt!
+
+  # Total successfull claims a node has done via the regular node reward claim contract up to this checkpoint.
+  nodeRewardClaimCount: BigInt!
 
   # Queued minipools for this node at this checkpoint.
   queuedMinipools: BigInt!
