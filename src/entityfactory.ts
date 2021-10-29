@@ -189,9 +189,12 @@ class RocketPoolEntityFactory {
     node.minimumEffectiveRPL = BigInt.fromI32(0)
     node.maximumEffectiveRPL = BigInt.fromI32(0)
     node.totalRPLSlashed = BigInt.fromI32(0)
-    node.totalClaimedRPLRewards = BigInt.fromI32(0)
-    node.averageClaimedRPLRewards = BigInt.fromI32(0)
-    node.rplClaimCount = BigInt.fromI32(0)
+    node.totalODAORewardsClaimed = BigInt.fromI32(0)
+    node.totalNodeRewardsClaimed = BigInt.fromI32(0)
+    node.averageODAORewardClaim = BigInt.fromI32(0)
+    node.averageNodeRewardClaim = BigInt.fromI32(0)
+    node.odaoRewardClaimCount = BigInt.fromI32(0)
+    node.nodeRewardClaimCount = BigInt.fromI32(0)
     node.queuedMinipools = BigInt.fromI32(0)
     node.stakingMinipools = BigInt.fromI32(0)
     node.stakingUnbondedMinipools = BigInt.fromI32(0)
@@ -237,9 +240,9 @@ class RocketPoolEntityFactory {
     id: string,
     previousIntervalId: string | null,
     claimableRewards: BigInt,
-    claimableRewardsByPDAO: BigInt,
-    claimableRewardsByODAO: BigInt,
-    claimableRewardsByNodes: BigInt,
+    claimablePDAORewards: BigInt,
+    claimableODAORewards: BigInt,
+    claimableNodeRewards: BigInt,
     claimableRewardsFromPreviousInterval: BigInt,
     intervalStartTime: BigInt,
     intervalDuration: BigInt,
@@ -252,18 +255,21 @@ class RocketPoolEntityFactory {
     rewardInterval.previousIntervalId = previousIntervalId
     rewardInterval.nextIntervalId = null
     rewardInterval.claimableRewards = claimableRewards
-    rewardInterval.claimableRewardsByPDAO = claimableRewardsByPDAO
-    rewardInterval.claimableRewardsByODAO = claimableRewardsByODAO
-    rewardInterval.claimableRewardsByNodes = claimableRewardsByNodes
+    rewardInterval.claimablePDAORewards = claimablePDAORewards
+    rewardInterval.claimableODAORewards = claimableODAORewards
+    rewardInterval.claimableNodeRewards = claimableNodeRewards
     rewardInterval.claimableRewardsFromPreviousInterval =
       claimableRewardsFromPreviousInterval < BigInt.fromI32(0)
         ? BigInt.fromI32(0)
         : claimableRewardsFromPreviousInterval
     rewardInterval.totalRPLClaimed = BigInt.fromI32(0)
-    rewardInterval.totalRPLClaimedByPDAO = BigInt.fromI32(0)
-    rewardInterval.totalRPLClaimedByODAO = BigInt.fromI32(0)
-    rewardInterval.totalRPLClaimedByNodes = BigInt.fromI32(0)
-    rewardInterval.averageRPLClaimed = BigInt.fromI32(0)
+    rewardInterval.totalPDAORewardsClaimed = BigInt.fromI32(0)
+    rewardInterval.totalODAORewardsClaimed = BigInt.fromI32(0)
+    rewardInterval.totalNodeRewardsClaimed = BigInt.fromI32(0)
+    rewardInterval.averageODAORewardClaim = BigInt.fromI32(0)
+    rewardInterval.averageNodeRewardClaim = BigInt.fromI32(0)
+    rewardInterval.odaoRewardClaimCount = BigInt.fromI32(0)
+    rewardInterval.nodeRewardClaimCount = BigInt.fromI32(0)
     rewardInterval.rplRewardClaims = new Array<string>(0)
     rewardInterval.isClosed = false
     rewardInterval.intervalStartTime = intervalStartTime
@@ -286,6 +292,7 @@ class RocketPoolEntityFactory {
     claimerType: string,
     amount: BigInt,
     ethAmount: BigInt,
+    transactionHash: string,
     blockNumber: BigInt,
     blockTime: BigInt,
   ): RPLRewardClaim | null {
@@ -294,6 +301,7 @@ class RocketPoolEntityFactory {
       rplRewardIntervalId == null ||
       claimer == null ||
       claimerType == null ||
+      transactionHash == null ||
       amount == BigInt.fromI32(0) ||
       ethAmount == BigInt.fromI32(0)
     )
@@ -305,6 +313,7 @@ class RocketPoolEntityFactory {
     rewardInterval.claimerType = claimerType
     rewardInterval.amount = amount
     rewardInterval.ethAmount = ethAmount
+    rewardInterval.transactionHash = transactionHash
     rewardInterval.block = blockNumber
     rewardInterval.blockTime = blockTime
 
@@ -338,8 +347,10 @@ class RocketPoolEntityFactory {
     checkpoint.minimumEffectiveRPL = BigInt.fromI32(0) // Will be calculated.
     checkpoint.maximumEffectiveRPL = BigInt.fromI32(0) // Will be calculated.
     checkpoint.totalRPLSlashed = BigInt.fromI32(0) // Will be calculated.
-    checkpoint.totalClaimedRPLRewards = BigInt.fromI32(0) // Will be calculated.
-    checkpoint.averageClaimedRPLRewards = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.totalODAORewardsClaimed = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.totalNodeRewardsClaimed = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.averageODAORewardClaim = BigInt.fromI32(0) // Will be calculated.
+    checkpoint.averageNodeRewardClaim = BigInt.fromI32(0) // Will be calculated.
     checkpoint.rplPriceInETH = newRplPriceInETH // From the associated price update.
     checkpoint.queuedMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.stakingMinipools = BigInt.fromI32(0) // Will be calculated.
@@ -377,9 +388,12 @@ class RocketPoolEntityFactory {
     checkpoint.minimumEffectiveRPL = node.minimumEffectiveRPL
     checkpoint.maximumEffectiveRPL = node.maximumEffectiveRPL
     checkpoint.totalRPLSlashed = node.totalRPLSlashed
-    checkpoint.totalClaimedRPLRewards = node.totalClaimedRPLRewards
-    checkpoint.averageClaimedRPLRewards = node.averageClaimedRPLRewards
-    checkpoint.rplClaimCount = node.rplClaimCount
+    checkpoint.totalODAORewardsClaimed = node.totalODAORewardsClaimed
+    checkpoint.totalNodeRewardsClaimed = node.totalNodeRewardsClaimed
+    checkpoint.averageODAORewardClaim = node.averageODAORewardClaim
+    checkpoint.averageNodeRewardClaim = node.averageNodeRewardClaim
+    checkpoint.odaoRewardClaimCount = node.odaoRewardClaimCount
+    checkpoint.nodeRewardClaimCount = node.nodeRewardClaimCount
     checkpoint.queuedMinipools = node.queuedMinipools
     checkpoint.stakingMinipools = node.stakingMinipools
     checkpoint.stakingUnbondedMinipools = node.stakingUnbondedMinipools

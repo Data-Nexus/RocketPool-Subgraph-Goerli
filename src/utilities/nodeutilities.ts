@@ -131,8 +131,11 @@ class NodeUtilities {
     )
 
     // Update total RPL rewards claimed up to this checkpoint.
-    networkCheckpoint.totalClaimedRPLRewards = networkCheckpoint.totalClaimedRPLRewards.plus(
-      node.totalClaimedRPLRewards,
+    networkCheckpoint.totalODAORewardsClaimed = networkCheckpoint.totalODAORewardsClaimed.plus(
+      node.totalODAORewardsClaimed,
+    )
+    networkCheckpoint.totalNodeRewardsClaimed = networkCheckpoint.totalNodeRewardsClaimed.plus(
+      node.totalNodeRewardsClaimed,
     )
 
     // Update total number of minipools per state.
@@ -186,9 +189,15 @@ class NodeUtilities {
     rplMetadata: NetworkNodeBalanceRPLMetadata,
     node: Node,
   ): void {
-    // We need this to calculate the averages on the network level.
-    if (node.totalClaimedRPLRewards > BigInt.fromI32(0)) {
-      rplMetadata.totalNodesWithClaimedRPLRewards = rplMetadata.totalNodesWithClaimedRPLRewards.plus(
+    // We need these to calculate the averages on the network level.
+    if (node.totalODAORewardsClaimed > BigInt.fromI32(0)) {
+      rplMetadata.totalNodesWithAnODAORewardClaim = rplMetadata.totalNodesWithAnODAORewardClaim.plus(
+        BigInt.fromI32(1),
+      )
+    }
+
+    if (node.totalNodeRewardsClaimed > BigInt.fromI32(0)) {
+      rplMetadata.totalNodesWithAnNodeRewardClaim = rplMetadata.totalNodesWithAnNodeRewardClaim.plus(
         BigInt.fromI32(1),
       )
     }
@@ -226,14 +235,24 @@ class NodeUtilities {
     checkpoint: NetworkNodeBalanceCheckpoint,
     rplMetadata: NetworkNodeBalanceRPLMetadata,
   ): void {
-    // Calculate the network RPL claimed average if possible.
+    // Calculate the network RPL claim averages if possible.
     if (
-      rplMetadata.totalNodesWithClaimedRPLRewards > BigInt.fromI32(0) &&
-      checkpoint.totalClaimedRPLRewards > BigInt.fromI32(0)
+      rplMetadata.totalNodesWithAnODAORewardClaim > BigInt.fromI32(0) &&
+      checkpoint.totalODAORewardsClaimed > BigInt.fromI32(0)
     ) {
       // Store this in WEI.
-      checkpoint.averageClaimedRPLRewards = checkpoint.totalClaimedRPLRewards.div(
-        rplMetadata.totalNodesWithClaimedRPLRewards,
+      checkpoint.averageODAORewardClaim = checkpoint.totalODAORewardsClaimed.div(
+        rplMetadata.totalNodesWithAnODAORewardClaim,
+      )
+    }
+
+    if (
+      rplMetadata.totalNodesWithAnNodeRewardClaim > BigInt.fromI32(0) &&
+      checkpoint.totalNodeRewardsClaimed > BigInt.fromI32(0)
+    ) {
+      // Store this in WEI.
+      checkpoint.averageNodeRewardClaim = checkpoint.totalNodeRewardsClaimed.div(
+        rplMetadata.totalNodesWithAnNodeRewardClaim,
       )
     }
   }
@@ -247,13 +266,21 @@ class NodeUtilities {
   ): void {
     if (previousCheckpoint === null) return
 
-    // If for some reason our total claimed RPL rewards up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
+    // If for some reason our total claimed RPL rewards (per type) up to this checkpoint was 0, then we try to set it based on the previous checkpoint.
     if (
-      checkpoint.totalClaimedRPLRewards == BigInt.fromI32(0) &&
-      previousCheckpoint.totalClaimedRPLRewards > BigInt.fromI32(0)
+      checkpoint.totalODAORewardsClaimed == BigInt.fromI32(0) &&
+      previousCheckpoint.totalODAORewardsClaimed > BigInt.fromI32(0)
     ) {
-      checkpoint.totalClaimedRPLRewards =
-        previousCheckpoint.totalClaimedRPLRewards
+      checkpoint.totalODAORewardsClaimed =
+        previousCheckpoint.totalODAORewardsClaimed
+    }
+
+    if (
+      checkpoint.totalNodeRewardsClaimed == BigInt.fromI32(0) &&
+      previousCheckpoint.totalNodeRewardsClaimed > BigInt.fromI32(0)
+    ) {
+      checkpoint.totalNodeRewardsClaimed =
+        previousCheckpoint.totalNodeRewardsClaimed
     }
 
     // If for some reason our total slashed RPL rewards up to this checkpoint was 0, then we try to set it based on the previous checkpoint.

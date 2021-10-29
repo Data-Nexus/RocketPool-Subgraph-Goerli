@@ -151,6 +151,7 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     <string>rplRewardClaimerType,
     event.params.amount,
     rplRewardETHAmount,
+    event.transaction.hash.toHexString(),
     event.block.number,
     event.block.timestamp,
   )
@@ -158,37 +159,37 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
 
   // If the claimer was a node..
   let associatedNode = Node.load(event.params.claimingAddress.toHexString())
-  if (associatedNode !== null) {
-    // Increment its total claimed rewards.
-    associatedNode.totalClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.plus(
-      event.params.amount,
-    )
-
-    // Increment its total RPL claim count.
-    associatedNode.rplClaimCount = associatedNode.rplClaimCount.plus(
-      BigInt.fromI32(1),
-    )
-
-    // Recalculate its average RPL rewards.
-    associatedNode.averageClaimedRPLRewards = associatedNode.totalClaimedRPLRewards.div(
-      associatedNode.rplClaimCount,
-    )
+  if (associatedNode !== null && (rplRewardClaimerType == RPLREWARDCLAIMERTYPE_ODAO || (rplRewardClaimerType == RPLREWARDCLAIMERTYPE_NODE))) {
 
     // Depending on if the node is an oracle node..
-    if (associatedNode.isOracleNode) {
-      // Add the total RPL claimed on the active interval by oracle nodes.
-      activeIndexedRewardInterval.totalRPLClaimedByODAO = activeIndexedRewardInterval.totalRPLClaimedByODAO.plus(
+    if (rplRewardClaimerType == RPLREWARDCLAIMERTYPE_ODAO) {
+
+      // Update state for node & this ODAO reward claim.
+      associatedNode.totalODAORewardsClaimed = associatedNode.totalODAORewardsClaimed.plus(event.params.amount);
+      associatedNode.odaoRewardClaimCount = associatedNode.odaoRewardClaimCount.plus(BigInt.fromI32(1))
+      associatedNode.averageODAORewardClaim = associatedNode.totalODAORewardsClaimed.div(associatedNode.odaoRewardClaimCount)
+
+      // Update state for active interval & this ODAO reward claim.
+      activeIndexedRewardInterval.totalODAORewardsClaimed = activeIndexedRewardInterval.totalODAORewardsClaimed.plus(
         event.params.amount,
       )
+      activeIndexedRewardInterval.odaoRewardClaimCount = activeIndexedRewardInterval.odaoRewardClaimCount.plus(BigInt.fromI32(1));
     } else {
-      // Add the total RPL claimed on the active interval by regular nodes.
-      activeIndexedRewardInterval.totalRPLClaimedByNodes = activeIndexedRewardInterval.totalRPLClaimedByNodes.plus(
+
+      // Update state for node & this regular reward claim.
+      associatedNode.totalNodeRewardsClaimed = associatedNode.totalNodeRewardsClaimed.plus(event.params.amount);
+      associatedNode.nodeRewardClaimCount = associatedNode.nodeRewardClaimCount.plus(BigInt.fromI32(1))
+      associatedNode.averageNodeRewardClaim = associatedNode.totalNodeRewardsClaimed.div(associatedNode.nodeRewardClaimCount) 
+
+      // Update state for active interval & this regular reward claim.
+      activeIndexedRewardInterval.totalNodeRewardsClaimed = activeIndexedRewardInterval.totalNodeRewardsClaimed.plus(
         event.params.amount,
       )
+      activeIndexedRewardInterval.nodeRewardClaimCount = activeIndexedRewardInterval.nodeRewardClaimCount.plus(BigInt.fromI32(1));
     }
   } else if (rplRewardClaimerType == RPLREWARDCLAIMERTYPE_PDAO) {
     // If the claim was made by the PDAO, increment the total on the active interval.
-    activeIndexedRewardInterval.totalRPLClaimedByPDAO = activeIndexedRewardInterval.totalRPLClaimedByPDAO.plus(
+    activeIndexedRewardInterval.totalPDAORewardsClaimed = activeIndexedRewardInterval.totalPDAORewardsClaimed.plus(
       event.params.amount,
     )
   }
@@ -198,14 +199,22 @@ export function handleRPLTokensClaimed(event: RPLTokensClaimed): void {
     rplRewardClaim.amount,
   )
 
-  // Update the average claimed of the current interval.
+  // Update the averages claimed of the current interval per contract type.
   if (
-    activeIndexedRewardInterval.totalRPLClaimed > BigInt.fromI32(0) &&
-    activeIndexedRewardInterval.rplRewardClaims !== null &&
-    activeIndexedRewardInterval.rplRewardClaims.length > 0
+    activeIndexedRewardInterval.totalODAORewardsClaimed > BigInt.fromI32(0) &&
+    activeIndexedRewardInterval.odaoRewardClaimCount > BigInt.fromI32(0)
   ) {
-    activeIndexedRewardInterval.averageRPLClaimed = activeIndexedRewardInterval.totalRPLClaimed.div(
-      BigInt.fromI32(activeIndexedRewardInterval.rplRewardClaims.length),
+    activeIndexedRewardInterval.averageODAORewardClaim = activeIndexedRewardInterval.totalODAORewardsClaimed.div(
+      activeIndexedRewardInterval.odaoRewardClaimCount
+    )
+  }
+  
+  if (
+    activeIndexedRewardInterval.totalNodeRewardsClaimed > BigInt.fromI32(0) &&
+    activeIndexedRewardInterval.nodeRewardClaimCount > BigInt.fromI32(0)
+  ) {
+    activeIndexedRewardInterval.averageNodeRewardClaim = activeIndexedRewardInterval.totalNodeRewardsClaimed.div(
+      activeIndexedRewardInterval.nodeRewardClaimCount
     )
   }
 
