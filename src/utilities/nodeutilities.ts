@@ -260,9 +260,9 @@ class NodeUtilities {
 
     if (
       rplMetadata.totalODAORewardClaimCount > BigInt.fromI32(0) &&
-      checkpoint.averageTotalODAORewardsClaimed > BigInt.fromI32(0)
+      checkpoint.totalODAORewardsClaimed > BigInt.fromI32(0)
     ) {
-      checkpoint.averageODAORewardClaim = checkpoint.averageTotalODAORewardsClaimed.div(rplMetadata.totalODAORewardClaimCount)
+      checkpoint.averageODAORewardClaim = checkpoint.totalODAORewardsClaimed.div(rplMetadata.totalODAORewardClaimCount)
     }
 
     if (
@@ -277,9 +277,9 @@ class NodeUtilities {
 
     if (
       rplMetadata.totalNodeRewardClaimCount > BigInt.fromI32(0) &&
-      checkpoint.averageNodeTotalRewardsClaimed > BigInt.fromI32(0)
+      checkpoint.totalNodeRewardsClaimed > BigInt.fromI32(0)
     ) {
-      checkpoint.averageNodeRewardClaim = checkpoint.averageNodeTotalRewardsClaimed.div(rplMetadata.totalNodeRewardClaimCount)
+      checkpoint.averageNodeRewardClaim = checkpoint.totalNodeRewardsClaimed.div(rplMetadata.totalNodeRewardClaimCount)
     }
   }
 
