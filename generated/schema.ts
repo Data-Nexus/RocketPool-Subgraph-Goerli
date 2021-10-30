@@ -22,6 +22,10 @@ export class RocketPoolProtocol extends Entity {
     this.set("stakers", Value.fromStringArray(new Array(0)));
     this.set("nodes", Value.fromStringArray(new Array(0)));
     this.set("nodeTimezones", Value.fromStringArray(new Array(0)));
+    this.set(
+      "networkNodeBalanceCheckpoints",
+      Value.fromStringArray(new Array(0))
+    );
   }
 
   save(): void {
@@ -152,6 +156,15 @@ export class RocketPoolProtocol extends Entity {
         Value.fromString(<string>value)
       );
     }
+  }
+
+  get networkNodeBalanceCheckpoints(): Array<string> {
+    let value = this.get("networkNodeBalanceCheckpoints");
+    return value!.toStringArray();
+  }
+
+  set networkNodeBalanceCheckpoints(value: Array<string>) {
+    this.set("networkNodeBalanceCheckpoints", Value.fromStringArray(value));
   }
 }
 
@@ -1566,6 +1579,7 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
     this.set("averageNodeTotalRewardsClaimed", Value.fromBigInt(BigInt.zero()));
     this.set("averageNodeRewardClaim", Value.fromBigInt(BigInt.zero()));
     this.set("rplPriceInETH", Value.fromBigInt(BigInt.zero()));
+    this.set("averageRplPriceInETH", Value.fromBigInt(BigInt.zero()));
     this.set("queuedMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingMinipools", Value.fromBigInt(BigInt.zero()));
     this.set("stakingUnbondedMinipools", Value.fromBigInt(BigInt.zero()));
@@ -1784,6 +1798,15 @@ export class NetworkNodeBalanceCheckpoint extends Entity {
 
   set rplPriceInETH(value: BigInt) {
     this.set("rplPriceInETH", Value.fromBigInt(value));
+  }
+
+  get averageRplPriceInETH(): BigInt {
+    let value = this.get("averageRplPriceInETH");
+    return value!.toBigInt();
+  }
+
+  set averageRplPriceInETH(value: BigInt) {
+    this.set("averageRplPriceInETH", Value.fromBigInt(value));
   }
 
   get queuedMinipools(): BigInt {

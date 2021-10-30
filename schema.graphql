@@ -26,6 +26,9 @@ type RocketPoolProtocol @entity {
 
   # Last known node network balance checkpoint.
   lastNetworkNodeBalanceCheckPoint: NetworkNodeBalanceCheckpoint
+
+  # All node network balance checkpoints for the RocketPool protocol.
+  networkNodeBalanceCheckpoints: [NetworkNodeBalanceCheckpoint!]!
 }
 
 # An address that is/was associated with an rETH balance.
@@ -451,6 +454,9 @@ type NetworkNodeBalanceCheckpoint @entity {
 
   # The RPL price in ETH at this checkpoint.
   rplPriceInETH: BigInt!
+
+  # The average RPL price in ETH up to this checkpoint.
+  averageRplPriceInETH: BigInt!
 
   # Current queued minipools accross all nodes at this checkpoint.
   queuedMinipools: BigInt!

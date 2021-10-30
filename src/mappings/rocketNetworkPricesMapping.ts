@@ -3,7 +3,11 @@ import { rocketNetworkFees } from '../../generated/rocketNetworkPrices/rocketNet
 import { rocketDAOProtocolSettingsMinipool } from '../../generated/rocketNetworkPrices/rocketDAOProtocolSettingsMinipool'
 import { rocketDAOProtocolSettingsNode } from '../../generated/rocketNetworkPrices/rocketDAOProtocolSettingsNode'
 import { rocketNodeStaking } from '../../generated/rocketNetworkPrices/rocketNodeStaking'
-import { Node, NetworkNodeBalanceCheckpoint } from '../../generated/schema'
+import {
+  Node,
+  NetworkNodeBalanceCheckpoint,
+  RocketPoolProtocol,
+} from '../../generated/schema'
 import { generalUtilities } from '../utilities/generalUtilities'
 import { rocketPoolEntityFactory } from '../entityfactory'
 import { NetworkNodeBalanceMetadata } from '../models/networkNodeBalanceMetadata'
@@ -16,6 +20,7 @@ import {
 import { BigInt, Address } from '@graphprotocol/graph-ts'
 import { nodeUtilities } from '../utilities/nodeutilities'
 import { EffectiveMinipoolRPLBounds } from '../models/effectiveMinipoolRPLBounds'
+import { ONE_ETHER_IN_WEI } from '../constants/generalconstants'
 
 /**
  * When enough ODAO members submitted their votes and a consensus threshold is reached, a new RPL price is comitted to the smart contracts.
@@ -94,8 +99,17 @@ export function handlePricesUpdated(event: PricesUpdated): void {
     metadata.rplMetadata,
   )
 
+  // Determine the average RPL/ETH ratio for the current network node balance checkpoint.
+  setAverageRplEthRatio(protocol, checkpoint);
+
   // Update the link so the protocol points to the last network node balance checkpoint.
   protocol.lastNetworkNodeBalanceCheckPoint = checkpoint.id
+
+  // Add the new network node balance checkpoint to the protocol collection.
+  let nodeBalanceCheckpoints = protocol.networkNodeBalanceCheckpoints
+  if (nodeBalanceCheckpoints.indexOf(checkpoint.id) == -1)
+    nodeBalanceCheckpoints.push(checkpoint.id)
+  protocol.networkNodeBalanceCheckpoints = nodeBalanceCheckpoints
 
   // Index these changes.
   checkpoint.save()
@@ -182,6 +196,73 @@ function generateNodeBalanceCheckpoints(
   }
 
   return networkMetadata
+}
+
+/**
+ * Loops through all network node balance checkpoints and determines the new average RPL price.
+ */
+function setAverageRplEthRatio(
+  protocol: RocketPoolProtocol,
+  currentCheckpoint: NetworkNodeBalanceCheckpoint,
+): void {
+  // Preliminary null checks.
+  if (
+    protocol === null ||
+    currentCheckpoint === null ||
+    currentCheckpoint.rplPriceInETH == BigInt.fromI32(0)
+  )
+    return
+
+  // We will use this to calculate the average RPL/ETH price accross all the network node balance checkpoints.
+  let totalRplPriceInEth = BigInt.fromI32(0)
+  let totalCheckpointsWithAnRplPriceInETH = BigInt.fromI32(0)
+
+  // Loop through all of the node balance checkpoints up until this time.
+  for (
+    let index = 0;
+    index < protocol.networkNodeBalanceCheckpoints.length;
+    index++
+  ) {
+    // Determine current network node balance checkpoint ID.
+    let networkNodeBalanceCheckpointId = <string>(
+      protocol.networkNodeBalanceCheckpoints[index]
+    )
+    if (networkNodeBalanceCheckpointId == null) continue
+
+    // Load the indexed network node balance checkpoint.
+    let activeIterationCheckpoint = NetworkNodeBalanceCheckpoint.load(
+      networkNodeBalanceCheckpointId,
+    )
+    if (
+      activeIterationCheckpoint === null ||
+      activeIterationCheckpoint.rplPriceInETH == BigInt.fromI32(0)
+    )
+      continue
+
+    // Increment running totals.
+    totalCheckpointsWithAnRplPriceInETH = totalCheckpointsWithAnRplPriceInETH.plus(
+      BigInt.fromI32(1),
+    )
+    totalRplPriceInEth = totalRplPriceInEth.plus(
+      activeIterationCheckpoint.rplPriceInETH.div(ONE_ETHER_IN_WEI),
+    )
+  }
+
+  // Calculate the average rpl/eth price for the current node network balance checkpoint.
+  if (
+    totalRplPriceInEth > BigInt.fromI32(0) &&
+    totalCheckpointsWithAnRplPriceInETH > BigInt.fromI32(0)
+  ) {
+    currentCheckpoint.averageRplPriceInETH = totalRplPriceInEth.div(
+      totalCheckpointsWithAnRplPriceInETH,
+    ).times(ONE_ETHER_IN_WEI)
+  } else {
+    /*
+     If we didn't succeed in determining the average rpl/eth price from the history,
+     then our average price is the current one.
+    */
+    currentCheckpoint.averageRplPriceInETH = currentCheckpoint.rplPriceInETH
+  }
 }
 
 /**
