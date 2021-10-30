@@ -1,10 +1,22 @@
 # RocketPool-Subgraph
 Subgraph for RocketPool dApp
 
-V 0.0.0
+V 0.0.1
 
-This subgraph is not officially supported by the Rocket Pool team (yet). This is a community contribution by Data Nexus & VGR with the aims to transfer ownership to the Rocket Pool dev team. 
+This subgraph is not officially owned by the Rocket Pool team (yet). This is a community contribution by Data Nexus & VGR with the aims to transfer ownership to the Rocket Pool dev team. 
 
-Initial target is to index rETH activity and provide historical rewards for the hourly rETH oracle snapshots.
+**[Goerli Network]**(https://thegraph.com/hosted-service/subgraph/data-nexus/rocket-pool-goerli):construction:
 
-Subgraph Link: (will update with link once published)
+**Ethereum Mainnet** 
+Awaiting launch of the mainnet contracts
+
+**Example Queries**
+
+query StakerOverview {
+  staker(id: "0x...") {
+    rETHBalance
+    totalETHRewards
+    ethBalance
+    id
+  }
+}
