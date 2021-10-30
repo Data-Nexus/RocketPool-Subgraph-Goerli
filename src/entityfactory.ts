@@ -31,6 +31,7 @@ class RocketPoolEntityFactory {
     protocol.nodeTimezones = new Array<string>(0)
     protocol.lastRPLRewardInterval = null
     protocol.lastNetworkNodeBalanceCheckPoint = null
+    protocol.networkNodeBalanceCheckpoints =new Array<string>(0)
     return protocol
   }
 
@@ -354,6 +355,7 @@ class RocketPoolEntityFactory {
     checkpoint.averageNodeTotalRewardsClaimed = BigInt.fromI32(0) // Will be calculated.
     checkpoint.averageNodeRewardClaim = BigInt.fromI32(0) // Will be calculated.
     checkpoint.rplPriceInETH = newRplPriceInETH // From the associated price update.
+    checkpoint.averageRplPriceInETH = BigInt.fromI32(0) // Will be calculated.
     checkpoint.queuedMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.stakingMinipools = BigInt.fromI32(0) // Will be calculated.
     checkpoint.stakingUnbondedMinipools = BigInt.fromI32(0) // Will be calculated.
