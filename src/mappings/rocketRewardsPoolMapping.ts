@@ -19,6 +19,7 @@ import {
   ROCKET_DAO_PROTOCOL_REWARD_CLAIM_CONTRACT_NAME,
   ROCKET_DAO_TRUSTED_NODE_REWARD_CLAIM_CONTRACT_NAME,
   ROCKET_NODE_REWARD_CLAIM_CONTRACT_NAME,
+  ROCKET_DAO_TRUSTED_NODE_REWARD_CLAIM_CONTRACT_ADDRESS,
 } from '../constants/contractconstants'
 import {
   RPLREWARDCLAIMERTYPE_PDAO,
@@ -272,7 +273,7 @@ function getRplRewardClaimerType(
   }
 
   // #2: Could be an oracle node.
-  if (rplRewardClaimerType == null && getIsOracleNode(claimingAddress)) {
+  if (claimingContract.toHexString() == Address.fromString(ROCKET_DAO_TRUSTED_NODE_REWARD_CLAIM_CONTRACT_ADDRESS).toHexString()) {
     rplRewardClaimerType = RPLREWARDCLAIMERTYPE_ODAO
   }
 
