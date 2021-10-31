@@ -231,7 +231,7 @@ class NodeUtilities {
       // Store this in WEI.
       checkpoint.averageFeeForActiveMinipools = BigInt.fromString(minipoolMetadata.totalAverageFeeForAllActiveMinipools
         .div(BigDecimal.fromString(minipoolMetadata.totalNodesWithActiveMinipools.toString()))
-        .times(BigDecimal.fromString(ONE_ETHER_IN_WEI.toString())).toString());
+        .times(BigDecimal.fromString(ONE_ETHER_IN_WEI.toString())).truncate(0).toString());
     }
 
     // Calculate total RPL needed to min/max collateralize the staking minipools at this checkpoint.
