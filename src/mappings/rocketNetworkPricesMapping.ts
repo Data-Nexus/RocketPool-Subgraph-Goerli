@@ -255,7 +255,7 @@ function setAverageRplEthRatio(
   ) {
     currentCheckpoint.averageRplPriceInETH = BigInt.fromString(totalRplPriceInEth.div(
       totalCheckpointsWithAnRplPriceInETH,
-    ).times(BigDecimal.fromString(ONE_ETHER_IN_WEI.toString())).toString())
+    ).times(BigDecimal.fromString(ONE_ETHER_IN_WEI.toString())).truncate(0).toString())
   } else {
     /*
      If we didn't succeed in determining the average rpl/eth price from the history,
