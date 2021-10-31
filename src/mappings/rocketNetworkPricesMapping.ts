@@ -17,7 +17,7 @@ import {
   ROCKET_NETWORK_FEES_CONTRACT_ADDRESS,
   ROCKET_NODE_STAKING_CONTRACT_ADDRESS,
 } from './../constants/contractconstants'
-import { BigInt, Address } from '@graphprotocol/graph-ts'
+import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
 import { nodeUtilities } from '../utilities/nodeutilities'
 import { EffectiveMinipoolRPLBounds } from '../models/effectiveMinipoolRPLBounds'
 import { ONE_ETHER_IN_WEI } from '../constants/generalconstants'
@@ -214,8 +214,8 @@ function setAverageRplEthRatio(
     return
 
   // We will use this to calculate the average RPL/ETH price accross all the network node balance checkpoints.
-  let totalRplPriceInEth = BigInt.fromI32(0)
-  let totalCheckpointsWithAnRplPriceInETH = BigInt.fromI32(0)
+  let totalRplPriceInEth = BigDecimal.fromString('0')
+  let totalCheckpointsWithAnRplPriceInETH = BigDecimal.fromString('0')
 
   // Loop through all of the node balance checkpoints up until this time.
   for (
@@ -241,21 +241,21 @@ function setAverageRplEthRatio(
 
     // Increment running totals.
     totalCheckpointsWithAnRplPriceInETH = totalCheckpointsWithAnRplPriceInETH.plus(
-      BigInt.fromI32(1),
+      BigDecimal.fromString('1'),
     )
     totalRplPriceInEth = totalRplPriceInEth.plus(
-      activeIterationCheckpoint.rplPriceInETH.div(ONE_ETHER_IN_WEI),
+      activeIterationCheckpoint.rplPriceInETH.divDecimal(BigDecimal.fromString(ONE_ETHER_IN_WEI.toString())),
     )
   }
 
   // Calculate the average rpl/eth price for the current node network balance checkpoint.
   if (
-    totalRplPriceInEth > BigInt.fromI32(0) &&
-    totalCheckpointsWithAnRplPriceInETH > BigInt.fromI32(0)
+    totalRplPriceInEth > BigDecimal.fromString('0') &&
+    totalCheckpointsWithAnRplPriceInETH > BigDecimal.fromString('0')
   ) {
-    currentCheckpoint.averageRplPriceInETH = totalRplPriceInEth.div(
+    currentCheckpoint.averageRplPriceInETH = BigInt.fromString(totalRplPriceInEth.div(
       totalCheckpointsWithAnRplPriceInETH,
-    ).times(ONE_ETHER_IN_WEI)
+    ).times(BigDecimal.fromString(ONE_ETHER_IN_WEI.toString())).toString())
   } else {
     /*
      If we didn't succeed in determining the average rpl/eth price from the history,
