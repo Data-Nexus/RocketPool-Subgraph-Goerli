@@ -8,7 +8,7 @@ This subgraph is not officially owned by the Rocket Pool team (yet). This is a c
 **[Goerli Network](https://thegraph.com/hosted-service/subgraph/data-nexus/rocket-pool-goerli)**
 
 **[Ethereum Mainnet](https://github.com/Data-Nexus/rocket-pool-mainnet)** 
-Awaiting launch of the mainnet contracts
+
 
 **Example Queries**
 
